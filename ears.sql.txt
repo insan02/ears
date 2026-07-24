@@ -1,0 +1,836 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1:3306
+-- Generation Time: Mar 03, 2026 at 09:14 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `ears`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `arsip`
+--
+
+CREATE TABLE `arsip` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `arsip_masuk_id` int(11) DEFAULT NULL,
+  `no_berkas` varchar(50) DEFAULT NULL,
+  `klasifikasi_id` int(11) NOT NULL,
+  `hak_akses` varchar(255) DEFAULT NULL,
+  `nama_berkas` varchar(255) DEFAULT NULL,
+  `isi` text DEFAULT NULL,
+  `jenis_media` varchar(255) DEFAULT 'Kertas',
+  `tahun` int(11) DEFAULT NULL,
+  `tanggal_masuk` date DEFAULT NULL,
+  `jumlah` int(11) DEFAULT 1,
+  `masa_simpan` varchar(255) DEFAULT NULL,
+  `tindakan_akhir` varchar(255) DEFAULT NULL,
+  `no_box` varchar(50) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `unit_pengolah` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `arsip_masuk`
+--
+
+CREATE TABLE `arsip_masuk` (
+  `id` int(11) NOT NULL,
+  `unit_asal` varchar(100) NOT NULL,
+  `tanggal_terima` date NOT NULL,
+  `jumlah_box_masuk` int(11) NOT NULL,
+  `user_penerima` int(11) DEFAULT NULL,
+  `nomor_berita_acara` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `arsip_musnah`
+--
+
+CREATE TABLE `arsip_musnah` (
+  `id` int(11) NOT NULL,
+  `arsip_masuk_id` int(11) DEFAULT NULL,
+  `no_berkas` int(11) DEFAULT NULL,
+  `klasifikasi_id` int(11) DEFAULT NULL,
+  `hak_akses` varchar(100) DEFAULT NULL,
+  `nama_berkas` varchar(255) DEFAULT NULL,
+  `isi` text DEFAULT NULL,
+  `jenis_media` varchar(100) DEFAULT NULL,
+  `tahun` year(4) DEFAULT NULL,
+  `tanggal_masuk` date DEFAULT NULL,
+  `jumlah` int(11) DEFAULT NULL,
+  `masa_simpan` varchar(100) DEFAULT NULL,
+  `tindakan_akhir` varchar(100) DEFAULT NULL,
+  `no_box` varchar(50) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `unit_pengolah` varchar(255) DEFAULT NULL,
+  `lokasi` varchar(255) DEFAULT NULL,
+  `rak` varchar(100) DEFAULT NULL,
+  `tingkat` varchar(100) DEFAULT NULL,
+  `asli_copy` varchar(100) DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `authorized_emails`
+--
+
+CREATE TABLE `authorized_emails` (
+  `email` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `authorized_emails`
+--
+
+INSERT INTO `authorized_emails` (`email`) VALUES
+('bangyat97@gmail.com'),
+('dodyoi311@gmail.com'),
+('efriadikopr83@gmail.com'),
+('fitriaulia60@gmail.com'),
+('harrisrachmad02@gmail.com'),
+('hengkinelaradon79@gmail.com'),
+('melsancahyani222@gmail.com'),
+('mutiararahmadanyy@gmail.com'),
+('primadaniviandraa@gmail.com'),
+('rangga160276@gmail.com'),
+('TeguhPerdan@gmail.com'),
+('wenimolina00@gmail.com');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `detail_peminjaman`
+--
+
+CREATE TABLE `detail_peminjaman` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `peminjaman_id` bigint(20) UNSIGNED NOT NULL,
+  `arsip_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `nama_arsip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_arsip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `no_box` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `hak_akses` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Biasa',
+  `jenis_arsip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Softfile',
+  `detail_fisik` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `log_aktivitas`
+--
+
+CREATE TABLE `log_aktivitas` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `arsip_masuk_id` int(11) DEFAULT NULL,
+  `tahapan` enum('Pemilahan','Pendataan','Pelabelan','Alih Media','Input E-Arsip') NOT NULL,
+  `tanggal_kerja` date DEFAULT NULL,
+  `unit_kerja` varchar(100) NOT NULL,
+  `nba` varchar(50) DEFAULT NULL,
+  `jumlah_box` int(11) DEFAULT 0,
+  `jumlah_box_selesai` int(11) DEFAULT 0,
+  `keterangan` varchar(255) DEFAULT NULL,
+  `status_kerja` enum('Proses','Selesai') DEFAULT 'Proses'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `master_klasifikasi`
+--
+
+CREATE TABLE `master_klasifikasi` (
+  `id` int(11) NOT NULL,
+  `kode_klasifikasi` varchar(50) NOT NULL,
+  `jenis_arsip` text NOT NULL,
+  `aktif` varchar(255) DEFAULT NULL,
+  `inaktif` varchar(255) DEFAULT NULL,
+  `masa_simpan` varchar(255) NOT NULL,
+  `tindakan_akhir` varchar(255) DEFAULT NULL,
+  `hak_akses` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `master_klasifikasi`
+--
+
+INSERT INTO `master_klasifikasi` (`id`, `kode_klasifikasi`, `jenis_arsip`, `aktif`, `inaktif`, `masa_simpan`, `tindakan_akhir`, `hak_akses`) VALUES
+(1, 'HK.00.01', 'Peraturan Ekstern (Dokumentasi Hukum)', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(2, 'HK.00.02', 'Peraturan Intern', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(3, 'HK.01.01', 'Pelepasan Hak', '2 tahun setelah hak dan kewajiban selesai', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(4, 'HK.01.02', 'Pemilikan & Pemakaian', '2 tahun setelah hak dan kewajiban selesai', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(5, 'HK.02.01', 'Akta', '2 tahun setelah disahkan', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(6, 'HK.02.02', 'Saham', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(7, 'HK.02.03', 'Piagam Pihak Eksternal', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(8, 'HK.02.04', 'Bank Garansi', '1 tahun setelah berakhir', '4 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(9, 'HK.03.01', 'Sertifikasi', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(10, 'HK.03.02', 'Perjanjian/ Kontrak', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(11, 'HK.03.03', 'Bantuan Hukum', '2 tahun setelah ada keputusan', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Rahasia'),
+(12, 'HK.03.04', 'Perizinan', '2 tahun setelah habis masa berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(13, 'HK.03.05', 'Logo Perusahaan', '2 tahun setelah habis masa berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(14, 'HM.00.01', 'Kegiatan ke Pihak Luar', '1 tahun setelah Pelaksanaan', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(15, 'HM.00.02', 'Kegiatan ke Pihak Dalam', '1 tahun setelah Pelaksanaan', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(16, 'HM.01.01', 'Kunjungan & Pelayanan ke Pihak Luar', '1 tahun setelah Pelaksanaan', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(17, 'HM.01.02', 'Kunjungan & Pelayanan ke Pihak Dalam', '1 tahun setelah Pelaksanaan', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(18, 'HM.02.01', 'Dokumentasi', '1 tahun setelah Pelaksanaan', '3 tahun', '4 Tahun', 'Musnah, kecuali kegiatan Direksi, Komisaris, Pemegang Saham', 'Biasa'),
+(19, 'HM.02.02', 'Penerbitan', '1 tahun setelah Pelaksanaan', '3 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(20, 'HM.03.01', 'Distributor', '2 tahun setelah tidak jadi rekanan', '2 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(21, 'HM.03.02', 'Suplier', '2 tahun setelah tidak jadi rekanan', '2 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(22, 'HM.03.03', 'Kontraktor', '2 tahun setelah tidak jadi rekanan', '2 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(23, 'HM.03.04', 'Ekspeditor', '2 tahun setelah tidak jadi rekanan', '2 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(24, 'HM.03.05', 'Lembaga Pemerintah', '2 tahun setelah tidak jadi rekanan', '2 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(25, 'HM.04.01', 'Sosial, Olah Raga dan Kesenian', '1 tahun setelah pelaksanaan selesai', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(26, 'HM.04.02', 'Fisik/ Sarana Umum', '1 tahun setelah pelaksanaan selesai', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(27, 'HM.04.03', 'Pendidikan/ Magang dan Penelitian', '1 tahun setelah pelaksanaan selesai', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(28, 'HM.04.04', 'Ekonomi Masyarakat', '1 tahun setelah pelaksanaan selesai', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(29, 'HM.04.05', 'Tenaga Kerja', '1 tahun setelah pelaksanaan selesai', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(30, 'HM.04.06', 'Kesehatan Masyarakat dan Bencana Alam', '1 tahun setelah pelaksanaan selesai', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(31, 'HM.05.01', 'Pinjaman Modal Kerja', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(32, 'HM.05.02', 'Pinjaman Khusus', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(33, 'HM.05.03', 'Hibah', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(34, 'HM.06.01', 'Bangunan', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(35, 'HM.06.02', 'Jalan dan Jembatan', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(36, 'HM.06.03', 'Bendung dan Saluran', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(37, 'HM.06.04', 'Taman dan Pekarangan', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(38, 'KK.00.01', 'Peralatan', '2 tahun setelah Audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(39, 'KK.00.02', 'Bahan', '3 tahun setelah Audit', '2 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(40, 'KK.00.03', 'Proses', '3 tahun setelah Audit', '2 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(41, 'KK.00.04', 'Lingkungan', '2 tahun setelah Audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(42, 'KK.01.01', 'Tim K3LH/ Tim PKTD', '1 tahun setelah penilaian', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(43, 'KK.01.02', 'HKR', '2 tahun setelah penilaian', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(44, 'KK.01.03', 'Bulan Mutu dan Bulan K3', '1 tahun setelah penilaian', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(45, 'KK.02.01', 'Kesehatan Kerja', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(46, 'KK.02.02', 'Keselamatan Kerja', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(47, 'KK.02.03', 'Lingkungan Hidup', '2 tahun setelah ditindaklanjuti', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(48, 'KK.02.04', 'Pelaksanaan P2K3', '3 tahun setelah Audit', '2 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(49, 'KK.02.05', 'Dokumen Pemeriksaan Penyakit Akibat Kerja', '1 tahun setelah pensiun', 'Setelah meninggal', '1 Tahun', 'Musnah', 'Biasa'),
+(50, 'KM.00.01', 'Penyidikan/ Pemeriksaan', '2 tahun setelah kasus selesai', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(51, 'KM.00.02', 'Barang Bukti', '2 tahun setelah kasus selesai', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(52, 'KM.01.01', 'Penyidikan/ Pemeriksaan', '2 tahun setelah kasus selesai', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(53, 'KM.01.02', 'Barang Bukti', '2 tahun setelah kasus selesai', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(54, 'KM.03', 'Koordinasi Keamanan Pemerintah', '2 tahun setelah kasus selesai', '2 tahun', '4 Tahun', 'Musnah', 'Terbatas'),
+(55, 'KS.00.01', 'Ekpedisi /Pengiriman Dokumen (Internal & External)', '2 tahun setelah tidak berlaku', '2 tahun', '4 Tahun', 'Musnah', 'Biasa'),
+(56, 'KS.01.01', 'Laporan Kinerja Bulanan', '1 tahun setelah direalisasi', '2 tahun', '3 Tahun', 'Musnah', 'Terbatas'),
+(57, 'KS.01.02', 'Laporan Tahunan/ Annual Report', '2 tahun setelah direalisasi', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(58, 'KS.01.03', 'Prognosa', '2 tahun setelah direalisasi', '2 tahun', '4 Tahun', 'Musnah', 'Terbatas'),
+(59, 'KS.01.04', 'Laporan Penelitian', '2 tahun setelah direalisasi', '3 tahun', '5 Tahun', 'Permanen (sudah masuk di substansi /Litbang)', 'Terbatas'),
+(60, 'KS.01.05', 'Laporan Keuangan', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Permanen', 'Terbatas'),
+(61, 'KS.02.01', 'Pengelolaan Arsip Aktif', '2 tahun setelah terlaksana', '2 tahun', '4 Tahun', 'Musnah', 'Terbatas'),
+(62, 'KS.02.02', 'Pemindahan Arsip Inaktif ke Sentral Arsip', '2 tahun setelah tidak aktif', '2 tahun', '4 Tahun', 'Musnah', 'Terbatas'),
+(63, 'KS.02.03', 'Penyerahan Arsip Statis', '2 tahun setelah inaktif central record', '2 tahun', '4 Tahun', 'Permanen', 'Terbatas'),
+(64, 'KS.02.04', 'Pemeliharaan Arsip', '1 tahun setelah reproduksi', '2 tahun', '3 Tahun', 'Musnah', 'Terbatas'),
+(65, 'KS.02.05', 'Pemusnahan Arsip', '2 tahun setelah terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(66, 'KS.02.06', 'Akuisisi Arsip', '2 tahun setelah terlaksana', '3 tahun', '5 Tahun', 'Permanen (tidak perlu karena bukan lembaga kearsipan)', 'Terbatas'),
+(67, 'KS.02.07', 'Penilaian Arsip', '2 tahun setelah terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(68, 'KS.03.01', 'Penjilidan', '1 tahun setelah terlaksana', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(69, 'KS.03.02', 'Foto Copy', '1 tahun setelah terlaksana', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(70, 'KS.03.03', 'Percetakan Identitas', '1 tahun setelah terlaksana', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(71, 'KS.03.04', 'Alat Tulis Kantor (ATK)', '1 tahun setelah terlaksana', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(72, 'KS.03.05', 'Perpustakaan', '1 tahun setelah terlaksana', '2 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(73, 'KU.00.01', 'Rencana kerja & Anggaran Perusahaan Tahunan RKAP', '2 tahun setelah disahkan', '8 tahun', '10 Tahun', 'Musnah', 'Rahasia'),
+(74, 'KU.00.02', 'RJPP (Rencana Kerja dan Anggaran Perusahaan Jangka Panjang)', '2 tahun setelah disahkan', '8 tahun', '10 Tahun', 'Permanen', 'Rahasia'),
+(75, 'KU.01.01', 'Kas Bank', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(76, 'KU.01.02', 'Hutang', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(77, 'KU.01.03', 'Piutang', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(78, 'KU.01.04', 'Pajak', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(79, 'KU.01.05', 'Asuransi', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(80, 'KU.01.06', 'Kredit Limit', '2 tahun setelah audit selesai', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(81, 'KU.02.01', 'Pencatatan Transaksi (Jurnal)', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(82, 'KU.02.02', 'Perhitungan Harga Pokok', '2 tahun setelah tutup buku', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(83, 'KU.02.03', 'Aktiva Tetap', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(84, 'KU.02.04', 'Rekonsiliasi', '2 tahun setelah pertanggunggungan dibayar', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(85, 'PB.00.01', 'Penunjukan Supplier', '1 tahun setelah tidak jadi rekanan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(86, 'PB.00.02', 'Evaluasi Supplier', '1 tahun setelah tidak jadi rekanan', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(87, 'PB.01.01', 'Barang Umum', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(88, 'PB.01.02', 'Barang Suku Cadang', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(89, 'PB.01.03', 'Operating Supplies', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(90, 'PB.01.04', 'Inventaris', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(91, 'PB.02.01', 'Jasa Angkutan', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(92, 'PB.02.02', 'Jasa Pekerjaan', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(93, 'PB.02.03', 'Jasa Outsourcing', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(94, 'PB.02.04', 'Jasa Fasilitas (Gudang, kantor, kendaraan, mobil, komputer, software, billboard, spanduk )', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(95, 'PB.02.05', 'Jasa Sewa', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '8 tahun', '10 Tahun', 'Musnah', 'Terbatas'),
+(96, 'PB.03.01', 'Barang umum', '2 tahun setelah diterima', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(97, 'PB.03.02', 'Barang suku cadang', '2 tahun setelah diterima', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(98, 'PB.03.03', 'Barang operating supplies', '2 tahun setelah diterima', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(99, 'PB.03.04', 'Inventaris', '2 tahun setelah diterima', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(100, 'PB.04.01', 'Barang umum dan inventaris', '1 tahun setelah keluar', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(101, 'PB.04.02', 'Barang Suku Cadang', '1 tahun setelah keluar', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(102, 'PB.04.03', 'Barang operating supplies', '1 tahun setelah keluar', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(103, 'PW.00', 'Pemeriksaan Ekstern', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Permanen', NULL),
+(104, 'PW.01.01', 'Pengawasan administrasi & Keuangan', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(105, 'PW.01.02', 'Pengawasan ICT (Information Communication Technology) Proyek', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(106, 'PW.01.03', 'Pengawasan SMSP (Sistem Manajemen mutu, lingkungan, OHSAS, K3,GCG dan Resiko, TPM, SMP, Kearsipan)', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(107, 'PW.01.04', 'Pengawasan Fraud / WBS', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(108, 'PW.02', 'Pengawasan Anak Perusahaan & Lembaga Penunjang', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(109, 'PW.03', 'Pengawasan Intercompany SMIG (Semen Indonesia Group)', '2 tahun setelah tindak lanjut hasil pemeriksaan selesai', '3 tahun', '5 Tahun', 'Dinilai Kembali', 'Terbatas'),
+(110, 'SM.00.01', 'Kebutuhan Karyawan', '1 tahun setelah terealisasi', '3 tahun', '4 Tahun', 'Musnah', 'Terbatas'),
+(111, 'SM.00.02', 'Kebutuhan Tenaga Subkontraktor', '2 tahun setelah terealisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(112, 'SM.01.01', 'Seleksi', '2 tahun setelah terealisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(113, 'SM.01.02', 'Orientasi/ Magang', '1 tahun setelah magang berakhir', '3 tahun', '4 Tahun', 'Musnah', 'Terbatas'),
+(114, 'SM.01.03', 'Pengangkatan', '2 tahun setelah SK terbit', '3 tahun', '5 Tahun', 'Musnah, kecuali Keputusan Direksi, masuk ke Personal File', 'Terbatas'),
+(115, 'SM.02.01', 'KPI/ Performance Kinerja', '2 tahun setelah terealisasi', '3 tahun', '5 Tahun', 'Musnah, kecuali Penetapan/Keputusan masuk Personal File', 'Terbatas'),
+(116, 'SM.02.02', 'Mutasi, Promosi, Demosi', '3 tahun setelah terealisasi', '5 tahun', '8 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Terbatas'),
+(117, 'SM.02.03', 'Peringatan dan teguran', '1 tahun setelah terealisasi', '5 tahun', '6 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Terbatas'),
+(118, 'SM.02.04', 'Kompetensi', '1 tahun setelah terealisasi', '5 tahun', '6 Tahun', 'Musnah, kecuali copy sertifikat masuk ke Personal File', 'Terbatas'),
+(119, 'SM.02.05', 'Presensi', '1 tahun setelah terealisasi', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(120, 'SM.03.01', 'Gaji, Lembur, Potongan, Bonus dan Tunjangan', '2 tahun setelah dibayar', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(121, 'SM.04.01', 'Pakaian dan Kelengkapan Kerja', '1 tahun setelah terealisasi', '1 tahun', '2 Tahun', 'Musnah', 'Biasa'),
+(122, 'SM.04.02', 'Cuti', '1 tahun setelah terealisasi', '3 tahun', '4 Tahun', 'masuk ke personal file', 'Biasa'),
+(123, 'SM.04.03', 'Perumahan', '1 tahun setelah terealisasi', '3 tahun', '4 Tahun', 'Musnah, kecuali keputusan Direksi masuk ke Personal File', 'Biasa'),
+(124, 'SM.04.04', 'Bantuan dan Santunan', '1 tahun setelah terealisasi', '2 tahun', '3 Tahun', 'Musnah, kecuali ketetapan masuk ke personal file', 'Biasa'),
+(125, 'SM.04.05', 'Kesehatan', '1 tahun setelah terealisasi', '2 tahun', '3 Tahun', 'Musnah, kecuali Resume Medis, Keputusan Direksi, masuk ke Personal File', 'Biasa'),
+(126, 'SM.04.06', 'Penghargaan', '1 tahun setelah terealisasi', '1 tahun', '2 Tahun', 'Musnah, kecuali keputusan Direksi masuk ke Personal File', 'Biasa'),
+(127, 'SM.04.07', 'Asuransi', '1 tahun setelah diberikan', '3 tahun', '4 Tahun', 'Musnah, kecuali keputusan Direksi masuk ke Personal File', 'Biasa'),
+(128, 'SM.05.01', 'Training Intern', '1 tahun', '2 tahun', '3 Tahun', 'Musnah, kecuali copy sertifikat masuk ke personal file', 'Biasa'),
+(129, 'SM.05.02', 'Training Ekstern', '1 tahun', '2 tahun', '3 Tahun', 'Musnah, kecuali copy sertifikat masuk ke personal file', 'Biasa'),
+(130, 'SM.05.03', 'Seminar/ Lokakarya/ Workshop', '1 tahun', '1 tahun', '2 Tahun', 'Musnah, kecuali copy sertifikat masuk ke personal file', NULL),
+(131, 'SM.05.04', 'Program Pendidikan Lanjutan', '1 tahun', '2 tahun', '3 Tahun', 'Musnah, kecuali copy ijazah/sertifikat masuk ke personal file', 'Biasa'),
+(132, 'SM.06.01', 'Berhenti dengan Hormat', '1 tahun', '2 tahun', '3 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Terbatas'),
+(133, 'SM.06.02', 'Berhenti dengan Tidak Hormat', '2 tahun', '2 tahun', '4 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Terbatas'),
+(134, 'SM.07.01', 'Identitas Data Karyawan', '1 tahun', '1 tahun', '2 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Biasa'),
+(135, 'SM.07.02', 'Penugasan', '1 tahun', '1 tahun', '2 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Biasa'),
+(136, 'SM.07.03', 'Perkawinan dan Perceraian', '1 tahun', '1 tahun', '2 Tahun', 'Musnah, kecuali Keputusan Direksi masuk ke Personal File', 'Biasa'),
+(137, 'SM.08.01', 'FKKSP (Forum Komunikasi Karyawan Semen Padang)', '1 tahun', '4 tahun', '5 Tahun', 'Musnah kecuali pembentukan dan hasil kongres', 'Terbatas'),
+(138, 'SM.08.02', 'Lembaga Penunjang dan Afiliasi', '1 tahun', '4 tahun', '5 Tahun', 'Musnah kecuali pembentukan dan hasil kongres', 'Terbatas'),
+(139, 'SM.08.03', 'Serikat Pekerja', '1 tahun', '4 tahun', '5 Tahun', 'Musnah kecuali pembentukan dan hasil kongres', 'Terbatas'),
+(140, 'SM.09.01', 'Perjanjian Kerja Bersama', '3 tahun', '2 tahun', '5 Tahun', 'Permanen', 'Biasa'),
+(141, 'SM.10.01', 'Komisaris', '2 tahun setelah pensiun', '1 tahun', '3 Tahun', 'Permanen', 'Terbatas'),
+(142, 'SM.10.02', 'Berkas Direksi', '2 tahun setelah pensiun', '1 tahun', '3 Tahun', 'Permanen', 'Terbatas'),
+(143, 'SM.10.03', 'karyawan', '2 tahun setelah pensiun', '2 tahun setelah hak dan kewajiban habis', '4 Tahun', 'Musnah', 'Terbatas'),
+(144, 'BJ.00.01', 'Rumusan Kebijakan Perusahaan yang Bersifat Pengaturan yang terkait dengan rencana dan pengembangan produksi, pemasaran, distribusi, keselamatan, keamanan, dan kesehatan lingkungan kerja, pendirian perusahaan', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(145, 'BJ.00.02', 'Penetapan perjanjian (kontrak) kerja', '2 tahun setelah tidak berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(146, 'BJ.00.03', 'Penetapan Perizinan', '2 tahun setelah habis masa berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(147, 'BJ.00.04', 'Penetapan logo (identitas) perusahaan', '2 tahun setelah habis masa berlaku', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(148, 'BJ.00.05', 'Penetapan anggaran dasar perusahaan', '2 tahun setelah disahkan', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(149, 'DT.00.01', 'Penunjukan Transportir', '2 tahun setelah tidak menjadi rekanan', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(150, 'DT.00.02', 'Evaluasi Transportir', '3 tahun setelah tidak menjadi rekanan', '3 tahun', '6 Tahun', 'Musnah', 'Rahasia'),
+(151, 'DT.00.03', 'Pemberhentian Transportir', '4 tahun setelah tidak menjadi rekanan', '3 tahun', '7 Tahun', 'Musnah', 'Rahasia'),
+(152, 'DT.01.01', 'Rencana Kebutuhan Penggunaan Kapal', '2 tahun setelah kontrak berakhir', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(153, 'DT.01.02', 'Rencana Realisasi Pemuatan Barang', '2 tahun setelah kontrak berakhir', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(154, 'DT.01.03', 'Time Sheet & Round Voyage', '2 tahun setelah hak dan kewajiban selesai', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(155, 'DT.01.04', 'Berita Acara Bongkar', '2 tahun setelah hak dan kewajiban selesai', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(156, 'DT.02.01', 'Rencana Kebutuhan Penggunaan Angkutan Darat', '2 tahun setelah kontrak berakhir', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(157, 'DT.02.02', 'Rencana Realisasi Pemuatan Barang', '2 tahun setelah kontrak berakhir', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(158, 'DT.02.03', 'Permintaan Pemuatan Barang', '2 tahun setelah kontrak berakhir', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(159, 'DT.02.04', 'Pengiriman Semen/ Klinker', '2 tahun setelah hak dan kewajiban selesai', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(160, 'DT.02.05', 'Penerimaan Semen/ Klinker', '2 tahun setelah hak dan kewajiban selesai', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(161, 'LB.00.01', 'Survey/ penelitian', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(162, 'LB.00.02', 'Study Kelayakan', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(163, 'LB.00.03', 'Aplikasi Produk', '2 tahun setelah produk launching', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(164, 'LB.00.04', 'Hasil Penelitian Produk, Pemasaran, Lingkungan dan Pengujian Logam', '2 tahun setelah penelitian diaplikasikan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(165, 'LB.01.01', 'Rancangan Peralatan Utama Pabrik', '2 tahun setelah rancangan baru tercipta', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(166, 'LB.01.02', 'Rancangan Peralatan penunjang pabrik', '2 tahun setelah rancangan baru tercipta', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(167, 'LB.01.03', 'Rancangan Sarana & Prasarana', '2 tahun setelah rancangan baru tercipta', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(168, 'LB.02.01', 'Inbound/ Logistic Management', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(169, 'LB.02.02', 'Manajemen Investasi (Capex Manajemen)', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(170, 'LB.02.03', 'Capacity Management', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(171, 'LB.02.04', 'Cost Management', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(172, 'LB.02.05', 'Quality Assurance (Uji Bahan, Uji Semen dan Beton, Kalibrasi Alat, Sertifikasi dan Aakreditasi, ISO)', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(173, 'LB.02.06', 'Inovation/ Improvement', '2 tahun setelah penelitian terlaksana', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(174, 'MR.00.01', 'Anti Fraud', '2 tahun setelah asesmen GCG', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(175, 'MR.00.02', 'Whistle Blowing System', '2 tahun setelah asesmen GCG', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(176, 'MR.00.03', 'Gratifikasi', '2 tahun setelah asesmen GCG', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(177, 'MR.00.05', 'Asesmen GCG', '2 tahun setelah hasil asesmen keluar', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(178, 'MR.01.01', 'Profil Risiko', '2 tahun setelah disahkan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(179, 'MR.02.01', 'Kajian Risiko Kontrak', '2 tahun setelah dikaji', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(180, 'MR.02.02', 'Kajian Risiko Strategis', '2 tahun setelah dikaji', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(181, 'MR.03.01', 'Risk Register/Daftar Risiko', '2 tahun setelah hasil asesmen keluar', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(182, 'MR.03.02', 'Rekapitulasi Risiko', '2 tahun setelah hasil asesmen keluar', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(183, 'MR.03.03', 'Asesmen Manajemen Risiko', '2 tahun setelah hasil asesmen keluar', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(184, 'MR.03.04', 'Pengembangan Manajemen Risiko yang Terintegrasi', '2 tahun setelah pengembangan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(185, 'MR.03.05', 'Pemantauan dan Pelaporan', '2 tahun setelah pelaporan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(186, 'MR.03.06', 'Laporan Mitigasi Risiko', '2 tahun setelah pelaporan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(187, 'MR.03.07', 'Laporan Implementasi Risiko', '2 tahun setelah pelaporan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(188, 'PR.00.01', 'Rencana Produksi Perusahaan', '2 tahun setelah persetujuan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(189, 'PR.00.02', 'Rencana Produksi Intern (Target Intern Perusahaan)', '2 tahun setelah persetujuan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(190, 'PR.01.01', 'Pemakaian Bahan Baku', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(191, 'PR.01.02', 'Pemakaian Bahan Penolong/ Bahan Penunjang', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(192, 'PR.01.03', 'Pemakaian Energi', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(193, 'PR.01.04', 'Penggunaan Kantong/ Kemasan', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(194, 'PR.01.05', 'Data Pengeluaran Produk', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(195, 'PR.02.01', 'Hasil Pengujian Mutu', '2 tahun setelah pengujian', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(196, 'PR.03.01', 'Laporan Harian Produksi', '1 tahun setelah direkap', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(197, 'PR.03.02', 'Laporan Periodik Produksi', '1 tahun setelah pelaporan', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(198, 'PR.03.03', 'Item Master', '1 tahun setelah entry item', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(199, 'PR.04.01', 'Rencana Produksi Perusahaan', '2 tahun setelah persetujuan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(200, 'PR.04.02', 'Rencana Produksi Intern (Target Intern Perusahaan)', '2 tahun setelah persetujuan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(201, 'PR.05.01', 'Pemakaian Bahan Baku', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(202, 'PR.05.02', 'Pemakaian Bahan Penolong/ Bahan Penunjang', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(203, 'PR.05.03', 'Pemakaian Energi', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(204, 'PR.05.04', 'Penggunaan Kantong/ Kemasan', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(205, 'PR.05.05', 'Data Pengeluaran Produk', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(206, 'PR.06.01', 'Hasil Pengujian Mutu', '2 tahun setelah pengujian', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(207, 'PR.07.01', 'Laporan Harian Produksi', '1 tahun setelah direkap', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(208, 'PR.07.02', 'Laporan Periodik Produksi', '1 tahun setelah pelaporan', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(209, 'PR.07.03', 'Item Master', '1 tahun setelah entry item', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(210, 'PR.08.01', 'Rencana Produksi Perusahaan', '2 tahun setelah persetujuan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(211, 'PR.08.02', 'Rencana Produksi Intern (Target Intern Perusahaan)', '2 tahun setelah persetujuan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(212, 'PR.09.01', 'Pemakaian Bahan Baku', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(213, 'PR.09.02', 'Pemakaian Bahan Penolong/ Bahan Penunjang', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(214, 'PR.09.03', 'Pemakaian Energi', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(215, 'PR.09.04', 'Penggunaan Kantong/ Kemasan', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(216, 'PR.09.05', 'Data Pengeluaran Produk', '2 tahun setelah realisasi', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(217, 'PR.09.06', 'Pengeluaran Semen', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(218, 'PR.09.07', 'Pengeluaran Klinker', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(219, 'PR.09.08', 'Pengeluaran Kantong', '2 tahun setelah audit', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(220, 'PR.10.01', 'Hasil Pengujian Mutu', '2 tahun setelah pengujian', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(221, 'PR.11.01', 'Laporan Harian Produksi', '1 tahun setelah direkap', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(222, 'PR.11.02', 'Laporan Periodik Produksi', '1 tahun setelah pelaporan', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(223, 'PR.11.03', 'Item Master', '1 tahun setelah entry item', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(224, 'PS.00.01', 'Perencanaan Pemasaran', '2 tahun setelah ditetapkan', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(225, 'PS.00.02', 'Strategi dan Pengembangan Pemasaran', '2 tahun setelah ditetapkan', '3 tahun', '5 Tahun', 'Permanen', 'Rahasia'),
+(226, 'PS.01.01', 'Penunjukkan Distributor', '1 tahun setelah tidak jadi rekanan', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(227, 'PS.01.02', 'Evaluasi Distributor', '1 tahun setelah tidak jadi rekanan', '4 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(228, 'PS.02.01', 'Pasar Dalam Negeri', '2 tahun setelah tahun anggaran', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(229, 'PS.02.02', 'Pasar Luar Negeri', '2 tahun setelah tahun anggaran', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(230, 'PS.02.03', 'Evaluasi Program Pemasaran', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(231, 'PS.03.01', 'Survei Kepuasan pelanggan', '1 tahun setelah pelaksanaan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(232, 'PS.03.02', 'Harga Pasar', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(233, 'PS.03.03', 'Pasar dalam negeri', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(234, 'PS.03.04', 'Pasar luar Negeri', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(235, 'PS.04.01', 'Realisasi penjualan dalam Negeri', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(236, 'PS.04.02', 'Realisasi penjualan luar negeri', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Rahasia'),
+(237, 'PS.05.01', 'Barang', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(238, 'PS.05.02', 'Jasa', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(239, 'PS.05.03', 'Pelayanan Teknis/ Pelanggan', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(240, 'PS.05.04', 'Pemberian Reward Distributor', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Biasa'),
+(241, 'PS.05.05', 'Komunikasi Pemasaran', '2 tahun setelah pelaksanaan', '1 tahun', '3 Tahun', 'Musnah', 'Biasa'),
+(242, 'PM.00.01', 'Alat Tambang', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(243, 'PM.00.02', 'Rawmill', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(244, 'PM.00.03', 'Kiln & Coal mill', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(245, 'PM.00.04', 'Cement mill', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(246, 'PM.00.05', 'Packing Plant', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(247, 'PM.00.06', 'Alat Transport', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(248, 'PM.01.01', 'Alat Berat', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(249, 'PM.01.02', 'Alat Bantu', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(250, 'PM.03.01', 'Alat Kalibrasi', '1 tahun setelah pelaksanaan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(251, 'PM.03.02', 'Alat Ukur', '1 tahun setelah pelaksanaan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(252, 'PM.04.01', 'PLTA', '1 tahun setelah pelaksanaan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(253, 'PM.04.02', 'PLTD', '1 tahun setelah pelaksanaan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(254, 'PM.04.03', 'Gardu Induk', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(255, 'PM.04.04', 'WHRPG', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Musnah', 'Terbatas'),
+(256, 'PM.04.05', 'Distribusi', '1 tahun setelah pelaksanaan', '1 tahun', '2 Tahun', 'Musnah', 'Terbatas'),
+(257, 'PM.05.01', 'Hardware', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(258, 'PM.05.02', 'Software', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(259, 'PM.05.03', 'Jaringan Komunikasi', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas'),
+(260, 'PM.05.04', 'Aplikasi system', '2 tahun setelah pelaksanaan', '3 tahun', '5 Tahun', 'Permanen', 'Terbatas');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `media_informasi`
+--
+
+CREATE TABLE `media_informasi` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `judul` varchar(255) NOT NULL,
+  `tanggal` date NOT NULL,
+  `deskripsi` text NOT NULL,
+  `gambar` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `migration` varchar(255) NOT NULL,
+  `batch` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `migrations`
+--
+
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
+(1, '2026_01_26_043442_update_users_table_rename_name_add_role', 1),
+(2, '2026_02_13_080000_create_riwayat_monitoring_table', 99);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `peminjaman`
+--
+
+CREATE TABLE `peminjaman` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tanggal_pinjam` date NOT NULL,
+  `nama_peminjam` varchar(255) NOT NULL,
+  `nip` varchar(255) NOT NULL,
+  `unit_peminjam` varchar(255) NOT NULL,
+  `keperluan` text DEFAULT NULL,
+  `jabatan_peminjam` varchar(255) NOT NULL,
+  `bukti_peminjaman` text DEFAULT NULL,
+  `status` enum('Sedang Dipinjam','Sudah Dikembalikan','Telat Dikembalikan') NOT NULL DEFAULT 'Sedang Dipinjam',
+  `is_approved_khusus` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `riwayat_monitoring`
+--
+
+CREATE TABLE `riwayat_monitoring` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `log_aktivitas_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `tahapan` varchar(255) NOT NULL,
+  `tanggal_kerja` date NOT NULL,
+  `jumlah_box_selesai` int(11) NOT NULL,
+  `keterangan` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `units`
+--
+
+CREATE TABLE `units` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `nama_unit` varchar(255) NOT NULL,
+  `keterangan` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `units`
+--
+
+INSERT INTO `units` (`id`, `nama_unit`, `keterangan`, `created_at`, `updated_at`) VALUES
+(1, 'Sistem Manajemen', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(2, 'Internal Audit', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(3, 'Komunikasi & Kesekretariatan', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(4, 'CSR', NULL, '2026-02-02 20:47:42', '2026-02-08 19:32:07'),
+(5, 'Hukum', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(6, 'Keamanan', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(7, 'Staf Dept. Komunikasi & Hukum Perusahaan', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(8, 'Bisnis Inkubasi Non Semen', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(9, 'Quality Assurance', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(10, 'SHE', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(11, 'Perencanaan & Evaluasi Produksi', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(12, 'Penunjang Produksi', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(13, 'Quality Control', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(14, 'Staf AFR', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(15, 'Operasi Tambang', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(16, 'Produksi Bahan Baku', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(17, 'Perencanaan & Pengawasan Tambang', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(18, 'WHRPG & Utilitas', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(19, 'Produksi Terak', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(20, 'Produksi Semen', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(21, 'Pabrik Kantong', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(22, 'Pabrik Dumai', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(23, 'Pemeliharaan Mesin', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(24, 'Pemeliharaan Listrik & Instrumen', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42'),
+(25, 'Maintenance Reliability', NULL, '2026-02-02 20:47:42', '2026-02-02 20:47:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `nama` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `role` enum('admin','karyawan') NOT NULL DEFAULT 'karyawan',
+  `password` varchar(255) NOT NULL,
+  `last_login` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `photo` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `nama`, `email`, `role`, `password`, `last_login`, `created_at`, `updated_at`, `remember_token`, `photo`) VALUES
+(16, 'Primadani Viandra', 'primadaniviandraa@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(17, 'Mutiara Rahmadany', 'mutiararahmadanyy@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(18, 'Melsan Cahyani', 'melsancahyani222@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(19, 'Efriadi', 'efriadikopr83@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(20, 'Rangga Firdaus', 'rangga160276@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(21, 'Teguh Imam Perdana', 'TeguhPerdan@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(22, 'Hidayat', 'bangyat97@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(23, 'Fitri Aulia Sari', 'fitriaulia60@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(24, 'Weni Molina', 'wenimolina00@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(25, 'Harris Rachmad Putra', 'harrisrachmad02@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(26, 'Dody', 'dodyoi311@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL),
+(27, 'Hengki Nelaradon', 'hengkinelaradon79@gmail.com', 'karyawan', 'ef797c8118f02dfb649607dd5d3f8c7623048c9c063d532cc95c5ed7a898a64f', NULL, '2026-03-03 08:10:37', '2026-03-03 08:10:37', NULL, NULL);
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `arsip`
+--
+ALTER TABLE `arsip`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_klasifikasi` (`klasifikasi_id`),
+  ADD KEY `fk_user_pic` (`user_id`),
+  ADD KEY `fk_arsip_fix_masuk` (`arsip_masuk_id`);
+
+--
+-- Indexes for table `arsip_masuk`
+--
+ALTER TABLE `arsip_masuk`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `arsip_musnah`
+--
+ALTER TABLE `arsip_musnah`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `authorized_emails`
+--
+ALTER TABLE `authorized_emails`
+  ADD PRIMARY KEY (`email`);
+
+--
+-- Indexes for table `detail_peminjaman`
+--
+ALTER TABLE `detail_peminjaman`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_detail_ke_peminjaman` (`peminjaman_id`),
+  ADD KEY `fk_detail_ke_arsip` (`arsip_id`);
+
+--
+-- Indexes for table `log_aktivitas`
+--
+ALTER TABLE `log_aktivitas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user_log` (`user_id`),
+  ADD KEY `fk_log_arsip_masuk` (`arsip_masuk_id`);
+
+--
+-- Indexes for table `master_klasifikasi`
+--
+ALTER TABLE `master_klasifikasi`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `kode_klasifikasi` (`kode_klasifikasi`),
+  ADD UNIQUE KEY `kode_klasifikasi_2` (`kode_klasifikasi`);
+
+--
+-- Indexes for table `media_informasi`
+--
+ALTER TABLE `media_informasi`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`email`);
+
+--
+-- Indexes for table `peminjaman`
+--
+ALTER TABLE `peminjaman`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `riwayat_monitoring`
+--
+ALTER TABLE `riwayat_monitoring`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_log` (`log_aktivitas_id`),
+  ADD KEY `fk_user` (`user_id`);
+
+--
+-- Indexes for table `units`
+--
+ALTER TABLE `units`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `arsip`
+--
+ALTER TABLE `arsip`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5971;
+
+--
+-- AUTO_INCREMENT for table `arsip_masuk`
+--
+ALTER TABLE `arsip_masuk`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+
+--
+-- AUTO_INCREMENT for table `arsip_musnah`
+--
+ALTER TABLE `arsip_musnah`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `detail_peminjaman`
+--
+ALTER TABLE `detail_peminjaman`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `log_aktivitas`
+--
+ALTER TABLE `log_aktivitas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
+-- AUTO_INCREMENT for table `master_klasifikasi`
+--
+ALTER TABLE `master_klasifikasi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=261;
+
+--
+-- AUTO_INCREMENT for table `media_informasi`
+--
+ALTER TABLE `media_informasi`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `peminjaman`
+--
+ALTER TABLE `peminjaman`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `riwayat_monitoring`
+--
+ALTER TABLE `riwayat_monitoring`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `units`
+--
+ALTER TABLE `units`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `arsip`
+--
+ALTER TABLE `arsip`
+  ADD CONSTRAINT `fk_arsip_fix_masuk` FOREIGN KEY (`arsip_masuk_id`) REFERENCES `arsip_masuk` (`id`),
+  ADD CONSTRAINT `fk_klasifikasi` FOREIGN KEY (`klasifikasi_id`) REFERENCES `master_klasifikasi` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_user_pic` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `detail_peminjaman`
+--
+ALTER TABLE `detail_peminjaman`
+  ADD CONSTRAINT `fk_detail_ke_arsip` FOREIGN KEY (`arsip_id`) REFERENCES `arsip` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_detail_ke_peminjaman` FOREIGN KEY (`peminjaman_id`) REFERENCES `peminjaman` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `log_aktivitas`
+--
+ALTER TABLE `log_aktivitas`
+  ADD CONSTRAINT `fk_log_arsip_masuk` FOREIGN KEY (`arsip_masuk_id`) REFERENCES `arsip_masuk` (`id`),
+  ADD CONSTRAINT `fk_user_log` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `riwayat_monitoring`
+--
+ALTER TABLE `riwayat_monitoring`
+  ADD CONSTRAINT `fk_log` FOREIGN KEY (`log_aktivitas_id`) REFERENCES `log_aktivitas` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_email_auth` FOREIGN KEY (`email`) REFERENCES `authorized_emails` (`email`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

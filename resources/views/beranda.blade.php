@@ -333,7 +333,7 @@
                 </div>
 
                 <!-- KPI Cards -->
-                <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+                <div class="grid grid-cols-2 lg:grid-cols-7 gap-4 mb-6">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
                         <p class="text-4xl font-black text-gray-800">{{ $totalBox }}</p>
                         <p class="text-xs text-gray-500 font-medium">Total Box Arsip Masuk</p>
@@ -353,6 +353,10 @@
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <p class="text-xs text-gray-500 uppercase font-semibold">Pelabelan</p>
                         <p class="text-2xl font-bold text-gray-800">{{ $pelabelan }}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-500 uppercase font-semibold">Alih Media</p>
+                        <p class="text-2xl font-bold text-gray-800">{{ $alihMedia ?? 0 }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <p class="text-xs text-gray-500 uppercase font-semibold">Input E-Arsip</p>
@@ -399,7 +403,15 @@
                     </div>
                 </div>
 
-                <!-- Row 3: Pemilahan Arsip Table -->
+                <!-- Row 3: Alih Media Chart (NEW) -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+                    <h3 class="font-bold text-gray-800 mb-4 border-l-4 border-[#e92027] pl-3">Aktivitas Alih Media per PIC</h3>
+                    <div class="relative h-72 w-full">
+                        <canvas id="alihMediaChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Row 4: Pemilahan Arsip Table -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col mb-8">
                     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                         <h3 class="font-bold text-gray-800">Pemilahan Arsip</h3>
@@ -462,7 +474,7 @@
                                 <tr class="bg-[#e92027] text-white text-xs uppercase">
                                     <th class="px-4 py-3 border-r border-[#c41820] w-48">Key Activity</th>
                                     <th class="px-4 py-3 border-r border-[#c41820] w-48"></th>
-                                    @foreach($stages as $stage)
+                                    @foreach($tableStages as $stage)
                                         <th colspan="3" class="px-4 py-3 text-center border-r border-[#c41820]">{{ $stage }}</th>
                                     @endforeach
                                     <th class="px-4 py-3 text-center border-r border-[#c41820] bg-emerald-900">Done</th>
@@ -471,7 +483,7 @@
                                 <tr class="bg-[#c41820] text-white text-[10px] uppercase tracking-wider">
                                     <th class="px-4 py-2 border-r border-[#a0131a]">PIC</th>
                                     <th class="px-4 py-2 border-r border-[#a0131a]">Unit Kerja</th>
-                                    @foreach($stages as $stage)
+                                    @foreach($tableStages as $stage)
                                         <th class="px-2 py-2 text-center w-16 bg-[#b91c1c] border-r border-[#a0131a] text-red-100"># Krj</th>
                                         <th class="px-2 py-2 text-center w-16 bg-[#b91c1c] border-r border-[#a0131a] text-yellow-200"># Tgt</th>
                                         <th class="px-2 py-2 text-center w-16 bg-[#b91c1c] border-r border-[#a0131a] text-green-200">%</th>
@@ -488,7 +500,7 @@
                                     <td class="px-4 py-3 font-medium text-gray-600 border-r border-gray-100 group-hover:bg-red-50 transition-colors">
                                         {{ $row['unit_kerja'] }}
                                     </td>
-                                    @foreach($stages as $stage)
+                                    @foreach($tableStages as $stage)
                                         @php $data = $row[$stage]; @endphp
                                         <td class="px-2 py-3 text-center border-r border-gray-50 {{ $data['selesai'] > 0 ? 'text-[#e92027] font-bold bg-red-50/50' : 'text-gray-300' }}">
                                             {{ $data['selesai'] > 0 ? $data['selesai'] : '-' }}
@@ -518,7 +530,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="{{ 3 + count($stages) * 3 }}" class="px-6 py-8 text-center text-gray-400">
+                                    <td colspan="{{ 3 + count($tableStages) * 3 }}" class="px-6 py-8 text-center text-gray-400">
                                         Belum ada data aktivitas monitoring.
                                     </td>
                                 </tr>
@@ -874,6 +886,46 @@
                             legend: { 
                                 position: 'right',
                                 labels: { boxWidth: 12, usePointStyle: true, font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+            }
+            // --- 6. CHART ALIH MEDIA (Vertical Bar) ---
+            const ctxAlihMedia = document.getElementById('alihMediaChart');
+            if (ctxAlihMedia) {
+                new Chart(ctxAlihMedia.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: @json($alihMediaChart['labels']),
+                        datasets: [{
+                            label: 'Jumlah Box Selesai',
+                            data: @json($alihMediaChart['data']),
+                            backgroundColor: '#e92027',
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.parsed.y + ' Box';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                grid: { borderDash: [4, 4], color: '#f3f4f6' },
+                                title: { display: true, text: 'Jumlah Box' }
+                            },
+                            x: { 
+                                grid: { display: false } 
                             }
                         }
                     }

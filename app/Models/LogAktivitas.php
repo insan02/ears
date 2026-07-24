@@ -31,4 +31,9 @@ class LogAktivitas extends Model
     {
         return $this->belongsTo(ArsipMasuk::class);
     }
+
+    public function riwayat()
+    {
+        return $this->hasMany(RiwayatMonitoring::class)->orderBy('created_at', 'desc');
+    }
 }

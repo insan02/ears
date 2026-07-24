@@ -44,7 +44,7 @@
 
                      <!-- Jumlah Box Selesai -->
                      <div>
-                         <label class="block text-gray-800 font-bold mb-2 text-sm">Jumlah Box Selesai</label>
+                         <label class="block text-gray-800 font-bold mb-2 text-sm">Jumlah Selesai</label>
                          <input type="number" name="jumlah_box_selesai" class="w-full bg-[#fff1f2] border border-red-200 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e92027]" placeholder="0">
                      </div>
 
@@ -62,6 +62,7 @@
                             <option value="Pemilahan">Pemilahan</option>
                             <option value="Pendataan">Pendataan</option>
                             <option value="Pelabelan">Pelabelan</option>
+                            <option value="Alih Media">Alih Media</option>
                             <option value="Input E-Arsip">Input E-Arsip</option>
                          </select>
                      </div>
@@ -79,5 +80,26 @@
                  </div>
             </form>
         </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tahapanSelect = document.querySelector('select[name="tahapan"]');
+            const nbaSelect = document.querySelector('select[name="arsip_masuk_id"]');
+            const nbaContainer = nbaSelect.closest('div');
+
+            function toggleNba() {
+                if (tahapanSelect.value === 'Alih Media') {
+                    nbaContainer.style.display = 'none';
+                    nbaSelect.removeAttribute('required');
+                    nbaSelect.value = '';
+                } else {
+                    nbaContainer.style.display = 'block';
+                    nbaSelect.setAttribute('required', 'required');
+                }
+            }
+
+            tahapanSelect.addEventListener('change', toggleNba);
+            toggleNba(); // Run on load
+        });
+    </script>
     </div>
 </x-layout>

@@ -51,6 +51,7 @@
                             <option value="Pemilahan" {{ $monitoring->tahapan == 'Pemilahan' ? 'selected' : '' }}>Pemilahan</option>
                             <option value="Pendataan" {{ $monitoring->tahapan == 'Pendataan' ? 'selected' : '' }}>Pendataan</option>
                             <option value="Pelabelan" {{ $monitoring->tahapan == 'Pelabelan' ? 'selected' : '' }}>Pelabelan</option>
+                            <option value="Alih Media" {{ $monitoring->tahapan == 'Alih Media' ? 'selected' : '' }}>Alih Media</option>
                             <option value="Input E-Arsip" {{ $monitoring->tahapan == 'Input E-Arsip' ? 'selected' : '' }}>Input E-Arsip</option>
                          </select>
                      </div>
@@ -84,5 +85,32 @@
                  </div>
             </form>
         </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tahapanSelect = document.querySelector('select[name="tahapan"]');
+            const nbaSelect = document.querySelector('select[name="arsip_masuk_id"]');
+            const nbaContainer = nbaSelect.closest('div');
+
+            function toggleNba() {
+                if (tahapanSelect.value === 'Alih Media') {
+                    nbaContainer.style.display = 'none';
+                    nbaSelect.removeAttribute('required');
+                    
+                    // Optional: Clear selection if needed, but for edit maybe keep existing unless user changes it?
+                    // If we clear it, they lose the association if they switch back.
+                    // But for "Alih Media", it should be null.
+                    if (tahapanSelect.value === 'Alih Media') {
+                         nbaSelect.value = '';
+                    }
+                } else {
+                    nbaContainer.style.display = 'block';
+                    nbaSelect.setAttribute('required', 'required');
+                }
+            }
+
+            tahapanSelect.addEventListener('change', toggleNba);
+            toggleNba(); // Run on load
+        });
+    </script>
     </div>
 </x-layout>

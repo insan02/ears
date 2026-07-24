@@ -78,10 +78,11 @@ class DashboardController extends Controller
         $mediaHardfile = DetailPeminjaman::where('jenis_arsip', 'Hardfile')->count();
         $mediaSoftfile = DetailPeminjaman::where('jenis_arsip', 'Softfile')->count();
 
-        $pemilahan = $applyFilters(LogAktivitas::where('tahapan', 'Pemilahan'))->count();
-        $pendataan = $applyFilters(LogAktivitas::where('tahapan', 'Pendataan'))->count();
-        $pelabelan = $applyFilters(LogAktivitas::where('tahapan', 'Pelabelan'))->count();
-        $inputEArsip = $applyFilters(LogAktivitas::where('tahapan', 'Input E-Arsip'))->count();
+        $pemilahan = $applyFilters(LogAktivitas::where('tahapan', 'Pemilahan'))->sum('jumlah_box_selesai');
+        $pendataan = $applyFilters(LogAktivitas::where('tahapan', 'Pendataan'))->sum('jumlah_box_selesai');
+        $pelabelan = $applyFilters(LogAktivitas::where('tahapan', 'Pelabelan'))->sum('jumlah_box_selesai');
+        $alihMedia = $applyFilters(LogAktivitas::where('tahapan', 'Alih Media'))->sum('jumlah_box_selesai');
+        $inputEArsip = $applyFilters(LogAktivitas::where('tahapan', 'Input E-Arsip'))->sum('jumlah_box_selesai');
         
         // Recent Activities for Table (Add this too as it was missing from the view's data)
         $monitoringLogs = $applyFilters(LogAktivitas::with('user'))->orderBy('id', 'desc')->take(10)->get();
@@ -132,8 +133,8 @@ class DashboardController extends Controller
         // We just need to pack them for the view.
         // Note: These respect the selected filters (which makes sense).
         $tahapanChartData = [
-            'labels' => ['Pemilahan', 'Pendataan', 'Pelabelan', 'Input E-Arsip'],
-            'data' => [$pemilahan, $pendataan, $pelabelan, $inputEArsip]
+            'labels' => ['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'],
+            'data' => [$pemilahan, $pendataan, $pelabelan, $alihMedia, $inputEArsip]
         ];
 
         // 2. CHART ARSIP MASUK PER BULAN (Line Chart)
@@ -234,7 +235,10 @@ class DashboardController extends Controller
         ];
 
         // B. Detailed Matrix (Bottom Table)
-        $stages = ['Pemilahan', 'Pendataan', 'Pelabelan', 'Input E-Arsip'];
+        $stages = ['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'];
+        // NEW: Stages for the Table (Excluding Alih Media)
+        $tableStages = ['Pemilahan', 'Pendataan', 'Pelabelan', 'Input E-Arsip'];
+        
         $matrixData = [];
 
         // 1. Get distinct User + Unit Kerja pairs matching filters
@@ -257,7 +261,8 @@ class DashboardController extends Controller
 
             $hasActivity = false;
 
-            foreach ($stages as $stage) {
+            // Use $tableStages for the table rows data
+            foreach ($tableStages as $stage) {
                 $statsQuery = LogAktivitas::where('user_id', $user->id)
                     ->where('unit_kerja', $combo->unit_kerja)
                     ->where('tahapan', $stage);
@@ -286,6 +291,9 @@ class DashboardController extends Controller
                 ];
             }
             
+            // Allow row if it has activity in the filtered stages OR if we want to show it regardless?
+             // Only add if there is activity in the TABLE stages. 
+             // If they only did Alih Media, they technically won't show up here, which is what we want ("keluarkan alih media dari tabel ini")
             if($hasActivity) {
                 $matrixData[] = $row;
             }
@@ -297,11 +305,27 @@ class DashboardController extends Controller
         });
 
         // ==========================================
-        // 4. (BARU) PROPORSI MEDIA (Pie Chart)
+        // 4. (BARU) PROPORSI MEDIA (Pie Chart) -> Previously number 4, keeping variable name
         // ==========================================
-        // Menggantikan Jabatan yang tidak penting
         $mediaHardfile = DetailPeminjaman::where('jenis_arsip', 'Hardfile')->count();
         $mediaSoftfile = DetailPeminjaman::where('jenis_arsip', 'Softfile')->count();
+
+        // ==========================================
+        // 6. (NEW) CHART ALIH MEDIA PER PIC (Vertical Bar)
+        // ==========================================
+        $alihMediaQuery = LogAktivitas::with('user')
+            ->where('tahapan', 'Alih Media');
+            
+        $alihMediaStats = $applyFilters($alihMediaQuery)
+            ->selectRaw('user_id, SUM(jumlah_box_selesai) as total_selesai')
+            ->groupBy('user_id')
+            ->get();
+            
+        $alihMediaChart = [
+            'labels' => $alihMediaStats->map(function($stat) { return $stat->user->nama ?? 'Unknown'; })->toArray(),
+            'data'   => $alihMediaStats->pluck('total_selesai')->toArray()
+        ];
+
 
         // ==========================================
         // 5. DATA TAMBAHAN (Untuk View)
@@ -317,13 +341,14 @@ class DashboardController extends Controller
         // Kirim semua variabel ke View
         return view('beranda', compact(
             'dipinjam', 'kembali', 'dataDipinjam', 'dataKembali',
-            'pemilahanStats', 'chartStats', 'matrixData', 'stages',
+            'pemilahanStats', 'chartStats', 'matrixData', 'stages', 'tableStages', // Passed tableStages
             'totalArsip', 'totalBox', 'inputEArsip', 'bulanIniArsip', 
-            'pemilahan', 'pendataan', 'pelabelan', 'monitoringLogs', 'userStats',
+            'pemilahan', 'pendataan', 'pelabelan', 'alihMedia', 'monitoringLogs', 'userStats',
             'allPics', 'allUnits',
             'tahapanChartData', 'arsipBulananData', 'arsipUnitChart',
             'mediaHardfile', 'mediaSoftfile',
-            'arsipKlasifikasiChart', 'arsipTahunChart', 'arsipMediaChart', 'arsipStatusChart'
+            'arsipKlasifikasiChart', 'arsipTahunChart', 'arsipMediaChart', 'arsipStatusChart',
+            'alihMediaChart' // Passed new chart data
         ));
     }
 }

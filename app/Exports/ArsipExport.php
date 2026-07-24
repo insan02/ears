@@ -95,9 +95,7 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             'Hak Akses',
             'Masa Simpan',
             'Tindakan',
-            'Box',
-            'Unit Pengolah',
-            'Jenis'
+            'Box'
         ];
     }
 
@@ -118,8 +116,6 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             $arsip->masa_simpan ?? '-',
             $arsip->tindakan_akhir ?? '-',
             $arsip->no_box ?? '-',
-            $arsip->unit_pengolah ?? '-',
-            $arsip->jenis_media ?? '-',
         ];
     }
 
@@ -153,7 +149,7 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet;
                 $highestRow = $sheet->getHighestRow();
-                $lastColumn = 'N'; // 14 Columns (A-N)
+                $lastColumn = 'L'; // 12 Columns (A-L)
 
                 // Merge cells for Title (Centered across table)
                 $sheet->mergeCells("B1:{$lastColumn}1");
@@ -185,12 +181,11 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
                 $tableRange = "A5:{$lastColumn}{$highestRow}";
                 $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
                 
-                // Center Align specific columns: No(A), Tahun(F), Tanggal(G), Jumlah(H), Box(L), Jenis(N)
-                // Columns: A B C D E F G H I J K L M N
+                // Center Align specific columns: No(A), Tahun(F), Tanggal(G), Jumlah(H), Box(L)
+                // Columns: A B C D E F G H I J K L
                 $sheet->getStyle("A6:A{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // No
                 $sheet->getStyle("F6:H{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Tahun, Tanggal, Jumlah
                 $sheet->getStyle("L6:L{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Box
-                $sheet->getStyle("N6:N{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Jenis
             },
         ];
     }

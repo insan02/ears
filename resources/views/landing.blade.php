@@ -15,50 +15,96 @@
 </head>
 <body class="bg-white">
 
-    <!-- Navigation -->
-    <!-- Navigation -->
-    <nav x-data="{ isScrolled: false }" 
-         @scroll.window="isScrolled = (window.pageYOffset > 50)"
-         :class="isScrolled ? 'bg-white shadow-md py-6' : 'bg-transparent py-4'"
-         class="fixed top-0 left-0 w-full z-50 transition-all duration-300">
-        <div class="container mx-auto px-6 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                 <img :src="isScrolled ? '{{ asset('images/sp-black.png') }}' : '{{ asset('images/sp-white.png') }}'" alt="Logo Semen Padang" class="h-20 drop-shadow-lg filter brightness-100 rounded px-2 py-1 transition-all duration-300">
+    <!-- Header Mengambang (Floating Capsule) -->
+    <header x-data="{ mobileMenuOpen: false, isScrolled: false }"
+            @scroll.window="isScrolled = (window.pageYOffset > 20)"
+            class="fixed top-3 md:top-5 left-0 w-full z-50 px-4 md:px-6 flex flex-col items-center transition-all duration-300">
+
+        <!-- Navbar Tabung / Kapsul -->
+        <nav :class="isScrolled ? 'shadow-[0_10px_40px_rgba(0,0,0,0)] bg-white/100' : 'shadow-lg bg-white/100'"
+             class="w-full max-w-5xl backdrop-blur-md rounded-full px-5 md:px-8 py-2 md:py-3 flex justify-between items-center transition-all duration-300 border border-white/60">
+
+            <!-- Logo (Ukurannya disesuaikan agar pas di dalam tabung) -->
+            <div class="flex items-center">
+                 <img src="{{ asset('images/sp-black.png') }}"
+                      alt="Logo Semen Padang"
+                      class="h-9 sm:h-10 md:h-12 drop-shadow-sm filter brightness-100 transition-all duration-300">
             </div>
-            <div class="hidden md:flex items-center gap-6 font-medium drop-shadow-md transition-colors duration-300"
-                 :class="isScrolled ? 'text-gray-800' : 'text-white'">
-                <a href="#" class="hover:text-red-600 transition">Beranda</a>
-                
-                <!-- Dropdown Tentang -->
+
+            <!-- Menu Desktop (Tampil di Laptop) -->
+            <div class="hidden md:flex items-center gap-8 font-semibold text-sm text-gray-700">
+                <a href="{{ route('landing') }}" class="hover:text-[#e92027] transition-colors">Beranda</a>
+
+                <!-- Dropdown Tentang Kami -->
                 <div x-data="{ open: false }" class="relative" @mouseenter="open = true" @mouseleave="open = false">
-                    <button class="hover:text-red-600 transition flex items-center gap-1 focus:outline-none">
+                    <button class="hover:text-[#e92027] transition-colors flex items-center gap-1 focus:outline-none py-2">
                         Tentang Kami
                         <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    <div x-show="open" 
+                    <!-- Dropdown Content (Mengambang di bawah menu) -->
+                    <div x-show="open"
                          x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 translate-y-2"
+                         x-transition:enter-start="opacity-0 translate-y-3"
                          x-transition:enter-end="opacity-100 translate-y-0"
                          x-transition:leave="transition ease-in duration-150"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 translate-y-2"
-                         class="absolute left-0 mt-0 w-56 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-100"
+                         class="absolute left-1/2 transform -translate-x-1/2 mt-0 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl py-3 z-50 border border-gray-100"
                          style="display: none;">
-                        <a href="{{ route('visi-misi') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition border-b border-gray-50 last:border-0">Visi Misi</a>
-                        <a href="{{ route('sejarah') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition border-b border-gray-50 last:border-0">Sejarah</a>
-                        <a href="{{ route('struktur') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition border-b border-gray-50 last:border-0">Struktur Organisasi</a>
-                        <a href="{{ route('penghargaan') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-700 transition">Penghargaan</a>
+                        <a href="{{ route('visi-misi') }}" class="block px-5 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-[#e92027] transition-colors">Visi Misi</a>
+                        <a href="{{ route('sejarah') }}" class="block px-5 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-[#e92027] transition-colors">Sejarah</a>
+                        <a href="{{ route('struktur') }}" class="block px-5 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-[#e92027] transition-colors">Struktur Organisasi</a>
+                        <a href="{{ route('penghargaan') }}" class="block px-5 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-[#e92027] transition-colors">Penghargaan</a>
                     </div>
                 </div>
-                <a href="#fitur" class="hover:text-red-600 transition">Fitur</a>
-                <a href="#kontak" class="hover:text-red-600 transition">Kontak</a>
+
+                <a href="{{ route('landing') }}#fitur" class="hover:text-[#e92027] transition-colors">Fitur</a>
+                <a href="{{ route('landing') }}#kontak" class="hover:text-[#e92027] transition-colors">Kontak</a>
             </div>
+
+            <!-- Tombol Hamburger (Tampil di HP) -->
+            <button @click="mobileMenuOpen = !mobileMenuOpen"
+                    class="md:hidden p-2 text-gray-800 hover:text-[#e92027] hover:bg-gray-100 rounded-full transition-colors focus:outline-none">
+                <svg x-show="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg x-show="mobileMenuOpen" style="display:none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </nav>
+
+        <!-- Menu Dropdown Mobile (Mengambang terpisah di bawah Kapsul) -->
+        <div x-show="mobileMenuOpen"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 -translate-y-4 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 -translate-y-4 scale-95"
+             class="md:hidden w-full max-w-sm mt-3 bg-white/95 backdrop-blur-xl shadow-2xl border border-gray-100 rounded-3xl flex flex-col max-h-[75vh] overflow-hidden overflow-y-auto"
+             style="display: none;">
+
+             <a href="{{ route('landing') }}" class="px-6 py-4 text-gray-800 font-bold border-b border-gray-100 hover:bg-red-50 hover:text-[#e92027]">Beranda</a>
+
+             <!-- Accordion Tentang Kami di Mobile -->
+             <div x-data="{ mobileTentang: false }" class="border-b border-gray-100">
+                 <button @click="mobileTentang = !mobileTentang" class="w-full px-6 py-4 text-left text-gray-800 font-bold flex justify-between items-center hover:bg-red-50" :class="mobileTentang ? 'text-[#e92027]' : ''">
+                     Tentang Kami
+                     <svg class="w-5 h-5 transition-transform duration-300" :class="mobileTentang ? 'rotate-180 text-[#e92027]' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                 </button>
+                 <div x-show="mobileTentang"
+                      x-transition
+                      class="bg-gray-50/80 px-6 py-2 flex flex-col space-y-1">
+                     <a href="{{ route('visi-misi') }}" class="text-sm text-gray-600 hover:text-[#e92027] py-2 pl-4 border-l-2 border-transparent hover:border-[#e92027]">Visi Misi</a>
+                     <a href="{{ route('sejarah') }}" class="text-sm text-gray-600 hover:text-[#e92027] py-2 pl-4 border-l-2 border-transparent hover:border-[#e92027]">Sejarah</a>
+                     <a href="{{ route('struktur') }}" class="text-sm text-gray-600 hover:text-[#e92027] py-2 pl-4 border-l-2 border-transparent hover:border-[#e92027]">Struktur Organisasi</a>
+                     <a href="{{ route('penghargaan') }}" class="text-sm text-gray-600 hover:text-[#e92027] py-2 pl-4 border-l-2 border-transparent hover:border-[#e92027]">Penghargaan</a>
+                 </div>
+             </div>
+
+             <a href="{{ route('landing') }}#fitur" @click="mobileMenuOpen = false" class="px-6 py-4 text-gray-800 font-bold border-b border-gray-100 hover:bg-red-50 hover:text-[#e92027]">Fitur</a>
+             <a href="{{ route('landing') }}#kontak" @click="mobileMenuOpen = false" class="px-6 py-4 text-gray-800 font-bold hover:bg-red-50 hover:text-[#e92027] pb-5">Kontak</a>
         </div>
-    </nav>
+    </header>
 
     <!-- Hero Section with Carousel -->
-    <div x-data="{ 
-            activeSlide: 0, 
+    <div x-data="{
+            activeSlide: 0,
             slides: [
                 { img: 'hp 4.jpeg', text: 'Ruang Pameran Arsip' },
                 { img: 'hp 5.jpeg', text: 'Ruang Pameran Arsip' },
@@ -68,43 +114,45 @@
             autoplay() {
                 setInterval(() => {
                     this.activeSlide = (this.activeSlide + 1) % this.slides.length;
-                }, 6000);
+                }, 8000);
             }
-        }" 
+        }"
         x-init="autoplay()"
-        class="relative h-screen w-full overflow-hidden">
-        
+        class="relative h-[100dvh] w-full overflow-hidden group">
+
         <!-- Slides -->
         <template x-for="(slide, index) in slides" :key="index">
-            <div x-show="activeSlide === index" 
+            <div x-show="activeSlide === index"
                  x-transition:enter="transition transform duration-1000"
                  x-transition:enter-start="opacity-0 scale-105"
                  x-transition:enter-end="opacity-100 scale-100"
                  x-transition:leave="transition transform duration-1000"
                  x-transition:leave-start="opacity-100 scale-100"
                  x-transition:leave-end="opacity-0 scale-95"
-                 class="absolute inset-0">
+                 class="absolute inset-0 z-0">
                 <img :src="'/images/' + slide.img" class="w-full h-full object-cover">
-                <!-- Overlay Gradient -->
-                <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent"></div>
+                <!-- Overlay Gradient: Dipergelap sedikit agar teks lebih terbaca di HP -->
+                <div class="absolute inset-0 bg-gradient-to-r from-black/80 md:from-black/70 via-black/40 to-transparent"></div>
             </div>
         </template>
 
         <!-- Content -->
-        <div class="absolute inset-0 flex items-center">
+        <!-- Menambahkan pointer-events-none agar lapisan ini tidak memblokir sentuhan ke tombol slider -->
+        <div class="absolute inset-0 flex items-center z-10 pointer-events-none">
             <div class="container mx-auto px-6 pt-20">
-                <div class="max-w-2xl text-white">
-                    <h1 class="text-5xl md:text-6xl font-bold leading-tight mb-6 drop-shadow-lg">
+                <!-- pointer-events-auto dikembalikan di sini agar tombol Login/View More bisa diklik -->
+                <div class="max-w-2xl text-white pointer-events-auto">
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-4 md:mb-6 drop-shadow-lg">
                         Record Center  <br> PT Semen Padang
                     </h1>
-                    <p class="text-xl md:text-2xl mb-8 font-light drop-shadow-md text-gray-100">
+                    <p class="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 font-light drop-shadow-md text-gray-100">
                         Solusi Digital untuk Pengelolaan Arsip yang Efisien, Aman, dan Terintegrasi.
                     </p>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <a href="{{ route('login') }}" class="px-8 py-4 bg-[#e92027] hover:bg-[#c41820] text-white font-bold rounded-lg transition transform hover:-translate-y-1 shadow-lg text-center">
+                    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <a href="{{ route('login') }}" class="px-8 py-3.5 md:py-4 bg-[#e92027] hover:bg-[#c41820] text-white font-bold rounded-lg transition transform hover:-translate-y-1 shadow-lg text-center">
                             Login
                         </a>
-                        <a href="#tentang" class="px-8 py-4 bg-white hover:bg-gray-100 text-[#e92027] font-bold rounded-lg transition transform hover:-translate-y-1 shadow-lg text-center">
+                        <a href="#tentang" class="px-8 py-3.5 md:py-4 bg-white hover:bg-gray-100 text-[#e92027] font-bold rounded-lg transition transform hover:-translate-y-1 shadow-lg text-center">
                             View More
                         </a>
                     </div>
@@ -112,16 +160,29 @@
             </div>
         </div>
 
-        <!-- Indicators -->
-        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex gap-3">
+        <!-- Tombol Navigasi Prev (Kiri) -->
+        <button @click="activeSlide = activeSlide === 0 ? slides.length - 1 : activeSlide - 1"
+                class="absolute left-2 sm:left-4 md:left-6 top-1/2 transform -translate-y-1/2 z-20 p-2 md:p-4 bg-black/20 hover:bg-[#e92027] text-white rounded-full backdrop-blur-sm transition-all opacity-80 hover:opacity-100 focus:outline-none">
+            <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+
+        <!-- Tombol Navigasi Next (Kanan) -->
+        <button @click="activeSlide = activeSlide === slides.length - 1 ? 0 : activeSlide + 1"
+                class="absolute right-2 sm:right-4 md:right-6 top-1/2 transform -translate-y-1/2 z-20 p-2 md:p-4 bg-black/20 hover:bg-[#e92027] text-white rounded-full backdrop-blur-sm transition-all opacity-80 hover:opacity-100 focus:outline-none">
+            <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+
+        <!-- Indicators / Titik Bawah -->
+        <div class="absolute bottom-8 md:bottom-10 left-1/2 transform -translate-x-1/2 flex items-center gap-1 sm:gap-2 z-20">
             <template x-for="(slide, index) in slides" :key="index">
-                <button @click="activeSlide = index" 
-                        :class="activeSlide === index ? 'w-12 bg-[#e92027]' : 'w-3 bg-white/50'"
-                        class="h-3 rounded-full transition-all duration-300"></button>
+                <!-- PENTING: Tambahan p-2 (padding) memperbesar area sentuh di layar HP tanpa membesarkan titik visualnya -->
+                <button @click="activeSlide = index" class="p-2 focus:outline-none group">
+                    <div :class="activeSlide === index ? 'w-8 md:w-12 bg-[#e92027]' : 'w-2 md:w-3 bg-white/50 group-hover:bg-white/80'"
+                         class="h-2 md:h-3 rounded-full transition-all duration-300 shadow-sm"></div>
+                </button>
             </template>
         </div>
     </div>
-
     <!-- Tentang Kami Section -->
     <section id="tentang" class="py-20 bg-cover bg-center" style="background-image: url('{{ asset('images/white-bg.jpg') }}');">
         <div class="container mx-auto px-12">
@@ -133,7 +194,7 @@
                             <img src="{{ asset('images/hp 6.jpeg') }}" alt="Tentang Semen Padang" class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
                         </div>
                     </div>
-                    
+
                     <!-- Text Content -->
                     <div class="w-full md:w-2/3">
                         <h2 class="text-[#e92027] font-bold text-xl uppercase tracking-wider mb-2">Tentang Kami</h2>
@@ -153,7 +214,7 @@
 
 
 
-    
+
     <!-- Media & Informasi Section -->
     @include('partials.media-slider')
 
@@ -164,7 +225,7 @@
                 <h2 class="text-3xl font-bold text-[#e92027] uppercase tracking-wider mb-4">Dokumentasi</h2>
                 <div class="w-24 h-1 bg-[#e92027] mx-auto rounded"></div>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Image 1 -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-xl h-72 cursor-pointer">
@@ -283,16 +344,16 @@
                             Jl. Raya Indarung, Kec. Lubuk Kilangan<br>
                             Kota Padang 25237, Sumatera Barat
                         </p>
-                        
+
                         <!-- Google Maps Embed -->
                         <div class="mt-4 rounded-xl overflow-hidden shadow-lg border border-gray-100 w-full max-w-xs h-48">
-                            <iframe 
-                                width="100%" 
-                                height="100%" 
-                                frameborder="0" 
-                                scrolling="no" 
-                                marginheight="0" 
-                                marginwidth="0" 
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                frameborder="0"
+                                scrolling="no"
+                                marginheight="0"
+                                marginwidth="0"
                                 src="https://maps.google.com/maps?q=3F2F%2B6Q%20Indarung%2C%20Kota%20Padang%2C%20Sumatera%20Barat%2C%20Indonesia&t=&z=15&ie=UTF8&iwloc=&output=embed">
                             </iframe>
                         </div>
@@ -308,7 +369,7 @@
                             <a href="https://www.tiktok.com/@semenpadang1910?_t=8hadknUhwFF&_r=1" target="_blank" class="w-8 h-8 link-hover"><svg class="w-5 h-5 text-gray-600 hover:text-[#e92027] transition" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.65-1.62-1.1-.04 1.86.04 3.66.17 5.51.18 2.58-.62 5.13-2.4 7.29-1.42 1.75-3.64 2.7-5.99 2.7-3.36.03-6.54-1.74-8.19-4.57-1.74-3.08-1.55-7.06.63-9.92.51-.7 1.12-1.32 1.83-1.83 1.96-1.43 4.54-1.85 6.93-1.25.1.58.21 1.17.32 1.76-1.09-.37-2.29-.44-3.41-.09-1.13.34-2.11 1.05-2.73 2.05-.66 1.06-.82 2.37-.58 3.6.43 2.21 2.4 4.02 4.63 4.1 1.23.07 2.45-.31 3.42-1.1 1.08-.85 1.66-2.26 1.58-3.62-.06-2.58-.02-5.16-.01-7.74-.01-.98-.02-1.95-.03-2.93-.01-.65-.01-1.31-.02-1.96H12.525z"/></svg></a>
                             <a href="https://web.facebook.com/PTsemenpadang1910/" target="_blank" class="w-8 h-8 link-hover"><svg class="w-5 h-5 text-gray-600 hover:text-[#e92027] transition" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
                         </div>
-                        
+
                         <h4 class="font-bold text-gray-900 text-lg mb-2">Record Center</h4>
                         <p class="text-gray-600 hover:text-[#e92027] transition font-medium">arsipsp@sig.id</p>
                     </div>
@@ -321,7 +382,7 @@
             <div class="container mx-auto px-6 h-full flex justify-end items-center">
             </div>
         </div>
-            
+
         <!-- Copyright -->
         <div class="py-4">
             <div class="container mx-auto px-6 text-center">

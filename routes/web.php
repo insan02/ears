@@ -95,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/monitoring/{id}', [MonitoringKaryawanController::class, 'update'])->name('monitoring.update');
     Route::delete('/monitoring/{id}', [MonitoringKaryawanController::class, 'destroy'])->name('monitoring.destroy');
     Route::patch('/monitoring/{id}/advance-stage', [MonitoringKaryawanController::class, 'advanceStage'])->name('monitoring.advance-stage');
+    Route::get('/monitoring/{id}/history', [MonitoringKaryawanController::class, 'history'])->name('monitoring.history');
+    Route::post('/monitoring/{id}/progress', [MonitoringKaryawanController::class, 'addProgress'])->name('monitoring.add-progress');
 
     // ==========================================
     // FITUR MANAGEMENT AKUN & MEDIA (Admin)
