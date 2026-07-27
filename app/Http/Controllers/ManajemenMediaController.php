@@ -4,12 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\MediaInformasi;
 
 class ManajemenMediaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $media = \App\Models\MediaInformasi::latest('tanggal')->paginate(10);
+        $query = MediaInformasi::query();
+
+        // Menambahkan fitur pencarian
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('judul', 'like', "%$search%")
+                  ->orWhere('deskripsi', 'like', "%$search%");
+        }
+
+        // Pagination 10 per halaman
+        $media = $query->latest('tanggal')->paginate(15)->withQueryString();
+
         return view('manajemen-media.index', compact('media'));
     }
 
@@ -24,46 +36,59 @@ class ManajemenMediaController extends Controller
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'deskripsi' => 'required|string',
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // Validasi Gambar: Hanya JPG, JPEG, PNG, Maksimal 5 MB (5120 KB)
+            'gambar' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+        ], [
+            'gambar.mimes' => 'Format gambar harus berupa JPG, JPEG, atau PNG.',
+            'gambar.max' => 'Ukuran gambar tidak boleh lebih dari 5 MB.'
         ]);
 
         if ($request->hasFile('gambar')) {
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            // Membersihkan nama file dari karakter aneh untuk keamanan
+            $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time() . '_' . $safeName;
+
             $file->move(public_path('images/media'), $filename);
             $validated['gambar'] = 'images/media/' . $filename;
         }
 
-        \App\Models\MediaInformasi::create($validated);
+        MediaInformasi::create($validated);
 
         return redirect()->route('manajemen-media.index')->with('success', 'Berita berhasil ditambahkan');
     }
 
-    public function edit($id)
+    public function edit(string $id)
     {
-        $media = \App\Models\MediaInformasi::findOrFail($id);
+        $media = MediaInformasi::findOrFail($id);
         return view('manajemen-media.edit', compact('media'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
-        $media = \App\Models\MediaInformasi::findOrFail($id);
+        $media = MediaInformasi::findOrFail($id);
 
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'deskripsi' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // Validasi Gambar: Opsional, Hanya JPG, JPEG, PNG, Maksimal 5 MB
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+        ], [
+            'gambar.mimes' => 'Format gambar harus berupa JPG, JPEG, atau PNG.',
+            'gambar.max' => 'Ukuran gambar tidak boleh lebih dari 5 MB.'
         ]);
 
         if ($request->hasFile('gambar')) {
-            // Delete old image if exists
+            // Hapus gambar lama jika ada
             if ($media->gambar && file_exists(public_path($media->gambar))) {
                 unlink(public_path($media->gambar));
             }
 
             $file = $request->file('gambar');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
+            $filename = time() . '_' . $safeName;
+
             $file->move(public_path('images/media'), $filename);
             $validated['gambar'] = 'images/media/' . $filename;
         }
@@ -73,10 +98,11 @@ class ManajemenMediaController extends Controller
         return redirect()->route('manajemen-media.index')->with('success', 'Berita berhasil diperbarui');
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
-        $media = \App\Models\MediaInformasi::findOrFail($id);
+        $media = MediaInformasi::findOrFail($id);
 
+        // Hapus file gambar dari server
         if ($media->gambar && file_exists(public_path($media->gambar))) {
             unlink(public_path($media->gambar));
         }

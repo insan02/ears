@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Peminjaman extends Model
+class Pinjaman extends Model
 {
     use HasFactory;
 
     // Arahkan ke nama tabel yang benar di database 'ears'
-    protected $table = 'peminjaman';
+    protected $table = 'pinjaman';
 
     // Matikan timestamps karena di tabel kamu tidak ada kolom 'created_at' & 'updated_at'
     public $timestamps = false;
