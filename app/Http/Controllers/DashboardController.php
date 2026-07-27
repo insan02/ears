@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Peminjaman; 
-use App\Models\DetailPeminjaman; 
+use App\Models\Peminjaman;
+use App\Models\DetailPeminjaman;
 use App\Models\LogAktivitas;
 use App\Models\Arsip;
 use App\Models\ArsipMasuk;
@@ -83,7 +83,7 @@ class DashboardController extends Controller
         $pelabelan = $applyFilters(LogAktivitas::where('tahapan', 'Pelabelan'))->sum('jumlah_box_selesai');
         $alihMedia = $applyFilters(LogAktivitas::where('tahapan', 'Alih Media'))->sum('jumlah_box_selesai');
         $inputEArsip = $applyFilters(LogAktivitas::where('tahapan', 'Input E-Arsip'))->sum('jumlah_box_selesai');
-        
+
         // Recent Activities for Table (Add this too as it was missing from the view's data)
         $monitoringLogs = $applyFilters(LogAktivitas::with('user'))->orderBy('id', 'desc')->take(10)->get();
         // Calculate userStats for generic usage if needed, though pemilahanStats covers top table
@@ -92,12 +92,12 @@ class DashboardController extends Controller
             ->groupBy('user_id')
             ->get()
             ->map(function($stat) {
-                $stat->persentase = $stat->total_target > 0 
-                    ? round(($stat->total_selesai / $stat->total_target) * 100) 
+                $stat->persentase = $stat->total_target > 0
+                    ? round(($stat->total_selesai / $stat->total_target) * 100)
                     : 0;
                 return $stat;
             });
-        
+
         // A. Top Table & Chart Data
         $pemilahanStatsQuery = LogAktivitas::with('user')->where('tahapan', 'Pemilahan');
         $pemilahanStats = $applyFilters($pemilahanStatsQuery)
@@ -105,8 +105,8 @@ class DashboardController extends Controller
             ->groupBy('user_id')
             ->get()
             ->map(function($stat) {
-                $stat->persentase = $stat->total_target > 0 
-                    ? round(($stat->total_selesai / $stat->total_target) * 100) 
+                $stat->persentase = $stat->total_target > 0
+                    ? round(($stat->total_selesai / $stat->total_target) * 100)
                     : 0;
                 return $stat;
             });
@@ -118,8 +118,8 @@ class DashboardController extends Controller
             ->groupBy('user_id')
             ->get()
             ->map(function($stat) {
-                $stat->persentase = $stat->total_target > 0 
-                    ? round(($stat->total_selesai / $stat->total_target) * 100) 
+                $stat->persentase = $stat->total_target > 0
+                    ? round(($stat->total_selesai / $stat->total_target) * 100)
                     : 0;
                 return $stat;
             })
@@ -138,23 +138,23 @@ class DashboardController extends Controller
         ];
 
         // 2. CHART ARSIP MASUK PER BULAN (Line Chart)
-        // This should probably be "General" stats, or filtered? 
+        // This should probably be "General" stats, or filtered?
         // Usually trend charts ignore month/week filters but respect Unit/PIC if applicable.
         // Let's make it respect Unit filter if present, but ignore Month/Week filter to show the trend.
-        
+
         $arsipTrendQuery = \App\Models\ArsipMasuk::query();
         // Apply Unit Filter if exists (Manually, since ArsipMasuk structure is different from LogAktivitas)
         if ($request->has('unit_kerja') && $request->unit_kerja != '') {
             $arsipTrendQuery->where('unit_asal', $request->unit_kerja);
         }
-        
+
         $arsipTrendData = $arsipTrendQuery->selectRaw('MONTH(tanggal_terima) as bulan, COUNT(*) as total')
             ->whereYear('tanggal_terima', date('Y'))
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->pluck('total', 'bulan')
             ->toArray();
-        
+
         // Fill 1-12 months with 0 if missing
         $arsipBulananData = [];
         for($m=1; $m<=12; $m++) {
@@ -167,7 +167,7 @@ class DashboardController extends Controller
         if ($request->has('bulan') && $request->bulan != '') {
             $arsipUnitQuery->whereMonth('tanggal_terima', $request->bulan);
         }
-        // Unit filter doesn't make sense for a "Per Unit" chart (would just be 100% one slice), 
+        // Unit filter doesn't make sense for a "Per Unit" chart (would just be 100% one slice),
         // unless we want to drill down? valid. But usually we want to see comparison.
         // Let's keep it unfiltered by unit to show distribution, but respect time filters.
 
@@ -176,19 +176,19 @@ class DashboardController extends Controller
             ->orderByDesc('total')
             ->take(10) // Limit to top 10 to avoid overcrowding
             ->get();
-            
+
         $arsipUnitChart = [
             'labels' => $arsipUnitDataRaw->pluck('unit_asal'),
             'data' => $arsipUnitDataRaw->pluck('total')
         ];
 
         // --- NEW CHARTS FOR "MODUL ARSIP" (DAFTAR ARSIP) ---
-        
+
         // 1. CHART Klasifikasi (Grouped by 2 First Letters - Parent)
         // We need to fetch all and process in PHP or use complex SQL depending on DB support for substr
         // Using PHP for simplicity with small to medium datasets
         $allArsip = Arsip::with('klasifikasi')->get();
-        
+
         $klasifikasiStats = $allArsip->groupBy(function($item) {
             if ($item->klasifikasi) {
                 return substr($item->klasifikasi->kode_klasifikasi, 0, 2);
@@ -207,7 +207,7 @@ class DashboardController extends Controller
             ->groupBy('tahun')
             ->orderBy('tahun', 'asc')
             ->get();
-            
+
         $arsipTahunChart = [
             'labels' => $arsipTahunStats->pluck('tahun')->toArray(),
             'data' => $arsipTahunStats->pluck('total')->toArray()
@@ -217,7 +217,7 @@ class DashboardController extends Controller
         $arsipMediaStats = Arsip::select('jenis_media', DB::raw('count(*) as total'))
             ->groupBy('jenis_media')
             ->get();
-            
+
         $arsipMediaChart = [
             'labels' => $arsipMediaStats->pluck('jenis_media')->toArray(),
             'data' => $arsipMediaStats->pluck('total')->toArray()
@@ -238,7 +238,7 @@ class DashboardController extends Controller
         $stages = ['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'];
         // NEW: Stages for the Table (Excluding Alih Media)
         $tableStages = ['Pemilahan', 'Pendataan', 'Pelabelan', 'Input E-Arsip'];
-        
+
         $matrixData = [];
 
         // 1. Get distinct User + Unit Kerja pairs matching filters
@@ -247,7 +247,7 @@ class DashboardController extends Controller
             ->whereNotNull('user_id')
             ->whereNotNull('unit_kerja')
             ->with('user');
-        
+
         $combinations = $applyFilters($combinationsQuery)->get();
 
         foreach ($combinations as $combo) {
@@ -266,7 +266,7 @@ class DashboardController extends Controller
                 $statsQuery = LogAktivitas::where('user_id', $user->id)
                     ->where('unit_kerja', $combo->unit_kerja)
                     ->where('tahapan', $stage);
-                
+
                 if ($request->has('bulan') && $request->bulan != '') {
                     $statsQuery->whereMonth('tanggal_kerja', $request->bulan);
                 }
@@ -290,15 +290,15 @@ class DashboardController extends Controller
                     'progress' => $progress
                 ];
             }
-            
+
             // Allow row if it has activity in the filtered stages OR if we want to show it regardless?
-             // Only add if there is activity in the TABLE stages. 
+             // Only add if there is activity in the TABLE stages.
              // If they only did Alih Media, they technically won't show up here, which is what we want ("keluarkan alih media dari tabel ini")
             if($hasActivity) {
                 $matrixData[] = $row;
             }
         }
-        
+
         // Sort by User Name for better readability
         usort($matrixData, function($a, $b) {
             return strcmp($a['user']->nama, $b['user']->nama);
@@ -315,12 +315,12 @@ class DashboardController extends Controller
         // ==========================================
         $alihMediaQuery = LogAktivitas::with('user')
             ->where('tahapan', 'Alih Media');
-            
+
         $alihMediaStats = $applyFilters($alihMediaQuery)
             ->selectRaw('user_id, SUM(jumlah_box_selesai) as total_selesai')
             ->groupBy('user_id')
             ->get();
-            
+
         $alihMediaChart = [
             'labels' => $alihMediaStats->map(function($stat) { return $stat->user->nama ?? 'Unknown'; })->toArray(),
             'data'   => $alihMediaStats->pluck('total_selesai')->toArray()
@@ -335,14 +335,14 @@ class DashboardController extends Controller
         $bulanIniArsip = ArsipMasuk::whereMonth('tanggal_terima', date('m'))
                             ->whereYear('tanggal_terima', date('Y'))
                             ->count();
-        $allPics = User::all(); 
-        $allUnits = LogAktivitas::select('unit_kerja')->distinct()->pluck('unit_kerja');
-
+$allPics = User::all();
+// Ambil data langsung dari model/tabel Unit
+$allUnits = \App\Models\Unit::orderBy('nama_unit', 'asc')->get();
         // Kirim semua variabel ke View
         return view('beranda', compact(
             'dipinjam', 'kembali', 'dataDipinjam', 'dataKembali',
             'pemilahanStats', 'chartStats', 'matrixData', 'stages', 'tableStages', // Passed tableStages
-            'totalArsip', 'totalBox', 'inputEArsip', 'bulanIniArsip', 
+            'totalArsip', 'totalBox', 'inputEArsip', 'bulanIniArsip',
             'pemilahan', 'pendataan', 'pelabelan', 'alihMedia', 'monitoringLogs', 'userStats',
             'allPics', 'allUnits',
             'tahapanChartData', 'arsipBulananData', 'arsipUnitChart',

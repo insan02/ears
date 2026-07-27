@@ -24,11 +24,11 @@ class LoginController extends Controller
             // Batasi email maksimal 255 karakter
             'email' => ['required', 'email', 'max:50'],
             // Batasi password maksimal 64 atau 255 karakter (64 disarankan untuk mencegah bcrypt DoS)
-            'password' => ['required', 'string', 'max:64'],
+            'password' => ['required', 'string', 'max:20'],
         ], [
             'required' => 'Kolom :attribute wajib diisi.',
             'email' => 'Format email tidak valid.',
-            'max' => 'Kolom :attribute terlalu panjang.', // Tambahan pesan error jika melewati batas
+            'max' => 'Karakter dibatasi.', // Tambahan pesan error jika melewati batas
         ]);
 
         // 2. Cek apakah user sedang terkena limit (Brute-force protection)
