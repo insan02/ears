@@ -77,11 +77,11 @@
                 </div>
 
                 {{-- Table Container --}}
-                <div class="flex-grow overflow-x-auto w-full">
+                <div class="flex-grow overflow-x-auto w-full pb-4">
                     <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
                         <thead>
                             <tr class="bg-gray-50 text-gray-600 border-b border-gray-200">
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-28">Gambar</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-40">Galeri</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-[200px]">Judul</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-36">Tanggal</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-[300px]">Deskripsi</th>
@@ -90,11 +90,32 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 bg-white">
                             @forelse($media as $item)
+                                @php
+                                    $gambarList = json_decode($item->gambar, true);
+                                    if(!is_array($gambarList)) $gambarList = [$item->gambar];
+                                @endphp
                                 <tr class="hover:bg-red-50/30 transition duration-200 group">
                                     <td class="py-4 px-6 text-center">
-                                        <div class="h-14 w-20 md:h-16 md:w-24 rounded-lg overflow-hidden shadow-sm border border-gray-200 mx-auto group-hover:border-red-200 transition-colors">
-                                            <img src="{{ asset($item->gambar) }}" alt="{{ $item->judul }}"
-                                                class="h-full w-full object-cover transform group-hover:scale-105 transition duration-500">
+                                        <!-- ALPINE MINI CAROUSEL -->
+                                        <div x-data="{ active: 0, imgs: {{ Js::from($gambarList) }} }" class="relative h-20 w-32 md:h-24 md:w-36 rounded-xl overflow-hidden shadow-sm border border-gray-200 mx-auto group-hover:border-red-300">
+
+                                            <!-- Render Images -->
+                                            <template x-for="(img, idx) in imgs" :key="idx">
+                                                <img x-show="active === idx" :src="'/' + img" class="absolute inset-0 w-full h-full object-cover">
+                                            </template>
+
+                                            <!-- Panah Kiri Kanan -->
+                                            <template x-if="imgs.length > 1">
+                                                <div>
+                                                    <button @click="active = active === 0 ? imgs.length - 1 : active - 1" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full p-1 hover:bg-[#e92027]">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                                                    </button>
+                                                    <button @click="active = active === imgs.length - 1 ? 0 : active + 1" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full p-1 hover:bg-[#e92027]">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                                                    </button>
+                                                    <div class="absolute bottom-1 right-2 bg-black/60 text-white text-[9px] px-1.5 rounded" x-text="(active + 1) + '/' + imgs.length"></div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </td>
                                     <td class="py-4 px-6 font-bold text-gray-800 text-sm whitespace-normal line-clamp-2">
@@ -110,18 +131,17 @@
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex justify-center items-center gap-2">
-                                            <a href="{{ route('manajemen-media.edit', $item->id) }}"
-                                                class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm border border-gray-200 hover:border-amber-300" title="Edit">
+                                            <a href="{{ route('manajemen-media.edit', $item->id) }}" class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg border border-gray-200 hover:border-amber-300">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </a>
-                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-media.destroy', $item->id) }}'"
-                                                class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus">
+                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-media.destroy', $item->id) }}'" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg border border-gray-200 hover:border-red-300">
                                                 <i class="fas fa-trash-alt text-xs"></i>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
+                            <!-- ... dst (Sama seperti sblmnya) ... -->
                                 <tr>
                                     <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic bg-gray-50/50 text-sm">
                                         <div class="flex flex-col items-center justify-center gap-2">

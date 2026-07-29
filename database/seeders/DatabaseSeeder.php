@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UserSeeder::class,
+            UnitSeeder::class,
             MasterKlasifikasiSeeder::class,
             UpdateKlasifikasiHakAksesSeeder::class,
             // ArsipSeeder::class,

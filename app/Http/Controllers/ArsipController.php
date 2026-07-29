@@ -12,12 +12,12 @@ use App\Imports\ArsipImport;
 
 class ArsipController extends Controller
 {
-    public function import(Request $request) 
+    public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv'
         ]);
-        
+
         try {
             Excel::import(new ArsipImport, $request->file('file'));
             return back()->with('success', 'Data arsip berhasil diimport!');
@@ -108,49 +108,49 @@ class ArsipController extends Controller
         } else {
              $arsips = $query->paginate(100);
         }
-        
+
         // Calculate grouping and numbering based on Entry Order (First ID)
         $groupData = [];
         $lastNoBerkasOnPage = null;
-        
+
         // Fetch all unique no_berkas ordered by the time they were first created (min id)
         // This ensures Number 1 is the first file ever inserted, regardless of Year.
         $allGroups = Arsip::selectRaw('no_berkas, MIN(id) as first_id')
                         ->groupBy('no_berkas')
                         ->orderBy('first_id', 'asc')
                         ->get();
-                        
+
         // Create a fast lookup map: no_berkas => Rank (1 based)
         $rankMap = [];
         foreach ($allGroups as $index => $g) {
             $rankMap[$g->no_berkas] = $index + 1;
         }
-        
+
         foreach ($arsips as $arsip) {
             $currentNo = $arsip->no_berkas;
             $number = $rankMap[$currentNo] ?? 0;
-            
+
             // Determine visibility (Start of group on this page)
             $isStart = ($currentNo !== $lastNoBerkasOnPage);
-            
+
             $groupData[$arsip->id] = [
                 'number' => $number,
                 'is_start' => $isStart
             ];
-            
+
             $lastNoBerkasOnPage = $currentNo;
         }
 
         // Get available years for filter
         $availableYears = Arsip::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
-        
+
         // Get available boxes for filter
-        // Sort effectively might need raw query if box is numeric string, but simple orderBy is usually okay 
+        // Sort effectively might need raw query if box is numeric string, but simple orderBy is usually okay
         // unless mix of numbers and letters heavily implies numeric sort needed.
         // Assuming simple string sort or numeric sort.
         $availableBoxes = Arsip::select('no_box')
                             ->whereNotNull('no_box')
-                            ->where('no_box', '!=', '-') 
+                            ->where('no_box', '!=', '-')
                             ->distinct()
                             ->orderByRaw('CAST(no_box AS UNSIGNED) ASC') // Try numeric sort first
                             ->pluck('no_box');
@@ -168,7 +168,7 @@ class ArsipController extends Controller
         $units = \App\Models\Unit::all(); // Fetch all units
         // Calculate next number (Global Rank)
         $nextNumber = Arsip::distinct('no_berkas')->count() + 1;
-        
+
         return view('arsip.input-arsip', compact('klasifikasis', 'nextNumber', 'units'));
     }
 
@@ -218,7 +218,7 @@ class ArsipController extends Controller
                 'nama_berkas'   => $validated['nama_berkas'],
                 'unit_pengolah' => $item['unit_pengolah'],
                 'user_id'       => $user->id,
-                
+
                 // Item Specifics (Now directly in Arsip table)
                 'isi'           => $item['isi'],
                 'tahun'         => $item['tahun'] ?? null,
@@ -238,7 +238,7 @@ class ArsipController extends Controller
     public function edit($id)
     {
         $arsip = Arsip::with('klasifikasi')->findOrFail($id);
-        
+
         // Use existing nextNumber logic (though we won't use it for creation, just to keep view happy or we pass actual)
         // Actually, we should pass the existing no_berkas
         $nextNumber = $arsip->no_berkas;
@@ -276,15 +276,15 @@ class ArsipController extends Controller
             try {
                 DB::transaction(function () use ($arsip) {
                     $data = $arsip->toArray();
-                    
+
                     // Remove ID to allow new auto-increment in trash table
                     unset($data['id']);
-                    
+
                     // Add timestamp
                     $data['deleted_at'] = now();
-                    
+
                     ArsipMusnah::create($data);
-                    
+
                     $arsip->delete();
                 });
 
@@ -299,14 +299,26 @@ class ArsipController extends Controller
 
     public function musnah(Request $request)
     {
-        $query = ArsipMusnah::orderBy('deleted_at', 'desc');
+        // 1. EAGER LOADING: Memanggil relasi 'klasifikasi' sejak awal
+        // Ini wajib karena di view kita menggunakan $arsip->klasifikasi->kode_klasifikasi
+        // Jika tidak pakai 'with', Laravel akan melakukan query database berulang kali (N+1 Problem)
+        $query = ArsipMusnah::with('klasifikasi');
 
-        if ($request->has('search') && $request->search) {
-             $query->where('nama_berkas', 'like', "%{$request->search}%")
-                   ->orWhere('no_berkas', 'like', "%{$request->search}%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            // 2. CLOSURE PENCARIAN: Dibungkus dalam function()
+            // Agar kondisi 'orWhere' tidak bentrok jika nanti Anda menambahkan filter lain
+            $query->where(function($q) use ($search) {
+                $q->where('nama_berkas', 'like', "%{$search}%")
+                  ->orWhere('no_berkas', 'like', "%{$search}%")
+                  ->orWhere('isi', 'like', "%{$search}%"); // Tambahan: cari dari Uraian juga
+            });
         }
 
-        $arsips = $query->paginate(25);
+        // 3. WITH QUERY STRING: Sangat penting untuk Pagination
+        $arsips = $query->orderBy('deleted_at', 'desc')->paginate(25)->withQueryString();
+
         return view('arsip.musnah', compact('arsips'));
     }
 
@@ -332,11 +344,11 @@ class ArsipController extends Controller
 
         // Since we are editing a SPECIFIC Single Row ID, we only take the FIRST item from the list
         // (The UI enforces 1 item in edit mode usually, or we just take the first one if they added multiple - but logically edit is for one item)
-        // However, if the user "Adds" more items in Edit Mode, it's ambiguous. 
+        // However, if the user "Adds" more items in Edit Mode, it's ambiguous.
         // For SAFETY in this specific "Edit Row" context, we update the CURRENT ID with the FIRST item data.
         // If they added *new* items in the list, we optionally could create them, but that complicates "Edit Single Item".
         // Let's assume strict 1-to-1 update for simplicity as per "Edit Data" on a row context.
-        
+
         $item = $validated['isi_berkas'][0];
 
         $arsip->update([
@@ -357,7 +369,7 @@ class ArsipController extends Controller
         return redirect('/arsip')->with('success', 'Data arsip berhasil diperbarui!');
     }
 
-    public function export(Request $request) 
+    public function export(Request $request)
     {
         $type = $request->input('type');
         $ids = json_decode($request->input('ids'), true);
@@ -395,7 +407,7 @@ class ArsipController extends Controller
 
         // Level 1: Pokok Masalah (filtered by JRA Type)
         if ($level == 1) {
-            // Note: We removed 'jenis_jra' column from master_klasifikasi in revision, 
+            // Note: We removed 'jenis_jra' column from master_klasifikasi in revision,
             // so filtering by 'jenis_jra' in DB might fail or needs adjustment if we rely on it.
             // But wait, the user said "gabung aja", so maybe we don't filter in DB?
             // "3. pilihan substantif dan fasilitatif digabung aja, jadi di database kolom jenis jra nya dihapus aja"
@@ -409,9 +421,9 @@ class ArsipController extends Controller
             // Wait, if I keep the UI Step 0, it does nothing if I return same data?
             // Actually, I should probably Remove Step 0 in Frontend logic too if they are merged.
             // But for now, let's just make it return all codes regardless of type input.
-            
+
             $query = MasterKlasifikasi::select('kode_klasifikasi');
-            
+
             // if ($jraType) { $query->where('jenis_jra', $jraType); } // Column removed
 
             $codes = $query->get();
@@ -419,7 +431,7 @@ class ArsipController extends Controller
                 $parts = explode('.', $item->kode_klasifikasi);
                 return isset($parts[0]) ? $parts[0] : null;
             })->unique()->filter()->values();
-            
+
             $formatted = $unique->map(function($code) {
                 return [
                     'code' => $code,
@@ -451,7 +463,7 @@ class ArsipController extends Controller
             $items = MasterKlasifikasi::where('kode_klasifikasi', 'like', $parent . '.%')
                         ->select('id', 'kode_klasifikasi', 'jenis_arsip', 'masa_simpan', 'tindakan_akhir', 'hak_akses')
                         ->get();
-            
+
             $formatted = $items->map(function($item) {
                 return [
                     'id' => $item->id,
@@ -481,7 +493,7 @@ class ArsipController extends Controller
             'PB' => 'PB - PERBEKALAN',
             'PW' => 'PW - PENGAWASAN & SISTEM MANAJEMEN',
             'SM' => 'SM - SUMBER DAYA MANUSIA',
-            
+
             // JRA Substantif
             'BJ' => 'BJ - KEBIJAKAN',
             'DT' => 'DT - DISTRIBUSI DAN TRANSPORTASI',
@@ -502,7 +514,7 @@ class ArsipController extends Controller
             'HK.01' => 'HK.01 - Tanah / Bangunan',
             'HK.02' => 'HK.02 - Surat Berharga',
             'HK.03' => 'HK.03 - Dokumen Legal',
-            
+
             // HM
             'HM.00' => 'HM.00 - Penerangan',
             'HM.01' => 'HM.01 - Protokoler',
@@ -528,7 +540,7 @@ class ArsipController extends Controller
             'KS.01' => 'KS.01 - Laporan',
             'KS.02' => 'KS.02 - Kearsipan',
             'KS.03' => 'KS.03 - Supplies Kantor',
-            
+
             // KU
             'KU.00' => 'KU.00 - Anggaran',
             'KU.01' => 'KU.01 - Perbendaharaan',
@@ -560,7 +572,7 @@ class ArsipController extends Controller
             'SM.09' => 'SM.09 - Komitmen / Kesepakatan',
             'SM.10' => 'SM.10 - Personal File',
             'SM.10' => 'SM.10 - Personal File',
-            
+
             // Substantif placeholders (to be expanded fully if needed, but for now fallback logic is fine or basic ones)
             'BJ.00' => 'BJ.00 - Penetapan Kebijakan',
             'DT.00' => 'DT.00 - Transportir',
