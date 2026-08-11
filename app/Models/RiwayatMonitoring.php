@@ -17,6 +17,7 @@ class RiwayatMonitoring extends Model
         'tahapan',
         'tanggal_kerja',
         'jumlah_box_selesai',
+        'jumlah_tambahan',
         'keterangan',
     ];
 

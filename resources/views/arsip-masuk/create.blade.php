@@ -1,66 +1,67 @@
 <x-layout>
-    <div class="max-w-4xl mx-auto my-10">
-        <div class="bg-[#e92027] rounded-t-2xl shadow-lg relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-r from-red-900 to-[#e92027]"></div>
-            <div class="p-8 relative z-10">
-                <h2 class="text-3xl font-bold text-white">Input Arsip Masuk</h2>
-                <p class="text-white mt-2">Data awal arsip masuk</p>
-            </div>
+    {{-- Header Page --}}
+    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
+        <div class="relative z-10 max-w-4xl mx-auto text-center md:text-left">
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Input Arsip Masuk</h1>
+            <p class="text-red-100 text-sm md:text-base mt-2 opacity-90 font-light">Masukkan data awal untuk penerimaan arsip.</p>
         </div>
-        
-        <div class="bg-white p-8 rounded-b-2xl shadow-xl border border-red-100">
-            <form action="{{ route('arsip-masuk.store') }}" method="POST">
-                 @csrf
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-                     <!-- Unit Asal -->
-                     <div>
-                         <label class="block text-gray-800 font-bold mb-2 text-sm">Unit Asal</label>
-                         <select name="unit_asal" required class="w-full bg-[#fff1f2] border border-red-200 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e92027]">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+    </div>
+
+    {{-- Main Form Container --}}
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 -mt-16 md:-mt-24 relative z-20 mb-12">
+        <form action="{{ route('arsip-masuk.store') }}" method="POST" class="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            @csrf
+
+            <div class="p-6 md:p-8 space-y-6 md:space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                    <!-- Unit Asal -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-2">Unit Asal <span class="text-red-600">*</span></label>
+                        <select name="unit_asal" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
                             <option value="" disabled selected>Pilih Unit Asal</option>
-                             @foreach($units as $unit)
-                                 <option value="{{ $unit->nama_unit }}">{{ $unit->nama_unit }}</option>
-                             @endforeach
-                         </select>
-                     </div>
+                            @foreach($units as $unit)
+                                <option value="{{ $unit->nama_unit }}">{{ $unit->nama_unit }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                     <!-- Nomor Berita Acara -->
-                     <div>
-                         <label class="block text-gray-800 font-bold mb-2 text-sm">Nomor Berita Acara</label>
-                         <input type="text" name="nomor_berita_acara" required class="w-full bg-[#fff1f2] border border-red-200 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e92027]" placeholder="Masukkan Nomor Berita Acara">
-                     </div>
+                    <!-- Nomor Berita Acara -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-2">Nomor Berita Acara <span class="text-red-600">*</span></label>
+                        <input type="text" name="nomor_berita_acara" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm" placeholder="Masukkan Nomor Berita Acara">
+                    </div>
 
-                     <!-- User Penerima -->
-                     <div>
-                         <label class="block text-gray-800 font-bold mb-2 text-sm">Penerima</label>
-                         <select name="user_penerima" required class="w-full bg-[#fff1f2] border border-red-200 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e92027]">
-                             @foreach($users as $user)
-                                 <option value="{{ $user->id }}">{{ $user->nama }}</option>
-                             @endforeach
-                         </select>
-                     </div>
+                    <!-- User Penerima -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-2">Penerima <span class="text-red-600">*</span></label>
+                        <select name="user_penerima" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
+                            <option value="" disabled selected>Pilih Penerima</option>
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                     <!-- Tanggal Terima -->
-                     <div>
-                         <label class="block text-gray-800 font-bold mb-2 text-sm">Tanggal Terima</label>
-                         <input type="date" name="tanggal_terima" required class="w-full bg-[#fff1f2] border border-red-200 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e92027]">
-                     </div>
+                    <!-- Tanggal Terima -->
+                    <div>
+                        <label class="block text-sm font-bold text-gray-800 mb-2">Tanggal Terima <span class="text-red-600">*</span></label>
+                        <input type="date" name="tanggal_terima" value="{{ date('Y-m-d') }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
+                    </div>
 
-                     <!-- Jumlah Box Masuk -->
-                     <div>
-                         <label class="block text-gray-800 font-bold mb-2 text-sm">Jumlah Box Masuk</label>
-                         <input type="number" name="jumlah_box_masuk" required class="w-full bg-[#fff1f2] border border-red-200 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#e92027]" placeholder="Contoh: 5">
-                     </div>
-                 </div>
-    
-                 <div class="flex justify-end mt-10 gap-4">
-                     <a href="{{ route('arsip-masuk.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-10 rounded-lg shadow-lg transform transition hover:scale-105 flex items-center justify-center">
-                         Batal
-                     </a>
-                     <button type="submit" class="bg-[#e92027] hover:bg-[#6e1515] text-white font-bold py-3 px-10 rounded-lg shadow-lg transform transition hover:scale-105">
-                         Simpan
-                     </button>
-                 </div>
-            </form>
-        </div>
+                    <!-- Jumlah Box Masuk -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-800 mb-2">Jumlah Box Masuk <span class="text-red-600">*</span></label>
+                        <input type="number" name="jumlah_box_masuk" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm" placeholder="Contoh: 5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="bg-gray-50 px-6 py-5 md:px-8 md:py-6 border-t border-gray-100 flex flex-col md:flex-row justify-end gap-3 md:gap-4">
+                <a href="{{ route('arsip-masuk.index') }}" class="w-full md:w-auto text-center px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition">Batal</a>
+                <button type="submit" class="w-full md:w-auto px-8 py-3 bg-[#e92027] text-white rounded-xl font-bold shadow-md hover:bg-[#c41820] hover:shadow-lg transition transform hover:-translate-y-0.5">Simpan Data</button>
+            </div>
+        </form>
     </div>
 </x-layout>

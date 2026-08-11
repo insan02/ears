@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/arsip/musnah', [ArsipController::class, 'musnah'])->name('arsip.musnah');
     Route::get('/arsip', [ArsipController::class, 'index']);
-    Route::post('/arsip/export', [ArsipController::class, 'export']); 
+    Route::post('/arsip/export', [ArsipController::class, 'export']);
     Route::get('/input-arsip', [ArsipController::class, 'create']);
     Route::post('/input-arsip', [ArsipController::class, 'store'])->name('arsip.store');
     Route::get('/arsip/{id}/edit', [ArsipController::class, 'edit'])->name('arsip.edit');
@@ -74,15 +74,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/arsip-masuk/{id}/edit', [ArsipMasukController::class, 'edit'])->name('arsip-masuk.edit');
     Route::put('/arsip-masuk/{id}', [ArsipMasukController::class, 'update'])->name('arsip-masuk.update');
     Route::delete('/arsip-masuk/{id}', [ArsipMasukController::class, 'destroy'])->name('arsip-masuk.destroy');
-    Route::get('/arsip-masuk/{id}', [ArsipMasukController::class, 'show'])->name('arsip-masuk.show');
     Route::post('/arsip-masuk', [ArsipMasukController::class, 'store'])->name('arsip-masuk.store');
-    
-    // Sub-fitur Berkas Arsip Masuk
-    Route::get('/arsip-masuk/{id}/berkas', [ArsipMasukController::class, 'createBerkas'])->name('arsip-masuk.berkas.create');
-    Route::post('/arsip-masuk/{id}/berkas', [ArsipMasukController::class, 'storeBerkas'])->name('arsip-masuk.berkas.store');
-    Route::get('/arsip-masuk/{id}/berkas/{berkasId}/edit', [ArsipMasukController::class, 'editBerkas'])->name('arsip-masuk.berkas.edit');
-    Route::put('/arsip-masuk/{id}/berkas/{berkasId}', [ArsipMasukController::class, 'updateBerkas'])->name('arsip-masuk.berkas.update');
-    Route::delete('/arsip-masuk/{id}/berkas/{berkasId}', [ArsipMasukController::class, 'destroyBerkas'])->name('arsip-masuk.berkas.destroy');
     Route::get('/arsip-masuk/get-klasifikasi-options', [ArsipMasukController::class, 'getKlasifikasiOptions'])->name('arsip-masuk.get-klasifikasi-options');
 
     // ==========================================
