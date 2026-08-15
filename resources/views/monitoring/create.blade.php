@@ -2,123 +2,86 @@
     {{-- Header Page --}}
     <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
         <div class="relative z-10 max-w-4xl mx-auto text-center md:text-left">
-            <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Input Monitoring Kinerja</h1>
-            <p class="text-red-100 text-sm md:text-base mt-2 opacity-90 font-light">Catat tugas, tahapan, dan progress pengarsipan staf.</p>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Tugaskan Staf Baru</h1>
+            <p class="text-red-100 text-sm md:text-base mt-2 opacity-90 font-light">Tambahkan tugas pengarsipan baru untuk staf ke dalam Berita Acara yang ada.</p>
         </div>
         <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
     </div>
 
-    {{-- Main Form Container --}}
     <div class="max-w-4xl mx-auto px-4 sm:px-6 -mt-16 md:-mt-24 relative z-20 mb-12">
-
         @if ($errors->any())
             <div class="mb-6 bg-red-50 border-l-4 border-red-700 p-4 rounded-r-xl shadow-sm">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0"><i class="fas fa-exclamation-circle text-red-700 mt-0.5"></i></div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-bold text-red-800">Gagal Menyimpan Data!</h3>
-                        <ul class="mt-1 list-disc list-inside text-sm text-red-700">
-                            @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
-                        </ul>
-                    </div>
-                </div>
+                <ul class="list-disc list-inside text-sm font-bold text-red-700">
+                    @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                </ul>
             </div>
         @endif
 
-        <form action="{{ route('monitoring.store') }}" method="POST" class="bg-white rounded-2xl md:rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <form action="{{ route('monitoring.store') }}" method="POST" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             @csrf
+            <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-2">PIC (Staf) <span class="text-red-600">*</span></label>
+                    <select name="user_id" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
+                        <option value="" disabled selected>Pilih PIC</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>{{ $user->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="p-6 md:p-8 space-y-6 md:space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Pilih Berita Acara (BA) <span class="text-red-600">*</span></label>
+                    <select name="arsip_masuk_id" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
+                        <option value="" disabled selected>Pilih BA Target Pekerjaan</option>
+                        @foreach($arsipMasuk as $arsip)
+                            <option value="{{ $arsip->id }}" {{ old('arsip_masuk_id') == $arsip->id ? 'selected' : '' }}>
+                                BA: {{ $arsip->nomor_berita_acara }} ({{ $arsip->jumlah_box_masuk }} Box)
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                    <!-- PIC -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-800 mb-2">PIC (Staf) <span class="text-red-600">*</span></label>
-                        <select name="user_id" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
-                            <option value="" disabled selected>Pilih PIC</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>{{ $user->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Tahapan <span class="text-red-600">*</span></label>
+                    <select name="tahapan" id="tahapanSelect" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
+                        <option value="" disabled selected>Pilih Tahapan Mulai</option>
+                        <option value="Pemilahan" {{ old('tahapan') == 'Pemilahan' ? 'selected' : '' }}>Pemilahan</option>
+                        <option value="Pendataan" {{ old('tahapan') == 'Pendataan' ? 'selected' : '' }}>Pendataan</option>
+                        <option value="Pelabelan" {{ old('tahapan') == 'Pelabelan' ? 'selected' : '' }}>Pelabelan</option>
+                        <option value="Alih Media" {{ old('tahapan') == 'Alih Media' ? 'selected' : '' }}>Alih Media (Jumlah Lembar)</option>
+                        <option value="Input E-Arsip" {{ old('tahapan') == 'Input E-Arsip' ? 'selected' : '' }}>Input E-Arsip</option>
+                    </select>
+                </div>
 
-                    <!-- Tanggal Kerja -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-800 mb-2">Tanggal Pengerjaan <span class="text-red-600">*</span></label>
-                        <input type="date" name="tanggal_kerja" value="{{ old('tanggal_kerja', date('Y-m-d')) }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
-                    </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Tanggal Pekerjaan Dimulai <span class="text-red-600">*</span></label>
+                    <input type="date" name="tanggal_kerja" value="{{ old('tanggal_kerja', date('Y-m-d')) }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
+                </div>
 
-                    <!-- Tahapan Pengarsipan -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-800 mb-2">Tahapan Pengarsipan <span class="text-red-600">*</span></label>
-                        <select name="tahapan" id="tahapanSelect" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
-                            <option value="" disabled selected>Pilih Tahapan</option>
-                            <option value="Pemilahan" {{ old('tahapan') == 'Pemilahan' ? 'selected' : '' }}>Pemilahan</option>
-                            <option value="Pendataan" {{ old('tahapan') == 'Pendataan' ? 'selected' : '' }}>Pendataan</option>
-                            <option value="Pelabelan" {{ old('tahapan') == 'Pelabelan' ? 'selected' : '' }}>Pelabelan</option>
-                            <option value="Alih Media" {{ old('tahapan') == 'Alih Media' ? 'selected' : '' }}>Alih Media</option>
-                            <option value="Input E-Arsip" {{ old('tahapan') == 'Input E-Arsip' ? 'selected' : '' }}>Input E-Arsip</option>
-                        </select>
-                    </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Progress Awal <span id="lblUnit">Box</span> Selesai</label>
+                    <input type="number" name="jumlah_box_selesai" value="{{ old('jumlah_box_selesai', 0) }}" min="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
+                    <p class="text-[11px] text-gray-500 mt-1.5"><i class="fas fa-info-circle"></i> Biarkan 0 jika baru akan dimulai.</p>
+                </div>
 
-                    <!-- Nomor Berita Acara (Disembunyikan jika Alih Media) -->
-                    <div id="nbaContainer">
-                        <label class="block text-sm font-bold text-gray-800 mb-2">Nomor Berita Acara <span class="text-red-600">*</span></label>
-                        <select name="arsip_masuk_id" id="nbaSelect" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
-                            <option value="" disabled selected>Pilih Berita Acara</option>
-                            @foreach($arsipMasuk as $arsip)
-                                <option value="{{ $arsip->id }}" {{ old('arsip_masuk_id') == $arsip->id ? 'selected' : '' }}>
-                                    {{ $arsip->nomor_berita_acara }} ({{ $arsip->unit_asal }} - {{ $arsip->jumlah_box_masuk }} Box)
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Jumlah Box Selesai -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-800 mb-2">Progress Selesai (Box)</label>
-                        <input type="number" name="jumlah_box_selesai" value="{{ old('jumlah_box_selesai', 0) }}" min="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm" placeholder="Contoh: 5">
-                        <p class="text-[11px] text-gray-500 mt-1.5"><i class="fas fa-info-circle"></i> Biarkan 0 jika belum ada yang diselesaikan.</p>
-                    </div>
-
-                    <!-- Keterangan -->
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-800 mb-2">Keterangan Tambahan</label>
-                        <textarea name="keterangan" rows="4" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm resize-y" placeholder="Catatan opsional mengenai tugas ini...">{{ old('keterangan') }}</textarea>
-                    </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-800 mb-2">Keterangan / Catatan</label>
+                    <textarea name="keterangan" rows="3" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">{{ old('keterangan') }}</textarea>
                 </div>
             </div>
 
-            <!-- Buttons -->
-            <div class="bg-gray-50 px-6 py-5 md:px-8 md:py-6 border-t border-gray-100 flex flex-col md:flex-row justify-end gap-3 md:gap-4">
-                <a href="{{ route('monitoring.index') }}" class="w-full md:w-auto text-center px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition">Batal</a>
-                <button type="submit" class="w-full md:w-auto px-8 py-3 bg-[#e92027] text-white rounded-xl font-bold shadow-md hover:bg-[#c41820] hover:shadow-lg transition transform hover:-translate-y-0.5">Simpan Data</button>
+            <div class="bg-gray-50 px-6 py-5 border-t border-gray-100 flex justify-end gap-3">
+                <a href="{{ route('monitoring.index') }}" class="px-6 py-3 bg-white border border-gray-200 rounded-xl font-bold hover:bg-gray-100">Batal</a>
+                <button type="submit" class="px-8 py-3 bg-[#e92027] text-white rounded-xl font-bold hover:bg-[#c41820]">Simpan Tugas</button>
             </div>
         </form>
     </div>
-
-    <!-- Script Logika Tampilan Form -->
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tahapanSelect = document.getElementById('tahapanSelect');
-            const nbaSelect = document.getElementById('nbaSelect');
-            const nbaContainer = document.getElementById('nbaContainer');
-
-            function toggleNba() {
-                if (tahapanSelect.value === 'Alih Media') {
-                    nbaContainer.style.display = 'none';
-                    nbaSelect.removeAttribute('required');
-                    nbaSelect.value = ''; // Kosongkan pilihan jika Alih Media
-                } else {
-                    nbaContainer.style.display = 'block';
-                    nbaSelect.setAttribute('required', 'required');
-                }
-            }
-
-            if(tahapanSelect) {
-                tahapanSelect.addEventListener('change', toggleNba);
-                toggleNba(); // Jalankan saat pertama kali dimuat
-            }
+        document.getElementById('tahapanSelect').addEventListener('change', function() {
+            document.getElementById('lblUnit').innerText = this.value === 'Alih Media' ? 'Lembar' : 'Box';
         });
     </script>
 </x-layout>
