@@ -20,7 +20,7 @@
                     <path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" />
                 </svg>
             </div>
-             
+
              <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left relative z-10 gap-6">
                 <div>
                      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 drop-shadow-md">Monitoring Kinerja</h2>
@@ -36,7 +36,7 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 -mt-20 relative z-20 mb-12">
-            
+
             @if(session('error'))
                 <div class="mb-6 bg-red-100 border-l-4 border-[#e92027] p-4 rounded-r-lg shadow-sm font-bold text-[#c41820] animate-pulse flex items-center">
                     <i class="fas fa-exclamation-triangle mr-3 text-xl"></i> {{ session('error') }}
@@ -50,41 +50,37 @@
 
             <!-- Stats Row -->
             <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4 mb-6">
-                <!-- Card 1: Total -->
                 <div class="bg-white p-4 rounded-2xl shadow-lg border border-red-100 flex flex-col items-center justify-center h-28 hover:-translate-y-1 transition-transform duration-300">
                     <h2 class="text-[#a0131a] font-bold text-[10px] md:text-xs mb-1 uppercase tracking-wider">Total Arsip</h2>
                     <p class="text-2xl md:text-3xl font-black text-gray-800">{{ $total }}</p>
                 </div>
-                <!-- Card 3: Pemilahan -->
                 <div class="bg-white p-4 rounded-2xl shadow-lg border border-red-100 flex flex-col items-center justify-center h-28 hover:-translate-y-1 transition-transform duration-300">
                     <h3 class="text-orange-700 font-bold text-[10px] md:text-xs mb-1 uppercase tracking-wider">Pemilahan</h3>
                     <p class="text-2xl md:text-3xl font-black text-gray-800">{{ $pemilahan }}</p>
                 </div>
-                <!-- Card 4: Pendataan -->
                 <div class="bg-white p-4 rounded-2xl shadow-lg border border-red-100 flex flex-col items-center justify-center h-28 hover:-translate-y-1 transition-transform duration-300">
                     <h3 class="text-blue-700 font-bold text-[10px] md:text-xs mb-1 uppercase tracking-wider">Pendataan</h3>
                     <p class="text-2xl md:text-3xl font-black text-gray-800">{{ $pendataan }}</p>
                 </div>
-                <!-- Card 5: Pelabelan -->
                 <div class="bg-white p-4 rounded-2xl shadow-lg border border-red-100 flex flex-col items-center justify-center h-28 hover:-translate-y-1 transition-transform duration-300">
                     <h3 class="text-indigo-700 font-bold text-[10px] md:text-xs mb-1 uppercase tracking-wider">Pelabelan</h3>
                     <p class="text-2xl md:text-3xl font-black text-gray-800">{{ $pelabelan }}</p>
                 </div>
-                <!-- Card 6: Alih Media -->
                 <div class="bg-white p-4 rounded-2xl shadow-lg border border-red-100 flex flex-col items-center justify-center h-28 hover:-translate-y-1 transition-transform duration-300">
                     <h3 class="text-purple-700 font-bold text-[10px] md:text-xs mb-1 uppercase tracking-wider">Alih Media</h3>
                     <p class="text-2xl md:text-3xl font-black text-gray-800">{{ $alihMedia }}</p>
                 </div>
-                <!-- Card 7: Input E-Arsip -->
                 <div class="bg-white p-4 rounded-2xl shadow-lg border border-red-100 flex flex-col items-center justify-center h-28 hover:-translate-y-1 transition-transform duration-300">
                     <h3 class="text-emerald-700 font-bold text-[10px] md:text-xs mb-1 uppercase tracking-wider">E-Arsip</h3>
                     <p class="text-2xl md:text-3xl font-black text-gray-800">{{ $inputEArsip }}</p>
                 </div>
             </div>
 
-            <!-- Tampilan Filter -->
-            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 mb-8 p-4 md:p-6">
+            <!-- Tampilan Filter Custom Dropdown -->
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 mb-8 p-4 md:p-6 overflow-visible">
                 <form action="{{ route('monitoring.index') }}" method="GET" class="flex flex-col lg:flex-row gap-4 justify-between items-center">
+
+                    <!-- Search Input -->
                     <div class="relative w-full lg:w-96 group">
                          <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -92,23 +88,70 @@
                          <input type="text" name="search" value="{{ request('search') }}" onchange="this.form.submit()" placeholder="Cari aktivitas, PIC, NBA..." class="w-full py-3 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027] text-sm font-medium shadow-sm">
                     </div>
 
-                    <div class="flex gap-3 w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0 hide-scrollbar scroll-smooth">
-                        <select name="pic" onchange="this.form.submit()" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-[#e92027] outline-none block px-4 py-2.5 shadow-sm min-w-[150px]">
-                            <option value="">Semua PIC</option>
-                            @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ request('pic') == $user->id ? 'selected' : '' }}>{{ $user->nama }}</option>
-                            @endforeach
-                        </select>
-                        <select name="tahapan" onchange="this.form.submit()" class="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-[#e92027] outline-none block px-4 py-2.5 shadow-sm min-w-[170px]">
-                            <option value="">Semua Tahapan</option>
-                            <option value="Pemilahan" {{ request('tahapan') == 'Pemilahan' ? 'selected' : '' }}>Pemilahan</option>
-                            <option value="Pendataan" {{ request('tahapan') == 'Pendataan' ? 'selected' : '' }}>Pendataan</option>
-                            <option value="Pelabelan" {{ request('tahapan') == 'Pelabelan' ? 'selected' : '' }}>Pelabelan</option>
-                            <option value="Alih Media" {{ request('tahapan') == 'Alih Media' ? 'selected' : '' }}>Alih Media</option>
-                            <option value="Input E-Arsip" {{ request('tahapan') == 'Input E-Arsip' ? 'selected' : '' }}>Input E-Arsip</option>
-                        </select>
+                    <!-- Dropdowns Container -->
+                    <div class="flex flex-wrap gap-3 w-full lg:w-auto items-center">
+                        @php
+                            $chevron = '<svg class="w-4 h-4 text-gray-400 absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none transition-transform duration-200" :class="open ? \'rotate-180\' : \'\'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>';
+                        @endphp
+
+                        <!-- 1. PIC Filter -->
+                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[160px]">
+                            @php
+                                $selectedPic = request('pic') ? $users->firstWhere('id', request('pic')) : null;
+                                $picLabel = $selectedPic ? $selectedPic->nama : 'Semua PIC';
+                            @endphp
+                            <button type="button" @click="open = !open" @click.outside="open = false"
+                                    class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition-all truncate shadow-sm"
+                                    :class="open ? 'border-[#e92027] ring-2 ring-[#e92027]/20 bg-white' : ''">
+                                {{ $picLabel }}
+                                {!! $chevron !!}
+                            </button>
+                            <div x-show="open" style="display: none;" x-transition.opacity.duration.200ms
+                                 class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors {{ request('pic') == '' ? 'bg-red-50 text-[#e92027] font-bold' : 'text-gray-700 hover:bg-red-50 hover:text-[#e92027]' }}">
+                                    <input type="radio" name="pic" value="" onchange="this.form.submit()" class="hidden" {{ request('pic') == '' ? 'checked' : '' }}>
+                                    Semua PIC
+                                </label>
+                                @foreach($users as $user)
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors truncate {{ request('pic') == $user->id ? 'bg-red-50 text-[#e92027] font-bold' : 'text-gray-700 hover:bg-red-50 hover:text-[#e92027]' }}">
+                                    <input type="radio" name="pic" value="{{ $user->id }}" onchange="this.form.submit()" class="hidden" {{ request('pic') == $user->id ? 'checked' : '' }}>
+                                    {{ $user->nama }}
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- 2. Tahapan Filter -->
+                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[180px]">
+                            @php
+                                $tahapanLabel = request('tahapan') ? request('tahapan') : 'Semua Tahapan';
+                            @endphp
+                            <button type="button" @click="open = !open" @click.outside="open = false"
+                                    class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition-all truncate shadow-sm"
+                                    :class="open ? 'border-[#e92027] ring-2 ring-[#e92027]/20 bg-white' : ''">
+                                {{ $tahapanLabel }}
+                                {!! $chevron !!}
+                            </button>
+                            <div x-show="open" style="display: none;" x-transition.opacity.duration.200ms
+                                 class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors {{ request('tahapan') == '' ? 'bg-red-50 text-[#e92027] font-bold' : 'text-gray-700 hover:bg-red-50 hover:text-[#e92027]' }}">
+                                    <input type="radio" name="tahapan" value="" onchange="this.form.submit()" class="hidden" {{ request('tahapan') == '' ? 'checked' : '' }}>
+                                    Semua Tahapan
+                                </label>
+                                @foreach(['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'] as $stg)
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors {{ request('tahapan') == $stg ? 'bg-red-50 text-[#e92027] font-bold' : 'text-gray-700 hover:bg-red-50 hover:text-[#e92027]' }}">
+                                    <input type="radio" name="tahapan" value="{{ $stg }}" onchange="this.form.submit()" class="hidden" {{ request('tahapan') == $stg ? 'checked' : '' }}>
+                                    {{ $stg }}
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Reset Filter -->
                         @if(request('search') || request('pic') || request('tahapan'))
-                            <a href="{{ route('monitoring.index') }}" class="flex items-center px-4 py-2 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap">Reset</a>
+                            <a href="{{ route('monitoring.index') }}" class="flex items-center justify-center px-5 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap hover:bg-[#e92027] hover:text-white transition-all flex-grow sm:flex-none">
+                                Reset
+                            </a>
                         @endif
                     </div>
                 </form>
@@ -121,13 +164,12 @@
 
             @forelse($groupedMonitoring as $arsipId => $items)
                 @php
-                    // Pisahkan data menjadi dua kategori
                     $prosesItems = $items->filter(fn($i) => $i->status_kerja !== 'Selesai');
                     $selesaiItems = $items->filter(fn($i) => $i->status_kerja === 'Selesai');
                 @endphp
 
                 <div x-data="{ tab: 'proses' }" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 mb-10">
-                    
+
                     <!-- Judul Group NBA -->
                     <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <div class="flex items-center gap-4">
@@ -148,23 +190,21 @@
 
                     <!-- Alpine TABS Header -->
                     <div class="flex border-b border-gray-200 bg-white">
-                        <button @click="tab = 'proses'" 
-                                :class="tab === 'proses' ? 'border-[#e92027] text-[#e92027] bg-red-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" 
+                        <button @click="tab = 'proses'"
+                                :class="tab === 'proses' ? 'border-[#e92027] text-[#e92027] bg-red-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
                                 class="flex-1 md:flex-none px-6 py-3.5 border-b-2 font-bold text-sm transition-all flex items-center justify-center gap-2 outline-none">
-                            <i class="fas fa-spinner fa-spin" x-show="tab === 'proses'"></i> 
+                            <i class="fas fa-spinner fa-spin" x-show="tab === 'proses'"></i>
                             Sedang Proses <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{{ $prosesItems->count() }}</span>
                         </button>
-                        <button @click="tab = 'selesai'" 
-                                :class="tab === 'selesai' ? 'border-emerald-500 text-emerald-600 bg-emerald-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'" 
+                        <button @click="tab = 'selesai'"
+                                :class="tab === 'selesai' ? 'border-emerald-500 text-emerald-600 bg-emerald-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
                                 class="flex-1 md:flex-none px-6 py-3.5 border-b-2 font-bold text-sm transition-all flex items-center justify-center gap-2 outline-none">
                             <i class="fas fa-check-circle" x-show="tab === 'selesai'"></i>
                             Riwayat Selesai <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{{ $selesaiItems->count() }}</span>
                         </button>
                     </div>
 
-                    <!-- ============================================== -->
-                    <!-- KONTEN TAB: SEDANG PROSES                      -->
-                    <!-- ============================================== -->
+                    <!-- KONTEN TAB: SEDANG PROSES -->
                     <div x-show="tab === 'proses'" x-transition.opacity>
                         @if($prosesItems->isEmpty())
                             <div class="p-8 text-center text-gray-400">
@@ -172,9 +212,7 @@
                                 <p class="text-sm font-medium">Tidak ada tugas yang sedang dikerjakan pada BA ini.</p>
                             </div>
                         @else
-                            
                             <!-- MOBILE VIEW (CARD) -->
-                            <!-- Menggunakan md:hidden agar di HP menjadi card -->
                             <div class="md:hidden p-4 bg-gray-50/50 space-y-4">
                                 @foreach($prosesItems as $item)
                                     <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm relative">
@@ -184,7 +222,7 @@
                                                 <div class="text-[11px] text-gray-500">{{ \Carbon\Carbon::parse($item->tanggal_kerja)->format('d M Y') }}</div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="grid grid-cols-2 gap-3 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
                                             <div>
                                                 <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Tahapan</span>
@@ -200,7 +238,7 @@
                                             <div class="flex items-center gap-2">
                                                 <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 rounded-lg text-xs font-bold border border-purple-100"><i class="fas fa-history"></i> Log</button>
                                                 @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
-                                                    @if(!in_array($item->status_kerja, ['Selesai', 'Menunggu Alih Media', 'Menunggu E-Arsip']))
+                                                    @if(!in_array($item->status_kerja, ['Selesai', 'Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                         <button type="button" onclick="openProgressModal({{ $item->id }}, '{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}')" class="p-2 text-blue-600 bg-blue-50 rounded-lg text-xs font-bold border border-blue-100"><i class="fas fa-plus"></i></button>
                                                     @endif
                                                 @endif
@@ -209,7 +247,7 @@
                                             <div class="flex items-center gap-2 mt-2 w-full">
                                                 <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="flex-grow">
                                                     @csrf @method('PATCH')
-                                                    @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip']))
+                                                    @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                         <button type="button" disabled class="w-full px-3 py-2 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200"><i class="fas fa-clock mr-1"></i> TERTUNGGU</button>
                                                     @else
                                                         @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
@@ -236,7 +274,6 @@
                             </div>
 
                             <!-- DESKTOP VIEW (TABLE) -->
-                            <!-- Menggunakan hidden md:block agar di Laptop jadi Tabel -->
                             <div class="hidden md:block overflow-x-auto w-full p-6">
                                 <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
                                     <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
@@ -255,7 +292,7 @@
                                                 <td class="py-4 px-6 text-center">
                                                     <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-[180px]">
                                                         @csrf @method('PATCH')
-                                                        @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip']))
+                                                        @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                             <button type="button" disabled class="w-full px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 shadow-sm"><i class="fas fa-clock mr-1"></i> {{ strtoupper($item->status_kerja) }}</button>
                                                         @else
                                                             @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
@@ -275,7 +312,7 @@
                                                 </td>
                                                 <td class="py-4 px-4 text-center">
                                                     <div class="flex items-center justify-center gap-1">
-                                                        @if(!in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip']) && (Auth::user()->role === 'admin' || Auth::id() == $item->user_id))
+                                                        @if(!in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']) && (Auth::user()->role === 'admin' || Auth::id() == $item->user_id))
                                                             <button type="button" onclick="openProgressModal({{ $item->id }}, '{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}')" class="p-2 text-white bg-[#e92027] hover:bg-[#c41820] shadow-sm rounded-lg transition" title="Tambah Progress"><i class="fas fa-plus"></i></button>
                                                         @endif
                                                         <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-lg transition" title="Riwayat"><i class="fas fa-history"></i></button>
@@ -299,9 +336,7 @@
                         @endif
                     </div>
 
-                    <!-- ============================================== -->
-                    <!-- KONTEN TAB: RIWAYAT SELESAI                    -->
-                    <!-- ============================================== -->
+                    <!-- KONTEN TAB: RIWAYAT SELESAI -->
                     <div x-show="tab === 'selesai'" x-cloak x-transition.opacity>
                         @if($selesaiItems->isEmpty())
                             <div class="p-8 text-center text-gray-400">
@@ -309,7 +344,6 @@
                                 <p class="text-sm font-medium">Belum ada tugas yang selesai (menjadi riwayat) pada BA ini.</p>
                             </div>
                         @else
-                            
                             <!-- MOBILE VIEW (CARD) -->
                             <div class="md:hidden p-4 bg-gray-50/50 space-y-4">
                                 @foreach($selesaiItems as $item)
@@ -401,7 +435,7 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORY (Desain Mobile Responsif menggunakan List Card) -->
+    <!-- MODAL HISTORY -->
     <div id="historyModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeHistoryModal()"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div></div>
@@ -414,12 +448,9 @@
                     </h3>
                     <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-[#e92027] transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
-                
-                <!-- Container untuk List Card Riwayat -->
-                <div class="px-6 py-6 max-h-[60vh] overflow-y-auto bg-gray-50/50 custom-scrollbar" id="historyContainer">
-                    <!-- Diisi oleh AJAX (JS) -->
-                </div>
-                
+
+                <div class="px-6 py-6 max-h-[60vh] overflow-y-auto bg-gray-50/50 custom-scrollbar" id="historyContainer"></div>
+
                 <div class="bg-white px-6 py-4 flex flex-row-reverse border-t border-gray-100">
                     <button type="button" class="w-full inline-flex justify-center rounded-xl border border-gray-300 px-6 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:ml-3 sm:w-auto sm:text-sm transition-all shadow-sm" onclick="closeHistoryModal()">Tutup Log</button>
                 </div>
@@ -475,22 +506,21 @@
         window.confirmAdvance = function(formId, currentStage) {
             let nextStage = '', confirmTitle = 'Lanjutkan Tahapan?', confirmText = '';
 
-            if(currentStage === 'Pemilahan') { nextStage = 'Pendataan'; confirmText = 'Aktivitas staf ini akan dipindahkan ke tahap Pendataan. Data Pemilahan akan dikunci sebagai riwayat.'; }
-            else if(currentStage === 'Pendataan') { nextStage = 'Pelabelan'; confirmText = 'Aktivitas staf ini akan dipindahkan ke tahap Pelabelan. Data Pendataan akan dikunci sebagai riwayat.'; }
+            if(currentStage === 'Pemilahan') { nextStage = 'Pendataan'; confirmText = 'Aktivitas staf ini akan dipindah ke tahap Pendataan. Historis akan dibuat.'; }
+            else if(currentStage === 'Pendataan') { nextStage = 'Pelabelan'; confirmText = 'Aktivitas staf ini akan dipindah ke tahap Pelabelan. Historis akan dibuat.'; }
             else if(currentStage === 'Pelabelan') { nextStage = 'MENUNGGU'; confirmTitle = 'Selesaikan Pelabelan?'; confirmText = 'Tugas ini akan dikunci hingga Staf Alih Media mengambil alih.'; }
             else if(currentStage === 'Alih Media') { nextStage = 'MENUNGGU'; confirmTitle = 'Selesaikan Alih Media?'; confirmText = 'Tugas ini akan dikunci hingga Staf E-Arsip melakukan pekerjaannya.'; }
             else if(currentStage === 'Input E-Arsip') { nextStage = 'SELESAI'; confirmTitle = 'Selesaikan Input E-Arsip?'; confirmText = 'Seluruh pekerjaan tim pada Berita Acara ini akan ditandai SELESAI total.'; }
-            
-            if (!nextStage) return; 
+
+            if (!nextStage) return;
 
             Swal.fire({
                 title: confirmTitle, text: confirmText, icon: 'question',
-                showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB', 
+                showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
                 confirmButtonText: 'Ya, Lanjutkan', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
             }).then((result) => { if (result.isConfirmed) document.getElementById(formId).submit(); });
         }
 
-        // PERUBAHAN BESAR: Log Modal sekarang menggunakan List Card agar tidak perlu scroll ke samping di HP
         window.openHistory = function(id) {
             const modal = document.getElementById('historyModal');
             const container = document.getElementById('historyContainer');
@@ -502,11 +532,11 @@
                 .then(data => {
                     container.innerHTML = '';
                     if (data.length === 0) return container.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fas fa-history text-3xl mb-3 text-gray-300"></i><br>Belum ada riwayat tercatat.</div>';
-                    
+
                     data.forEach(item => {
                         const date = new Date(item.created_at).toLocaleString('id-ID', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
                         const labelUnit = item.tahapan === 'Alih Media' ? 'Lembar' : 'Box';
-                        
+
                         let badgeTambahan = `<span class="text-gray-400 font-medium italic text-xs">0 Penambahan</span>`;
                         if (item.jumlah_tambahan > 0) badgeTambahan = `<span class="text-green-600 bg-green-50 px-2 py-1 rounded font-bold text-xs">+${item.jumlah_tambahan} ${labelUnit}</span>`;
                         else if (item.jumlah_tambahan < 0) badgeTambahan = `<span class="text-red-600 bg-red-50 px-2 py-1 rounded font-bold text-xs">${item.jumlah_tambahan} ${labelUnit}</span>`;
@@ -535,7 +565,7 @@
                     });
                 }).catch(() => container.innerHTML = '<div class="text-center py-8 text-red-500"><i class="fas fa-exclamation-triangle text-3xl mb-3"></i><br>Gagal memuat data.</div>');
         }
-        
+
         window.closeHistoryModal = function() { document.getElementById('historyModal').classList.add('hidden'); }
 
         window.openProgressModal = function(id, unitLabel = 'Box') {

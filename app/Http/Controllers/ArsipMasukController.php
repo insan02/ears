@@ -36,7 +36,7 @@ class ArsipMasukController extends Controller
             $query->whereYear('tanggal_terima', $request->year);
         }
 
-        $arsipMasuk = $query->paginate(15)->withQueryString();
+        $arsipMasuk = $query->paginate(20)->withQueryString();
 
         $unitAsalOptions = ArsipMasuk::select('unit_asal')->distinct()->pluck('unit_asal');
         $yearOptions = ArsipMasuk::selectRaw('YEAR(tanggal_terima) as year')->distinct()->orderBy('year', 'desc')->pluck('year');
