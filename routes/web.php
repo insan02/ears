@@ -20,7 +20,6 @@ use App\Http\Controllers\ManajemenMediaController;
 // ==========================================
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
-// Debug Route removed
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Password Reset Routes
@@ -43,22 +42,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/beranda', [DashboardController::class, 'index'])->name('beranda');
 
     // ==========================================
-    // FITUR ARSIP (User's Changes - HEAD)
+    // FITUR ARSIP
     // ==========================================
+    // PERBAIKAN: Pindahkan Route Import & Lainnya ke atas sebelum Route {id}
     Route::get('/arsip/musnah', [ArsipController::class, 'musnah'])->name('arsip.musnah');
-    Route::get('/arsip', [ArsipController::class, 'index']);
     Route::post('/arsip/export', [ArsipController::class, 'export']);
+    Route::get('/arsip/import', [ArsipController::class, 'showImportForm'])->name('arsip.import');
+    Route::post('/arsip/import', [ArsipController::class, 'import'])->name('arsip.import.process');
+    Route::get('/api/klasifikasi-options', [ArsipController::class, 'getKlasifikasiOptions']);
+
+    // Core Resource Arsip
+    Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
     Route::get('/input-arsip', [ArsipController::class, 'create']);
     Route::post('/input-arsip', [ArsipController::class, 'store'])->name('arsip.store');
     Route::get('/arsip/{id}/edit', [ArsipController::class, 'edit'])->name('arsip.edit');
     Route::put('/arsip/{id}', [ArsipController::class, 'update'])->name('arsip.update');
-    Route::get('/arsip/import', [ArsipController::class, 'showImportForm'])->name('arsip.import');
-    Route::post('/arsip/import', [ArsipController::class, 'import'])->name('arsip.import.process');
-    Route::get('/api/klasifikasi-options', [ArsipController::class, 'getKlasifikasiOptions']);
     Route::delete('/arsip/{id}', [ArsipController::class, 'destroy'])->name('arsip.destroy');
 
     // ==========================================
-    // FITUR PEMINJAMAN (Incoming/Main)
+    // FITUR PEMINJAMAN
     // ==========================================
     Route::get('/peminjaman/export', [PeminjamanController::class, 'export']);
     Route::patch('/peminjaman/{id}/complete', [PeminjamanController::class, 'complete']);
@@ -66,7 +68,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('peminjaman', PeminjamanController::class);
 
     // ==========================================
-    // FITUR ARSIP MASUK (Incoming/Main)
+    // FITUR ARSIP MASUK
     // ==========================================
     Route::get('/arsip-masuk', [ArsipMasukController::class, 'index'])->name('arsip-masuk.index');
     Route::post('/arsip-masuk/export', [ArsipMasukController::class, 'export'])->name('arsip-masuk.export');
@@ -102,12 +104,4 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    // ==========================================
-    // DEBUGGING
-    // ==========================================
-    Route::get('/debug-php', function () {
-        return phpinfo();
-    });
-
 });

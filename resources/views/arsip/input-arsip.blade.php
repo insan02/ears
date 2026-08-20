@@ -19,18 +19,18 @@
         </div>
         @endif
 
-        
+
         {{-- Main Card Container --}}
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            
+
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex flex-col min-h-[600px]">
-                
+
                 <form action="{{ isset($arsip) ? route('arsip.update', $arsip->id) : route('arsip.store') }}" method="POST" class="flex flex-col flex-1 h-full">
                     @csrf
                     @if(isset($arsip))
                         @method('PUT')
                     @endif
-                    
+
                     {{-- Header --}}
                     <div class="px-8 py-6 border-b border-gray-50 bg-gradient-to-r from-red-600 to-red-800 flex justify-between items-center shrink-0">
                         <div class="flex items-center gap-4">
@@ -59,10 +59,10 @@
 
                     {{-- Scrollable Content Area --}}
                     <div class="flex-1 overflow-y-auto overflow-x-hidden p-8 bg-gray-50/50">
-                        
+
                         {{-- STEP 1 --}}
                         <div x-show="formStep === 1" x-transition:enter="transition ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-500" x-transition:enter-start="opacity-0 translate-y-10 scale-95" x-transition:enter-end="opacity-100 translate-y-0 scale-100">
-                            
+
                             <div class="max-w-xl mx-auto py-12 space-y-12">
                                 <div class="text-center space-y-4">
                                     <div class="inline-flex items-center justify-center w-20 h-20 bg-red-50 rounded-3xl text-red-600 mb-2 shadow-sm transform transition hover:scale-110 hover:rotate-3 duration-300">
@@ -95,7 +95,7 @@
                                              <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                                 <svg class="w-6 h-6 text-gray-300 group-focus-within:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                             </div>
-                                            <input type="text" name="nama_berkas" x-model="namaBerkas" placeholder="Contoh: Laporan Keuangan 2024" 
+                                            <input type="text" name="nama_berkas" x-model="namaBerkas" placeholder="Contoh: Laporan Keuangan 2024"
                                                 class="w-full pl-14 pr-6 py-5 border-2 border-gray-100 rounded-2xl bg-white text-gray-800 font-bold text-lg shadow-sm focus:border-red-500 focus:ring-[6px] focus:ring-red-100 outline-none transition-all placeholder:font-normal placeholder:text-gray-300">
                                         </div>
                                     </div>
@@ -115,9 +115,9 @@
 
                     {{-- STEP 2 --}}
                     <div x-show="formStep === 2" style="display: none;" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-[20px]" x-transition:enter-end="opacity-100 translate-x-0">
-                        
+
                         <div class="space-y-8">
-                            
+
                             {{-- SECTION 1: CLASSIFICATION & UNIT --}}
                             <div class="bg-gray-50/50 p-6 rounded-3xl border border-gray-100">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -142,7 +142,7 @@
                                         <label class="block font-bold text-gray-700 mb-2 text-sm uppercase tracking-wide">Kode Klasifikasi</label>
                                         {{-- Bind validation input to parent state
                                         <input type="hidden" name="klasifikasi_id" x-model="klasifikasiId"> --}}
-                                        
+
                                         {{-- Trigger --}}
                                         <div @click="toggle()" class="w-full p-4 border-2 border-transparent bg-white rounded-2xl focus:ring-4 ring-offset-0 focus:ring-red-100 ring-red-500 cursor-pointer flex justify-between items-center shadow-sm hover:bg-gray-50 transition-colors">
                                             <span x-text="displayText" :class="{'text-gray-400': !selectedItem, 'text-gray-800 font-bold': selectedItem}"></span>
@@ -150,10 +150,10 @@
                                         </div>
 
                                         {{-- Dropdown --}}
-                                        <div x-show="open" @click.away="open = false" 
+                                        <div x-show="open" @click.away="open = false"
                                             class="absolute z-50 w-full mt-2 bg-white border border-red-100 rounded-2xl shadow-2xl max-h-80 overflow-y-auto"
                                             style="display: none;">
-                                            
+
                                             {{-- Header --}}
                                             <div class="px-5 py-3 bg-red-50/50 border-b border-red-100 flex items-center gap-3 sticky top-0 backdrop-blur-sm z-10">
                                                 <template x-if="step > 1">
@@ -161,14 +161,14 @@
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                                                     </button>
                                                 </template>
-                                                <span class="text-xs font-bold text-red-800 tracking-wider uppercase" 
+                                                <span class="text-xs font-bold text-red-800 tracking-wider uppercase"
                                                     x-text="step === 1 ? 'Pilih Pokok Masalah' : (step === 2 ? 'Pilih Sub Masalah' : 'Pilih Jenis Arsip')">
                                                 </span>
                                             </div>
 
                                             <ul x-show="!loading" class="py-2">
                                                 <template x-for="option in options" :key="option.code">
-                                                    <li @click="selectOption(option)" 
+                                                    <li @click="selectOption(option)"
                                                         class="px-5 py-3 hover:bg-red-50 cursor-pointer text-sm text-gray-700 flex justify-between items-center group transition">
                                                         <span x-text="option.label" class="group-hover:text-red-700 font-medium"></span>
                                                         <svg class="w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -188,7 +188,7 @@
                                         <span class="text-xs font-bold text-gray-400 uppercase">Akses</span>
                                         <div class="text-right">
                                             <span x-text="newHakAkses || '-'" class="block text-sm font-bold text-red-600 truncate"></span>
-                                            {{-- <input type="hidden" name="hak_akses" required> --}} 
+                                            {{-- <input type="hidden" name="hak_akses" required> --}}
                                         </div>
                                     </div>
                                     <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -208,21 +208,21 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {{-- SECTION 2: INPUT FORM --}}
                             <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-3xl border border-red-100 shadow-sm space-y-4">
                                 <h3 class="text-sm font-black text-red-900 uppercase tracking-wide flex items-center gap-2">
                                     <span class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs">02</span>
                                     Input Isi Berkas
                                 </h3>
-                                
+
                                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                                     <div class="md:col-span-12 space-y-1">
                                         <label class="text-xs font-bold text-gray-500 uppercase ml-1">Deskripsi Berkas</label>
-                                        <input type="text" x-ref="uraian" x-model="newIsi" :name="isEdit ? 'isi_berkas[0][isi]' : ''" @keydown.enter.prevent="addIsi()" placeholder="Misal: Kwitansi Pembelian ATK..." 
+                                        <input type="text" x-ref="uraian" x-model="newIsi" :name="isEdit ? 'isi_berkas[0][isi]' : ''" @keydown.enter.prevent="addIsi()" placeholder="Misal: Kwitansi Pembelian ATK..."
                                         class="w-full p-3 border-2 border-transparent bg-white rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-100 outline-none transition shadow-sm font-medium">
                                     </div>
-                                    
+
                                     <div class="md:col-span-3 space-y-1">
                                         <label class="text-xs font-bold text-gray-500 uppercase ml-1">Jenis</label>
                                         <select x-model="newMedia" :name="isEdit ? 'isi_berkas[0][jenis_media]' : ''" @keydown.enter.prevent="addIsi()" class="w-full p-3 border-2 border-transparent bg-white rounded-xl focus:border-red-500 outline-none transition shadow-sm text-sm">
@@ -234,18 +234,18 @@
                                     </div>
                                     <div class="md:col-span-2 space-y-1">
                                         <label class="text-xs font-bold text-gray-500 uppercase ml-1">Box</label>
-                                        <input type="text" x-model="newNoBox" :name="isEdit ? 'isi_berkas[0][no_box]' : ''" @keydown.enter.prevent="addIsi()" placeholder="Box 1" 
+                                        <input type="text" x-model="newNoBox" :name="isEdit ? 'isi_berkas[0][no_box]' : ''" @keydown.enter.prevent="addIsi()" placeholder="Box 1"
                                             class="w-full p-3 border-2 border-transparent bg-white rounded-xl focus:border-red-500 outline-none transition shadow-sm text-sm text-center font-bold">
                                     </div>
 
                                     <div class="md:col-span-2 space-y-1">
                                         <label class="text-xs font-bold text-gray-500 uppercase ml-1">Tahun</label>
-                                        <input type="number" x-model="newTahun" :name="isEdit ? 'isi_berkas[0][tahun]' : ''" @keydown.enter.prevent="addIsi()" placeholder="YYYY" 
+                                        <input type="number" x-model="newTahun" :name="isEdit ? 'isi_berkas[0][tahun]' : ''" @keydown.enter.prevent="addIsi()" placeholder="YYYY"
                                             class="w-full p-3 border-2 border-transparent bg-white rounded-xl focus:border-red-500 outline-none transition shadow-sm text-sm text-center">
                                     </div>
                                     <div class="md:col-span-3 space-y-1">
                                         <label class="text-xs font-bold text-gray-500 uppercase ml-1">Tanggal</label>
-                                        <input type="date" x-model="newTanggal" :name="isEdit ? 'isi_berkas[0][tanggal]' : ''" @keydown.enter.prevent="addIsi()" 
+                                        <input type="date" x-model="newTanggal" :name="isEdit ? 'isi_berkas[0][tanggal]' : ''" @keydown.enter.prevent="addIsi()"
                                             class="w-full p-3 border-2 border-transparent bg-white rounded-xl focus:border-red-500 outline-none transition shadow-sm text-sm text-center text-gray-600">
                                     </div>
 
@@ -257,7 +257,7 @@
                                 </div>
 
                                 <div class="pt-2" x-show="!isEdit">
-                                    <button type="button" @click="addIsi()" 
+                                    <button type="button" @click="addIsi()"
                                         class="w-full bg-gradient-to-r from-red-600 to-red-800 text-white p-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:shadow-red-300 hover:scale-[1.01] active:scale-95 transition flex justify-center items-center gap-2 group-btn">
                                         <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                         TAMBAH KE DAFTAR
@@ -278,53 +278,68 @@
                                             <span class="text-xs text-gray-400 font-bold uppercase block">Items</span>
                                         </div>
                                     </div>
-                                    
-                                    <div class="overflow-x-auto custom-scrollbar max-h-[500px]">
-                                        <table class="w-full text-sm text-left relative">
-                                            <thead class="bg-white text-gray-400 font-bold uppercase text-[10px] tracking-wider sticky top-0 z-10 shadow-sm">
+
+                                    <!-- Mobile View (Cards) -->
+                                    <div class="block md:hidden p-4 bg-gray-50/30 space-y-4 max-h-[500px] overflow-y-auto">
+                                        <template x-for="(item, index) in isiBerkas" :key="index">
+                                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 relative">
+                                                <button type="button" @click="removeIsi(index)" class="absolute top-4 right-4 text-red-500 bg-red-50 p-1.5 rounded-lg"><i class="fas fa-trash-alt"></i></button>
+                                                <button type="button" @click="editItem(index)" class="absolute top-4 right-12 text-blue-500 bg-blue-50 p-1.5 rounded-lg"><i class="fas fa-pen"></i></button>
+
+                                                <div class="mb-2"><span class="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded" x-text="item.kode_klasifikasi"></span></div>
+                                                <div class="font-bold text-gray-800 text-sm mb-1 truncate pr-16" x-text="namaBerkas"></div>
+                                                <div class="text-xs text-gray-500 mb-3 line-clamp-2" x-text="item.isi"></div>
+                                                <div class="grid grid-cols-2 gap-2 text-[10px] bg-gray-50 p-2 rounded-lg mb-2">
+                                                    <div><span class="text-gray-400 uppercase font-bold block">Tahun / Tgl</span><span class="font-bold text-gray-700" x-text="item.tahun + ' (' + item.tanggal + ')'"></span></div>
+                                                    <div><span class="text-gray-400 uppercase font-bold block">Box & Jml</span><span class="font-bold text-gray-700" x-text="'Box '+item.no_box+' / '+item.jumlah+' Jml'"></span></div>
+                                                    <div><span class="text-gray-400 uppercase font-bold block">Akses</span><span class="font-bold text-red-600" x-text="item.hak_akses"></span></div>
+                                                    <div><span class="text-gray-400 uppercase font-bold block">Unit</span><span class="font-bold text-gray-700 truncate block" x-text="item.unit_pengolah"></span></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div x-show="isiBerkas.length === 0" class="text-center py-10 text-gray-400 italic text-sm border-2 border-dashed border-gray-200 rounded-xl">Belum ada item ditambahkan.</div>
+                                    </div>
+
+                                    <!-- Desktop View (Table) -->
+                                    <div class="hidden md:block overflow-x-auto custom-scrollbar max-h-[500px]">
+                                        <table class="w-full text-xs text-left relative table-fixed">
+                                            <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider sticky top-0 z-10 shadow-sm border-b border-gray-200">
                                                 <tr>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Kode Klasifikasi</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur">Nama Berkas</th>
-                                                    <th class="px-3 py-4 w-1/4 bg-gray-50/90 backdrop-blur">Isi Berkas</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Tahun</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Tanggal</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Jml</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Hak Akses</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Masa Simpan</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Tindakan</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Box</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-left">Unit Pengolah</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-center">Jenis</th>
-                                                    <th class="px-3 py-4 bg-gray-50/90 backdrop-blur text-right">Aksi</th>
+                                                    <th class="px-4 py-3 w-1/4">Klasifikasi & Nama</th>
+                                                    <th class="px-4 py-3 w-1/4">Isi Berkas</th>
+                                                    <th class="px-4 py-3 w-32 text-center">Fisik (Thn/Tgl/Box)</th>
+                                                    <th class="px-4 py-3 w-32 text-center">Status (Akses/Tndkn)</th>
+                                                    <th class="px-4 py-3 w-32 text-center">Unit & Media</th>
+                                                    <th class="px-4 py-3 w-20 text-center">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-50">
                                                 <template x-for="(item, index) in isiBerkas" :key="index">
-                                                    <tr x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="group hover:bg-red-50/20 transition-colors">
-                                                        <td class="px-3 py-4 text-center font-bold text-red-600" x-text="item.kode_klasifikasi"></td>
-                                                        <td class="px-3 py-4 font-bold text-gray-700" x-text="namaBerkas"></td>
-                                                        <td class="px-3 py-4 text-gray-600 font-medium" x-text="item.isi"></td>
-                                                        <td class="px-3 py-4 text-center font-bold text-gray-700" x-text="item.tahun"></td>
-                                                        <td class="px-3 py-4 text-center text-xs text-gray-500" x-text="item.tanggal"></td>
-                                                        <td class="px-3 py-4 text-center font-bold text-gray-700" x-text="item.jumlah"></td>
-                                                        <td class="px-3 py-4 text-center text-xs">
-                                                            <span class="px-2 py-1 rounded-full bg-red-50 text-red-600 font-bold" x-text="item.hak_akses || '-'"></span>
+                                                    <tr x-transition:enter="transition ease-out duration-300" class="group hover:bg-red-50/30 transition-colors">
+                                                        <td class="px-4 py-3">
+                                                            <div class="mb-1"><span class="bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold text-[9px] border border-red-200" x-text="item.kode_klasifikasi"></span></div>
+                                                            <div class="font-bold text-gray-800 truncate" x-text="namaBerkas" :title="namaBerkas"></div>
                                                         </td>
-                                                        <td class="px-3 py-4 text-center text-xs font-bold text-gray-600" x-text="item.masa_simpan"></td>
-                                                        <td class="px-3 py-4 text-center text-xs font-bold text-gray-600" x-text="item.tindakan_akhir"></td>
-                                                        <td class="px-3 py-4 text-center font-mono font-bold text-gray-700" x-text="item.no_box"></td>
-                                                        <td class="px-3 py-4 text-sm font-bold text-gray-600" x-text="item.unit_pengolah"></td>
-                                                        <td class="px-3 py-4 text-center">
-                                                            <span class="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold text-gray-500" x-text="item.jenis_media"></span>
+                                                        <td class="px-4 py-3 text-gray-600 line-clamp-2" x-text="item.isi" :title="item.isi"></td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            <div class="font-bold text-gray-800" x-text="item.tahun || '-'"></div>
+                                                            <div class="text-[10px] text-gray-500 my-0.5" x-text="item.tanggal || '-'"></div>
+                                                            <div class="text-[10px] bg-gray-100 px-2 rounded inline-block font-bold">Box: <span class="text-red-600 font-mono" x-text="item.no_box"></span> | <span x-text="item.jumlah"></span></div>
                                                         </td>
-                                                        <td class="px-3 py-4 text-right flex justify-end gap-2">
-                                                            <button type="button" @click="editItem(index)" class="p-2 text-gray-300 hover:text-blue-600 hover:bg-blue-50 rounded-full transition-all" title="Edit Item">
-                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                                            </button>
-                                                            <button type="button" @click="removeIsi(index)" class="p-2 text-gray-300 hover:text-red-600 hover:bg-red-50 rounded-full transition-all">
-                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                            </button>
-                                                            {{-- Hidden Inputs (Only render if NOT in Edit Mode, to avoid conflict) --}}
+                                                        <td class="px-4 py-3 text-center">
+                                                            <div class="text-[9px] font-bold px-2 py-0.5 rounded-full border mb-1 truncate bg-gray-50 text-gray-600 border-gray-200" x-text="'Akses: '+item.hak_akses"></div>
+                                                            <div class="text-[9px] font-bold px-2 py-0.5 rounded-full border truncate bg-gray-50 text-gray-600 border-gray-200" x-text="'Tndkn: '+item.tindakan_akhir"></div>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            <div class="font-bold text-gray-700 text-[10px] truncate uppercase mb-1" x-text="item.unit_pengolah" :title="item.unit_pengolah"></div>
+                                                            <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded border border-blue-200 text-[9px] font-bold uppercase" x-text="item.jenis_media"></span>
+                                                        </td>
+                                                        <td class="px-4 py-3 text-center">
+                                                            <div class="flex justify-center gap-1.5">
+                                                                <button type="button" @click="editItem(index)" class="p-1.5 text-amber-500 bg-white border border-gray-200 hover:bg-amber-50 rounded-lg shadow-sm"><i class="fas fa-pen"></i></button>
+                                                                <button type="button" @click="removeIsi(index)" class="p-1.5 text-red-500 bg-white border border-gray-200 hover:bg-red-50 rounded-lg shadow-sm"><i class="fas fa-trash-alt"></i></button>
+                                                            </div>
+
                                                             <template x-if="!isEdit">
                                                                 <div>
                                                                     <input type="hidden" :name="`isi_berkas[${index}][isi]`" :value="item.isi">
@@ -344,27 +359,25 @@
                                                     </tr>
                                                 </template>
                                                 <tr x-show="isiBerkas.length === 0">
-                                                    <td colspan="6" class="px-6 py-20 text-center">
-                                                        <div class="flex flex-col items-center justify-center text-gray-300">
-                                                            <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                                    <td colspan="6" class="px-6 py-16 text-center">
+                                                        <div class="flex flex-col items-center text-gray-300">
+                                                            <i class="fas fa-folder-open text-4xl mb-3"></i>
                                                             <p class="text-sm font-medium">Belum ada data arsip.</p>
-                                                            <p class="text-xs mt-1">Isi formulir di atas untuk menambahkan item.</p>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
-
-                                </div> {{-- End Table Container --}}
-                            </div> {{-- End Table Section --}}
+                                </div>
+                            </div>
 
                             {{-- Footer / Submit --}}
                             <div class="p-6 bg-white border-t border-gray-100 flex justify-between items-center gap-4 rounded-3xl shadow-lg border border-gray-100 mt-6">
                                 <button type="button" @click="formStep = 1" class="text-gray-500 font-bold px-4 py-2 text-sm hover:text-red-800 transition">
                                     Kembali
                                 </button>
-                                <button type="submit" 
+                                <button type="submit"
                                     :disabled="!isEdit && isiBerkas.length === 0"
                                     :class="{'opacity-50 cursor-not-allowed': !isEdit && isiBerkas.length === 0}"
                                     class="flex-1 bg-gradient-to-r from-red-700 to-red-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
@@ -393,7 +406,7 @@
             newTanggal: '',
             newJumlah: 1,
             newNoBox: '',
-            newHakAkses: '', 
+            newHakAkses: '',
             newMedia: '',
             newMasaSimpan: '',
             newTindakan: '',
@@ -419,7 +432,7 @@
                     this.unitPengolah = this.initData.unit_pengolah || '';
                     this.kodeKlasifikasi = this.initData.kode_klasifikasi || '';
                     this.klasifikasiId = this.initData.klasifikasi_id || '';
-                    
+
                     // Note: Classification dropdown now initializes itself via x-data param
                     // but we keep this just in case other listeners need it
                      this.$nextTick(() => {
@@ -444,22 +457,22 @@
                         jumlah: this.newJumlah,
                         no_box: this.newNoBox,
                         hak_akses: this.newHakAkses,
-                        jenis_media: this.newMedia || 'Kertas', 
+                        jenis_media: this.newMedia || 'Kertas',
                         masa_simpan: this.newMasaSimpan,
                         tindakan_akhir: this.newTindakan,
                         unit_pengolah: this.unitPengolah,
                         kode_klasifikasi: this.kodeKlasifikasi,
                         klasifikasi_id: this.klasifikasiId
                     });
-                    
+
                     /* Reset Item Fields */
                     this.newIsi = '';
-                    this.newTahun = ''; 
+                    this.newTahun = '';
                     this.newTanggal = '';
                     this.newJumlah = 1;
                     this.newNoBox = '';
                     this.newMedia = '';
-                    
+
                     /* Reset Header Fields (Unit & Klasifikasi) */
                     this.unitPengolah = '';
                     this.kodeKlasifikasi = '';
@@ -468,7 +481,7 @@
                     this.newMasaSimpan = '';
                     this.newTindakan = 'Musnah';
                     this.$dispatch('reset-selection');
-                    
+
                     /* Focus back */
                     this.$nextTick(() => {
                         const uInput = document.querySelector('[name=unit_pengolah]');
@@ -525,16 +538,16 @@
     function classificationDropdown(initData) {
         return {
             open: false,
-            step: 1, 
+            step: 1,
             breadcrumbs: [],
             options: [],
             loading: false,
             selectedItem: null,
             displayText: 'Pilih Kode Klasifikasi',
-            
+
             init() {
                 this.fetchOptions(1);
-                
+
                 if (initData && initData.kode_klasifikasi) {
                     this.selectedItem = {
                         code: initData.kode_klasifikasi,
@@ -544,14 +557,14 @@
                     this.displayText = initData.kode_klasifikasi;
                 }
             },
-            
+
             toggle() {
                 this.open = !this.open;
                 if(this.open) {
-                   // Ensure we start from scratch or current step? 
+                   // Ensure we start from scratch or current step?
                    // If they have selected something, maybe easier to just show root options to allow change
                    if (this.options.length === 0) this.fetchOptions(1);
-                   
+
                    // If we want to allow re-selection, reset step to 1 on open
                    this.step = 1;
                    this.breadcrumbs = [];
@@ -562,7 +575,7 @@
             fetchOptions(level, parent = null) {
                 this.loading = true;
                 let url = `/api/klasifikasi-options?level=${level}&parent=${parent}`;
-                
+
                 fetch(url)
                     .then(res => res.json())
                     .then(data => {
@@ -584,9 +597,9 @@
                     this.selectedItem = opt;
                     this.displayText = opt.label;
 
-                    this.$dispatch('classification-selected', { 
-                        hak_akses: opt.hak_akses, 
-                        masa_simpan: opt.masa_simpan, 
+                    this.$dispatch('classification-selected', {
+                        hak_akses: opt.hak_akses,
+                        masa_simpan: opt.masa_simpan,
                         tindakan: opt.tindakan_akhir,
                         code: opt.code,
                         id: opt.id
@@ -595,7 +608,7 @@
                     this.open = false;
                 }
             },
-            
+
             goBack() {
                 if (this.step > 1) {
                     this.step--;
@@ -611,7 +624,7 @@
                 this.selectedItem = null;
                 this.displayText = 'Pilih Kode Klasifikasi';
                 this.fetchOptions(1);
-                this.open = false; 
+                this.open = false;
             },
 
             setFromParent(detail) {

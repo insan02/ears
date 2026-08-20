@@ -8,94 +8,18 @@
         @vite(['resources/css/app.css'])
         <style>
             @media print, screen {
-                body {
-                    background-color: white !important;
-                    font-family: sans-serif;
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                    margin: 0;
-                    padding: 20px;
-                }
-                
-                /* Header */
-                .print-header {
-                    border-bottom: 3px solid #8B0000;
-                    margin-bottom: 20px;
-                    padding-bottom: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                
-                /* Table Styling */
-                table {
-                    width: 100%;
-                    table-layout: fixed;
-                    border-collapse: collapse;
-                    border: 1px solid #000;
-                    font-size: 9pt; /* Readable size */
-                }
-                
-                thead tr {
-                    background-color: #fce4e4 !important;
-                    color: #8B0000 !important;
-                }
-                
-                th, td {
-                    border: 1px solid #444 !important;
-                    padding: 4px 6px;
-                    vertical-align: middle;
-                    word-wrap: break-word;
-                }
-                
-                th {
-                    text-transform: uppercase;
-                    font-weight: bold;
-                    text-align: center;
-                    background-color: #fce4e4 !important; /* Ensure background prints */
-                }
-
-                /* Hiding Checkbox and Actions */
-                th:first-child, td:first-child, /* Checkbox */
-                th:nth-child(29), td:nth-child(29), /* Aksi (index might vary, targeting last) */
-                th:last-child, td:last-child { 
-                    display: none; 
-                }
-
-                /* Column Sizing */
-                th:nth-child(2), td:nth-child(2) { width: 30px; text-align: center; } /* No */
-                th:nth-child(3), td:nth-child(3) { width: 80px; } /* Kode */
-                th:nth-child(4), td:nth-child(4) { width: 15%; } /* Nama Berkas */
-                th:nth-child(5), td:nth-child(5) { width: 25%; } /* Uraian */
-                th:nth-child(6), td:nth-child(6) { width: 40px; text-align: center; } /* Thn */
-                th:nth-child(7), td:nth-child(7) { width: 70px; text-align: center; } /* Tgl */
-                th:nth-child(8), td:nth-child(8) { width: 30px; text-align: center; } /* Jml */
-                th:nth-child(12), td:nth-child(12) { width: 40px; text-align: center; } /* Box */
-
-                /* Clean Badges */
-                .rounded-lg, .rounded-full, .bg-red-50, .bg-green-100 {
-                    background: none !important;
-                    border: none !important;
-                    color: black !important;
-                    padding: 0 !important;
-                    font-weight: normal;
-                }
-                
-                /* Hide buttons/links inside table */
-                button, a {
-                    text-decoration: none;
-                    color: black;
-                    pointer-events: none;
-                }
-                
-                /* Hide unneeded icons */
+                body { background-color: white !important; font-family: sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; padding: 20px; }
+                .print-header { border-bottom: 3px solid #8B0000; margin-bottom: 20px; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+                table { width: 100%; table-layout: fixed; border-collapse: collapse; border: 1px solid #000; font-size: 9pt; }
+                thead tr { background-color: #fce4e4 !important; color: #8B0000 !important; }
+                th, td { border: 1px solid #444 !important; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
+                th { text-transform: uppercase; font-weight: bold; text-align: center; background-color: #fce4e4 !important; }
+                th:first-child, td:first-child, th:last-child, td:last-child { display: none; }
+                .rounded-lg, .rounded-full, .bg-red-50, .bg-green-100 { background: none !important; border: none !important; color: black !important; padding: 0 !important; font-weight: normal; }
+                button, a { text-decoration: none; color: black; pointer-events: none; }
                 svg { display: none; }
             }
-            
-            @page {
-                size: landscape;
-                margin: 10mm;
-            }
+            @page { size: landscape; margin: 10mm; }
         </style>
     </head>
     <body onload="window.print()">
@@ -106,287 +30,239 @@
                 <h2 style="font-size: 18px; font-weight: bold; margin: 5px 0;">Daftar Arsip Dokumen</h2>
                 <p style="font-size: 12px; color: #666; margin: 0;">Indarung, Padang 25237, Sumatera Barat</p>
             </div>
-            <div style="width: 80px;"></div> <!-- Spacer for balance -->
+            <div style="width: 80px;"></div>
         </div>
-
         <div id="arsip-table-container">
             @include('arsip.partials.table')
         </div>
     </body>
     </html>
-
 @else
 <x-layout>
-    {{-- Print Header (Visible only in Print) --}}
-    <div id="print-header" class="hidden mb-8 border-b-2 border-[#e92027] pb-4">
-        <div class="flex items-center justify-between px-8">
-            <img src="{{ asset('images/logo-sp.png') }}" alt="Logo" class="h-20 w-auto">
-            <div class="text-center">
-                <h1 class="text-2xl font-bold text-[#c41820] uppercase">PT Semen Padang</h1>
-                <h2 class="text-xl font-bold text-gray-800">Daftar Arsip Dokumen</h2>
-                <p class="text-sm text-gray-600">Indarung, Padang 25237, Sumatera Barat</p>
+    <style>
+        [x-cloak] { display: none !important; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+
+    <div class="bg-gray-50 min-h-screen pb-20">
+        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+             <div class="absolute inset-0 z-0 opacity-40">
+                  <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                     <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#580000;stop-opacity:0.3" /><stop offset="100%" style="stop-color:#000000;stop-opacity:0.4" /></linearGradient></defs>
+                     <path fill="url(#polyGrad)" d="M0 0 L1000 0 L1000 500 L0 300 Z" /><path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" />
+                 </svg>
+             </div>
+             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none mix-blend-overlay">
+                 <svg width="400" height="400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0L24 12L12 24L0 12L12 0Z" /></svg>
+             </div>
+             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
+                <div class="text-center md:text-left">
+                     <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 drop-shadow-md">Daftar Arsip</h2>
+                     <p class="text-red-50 text-sm md:text-base font-light opacity-95 max-w-lg leading-relaxed drop-shadow-sm">Kelola dan monitor seluruh dokumen arsip perusahaan.</p>
+                </div>
+                <div>
+                    <a href="/input-arsip" class="group bg-white text-[#e92027] hover:bg-gray-50 px-8 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
+                        <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors"><i class="fas fa-plus"></i></div>
+                        <span>TAMBAH ARSIP</span>
+                    </a>
+                </div>
             </div>
-            <div class="w-20"></div> {{-- Spacer --}}
         </div>
-    </div>
 
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden print:hidden">
-         <!-- Polygon Pattern Overlay -->
-         <div class="absolute inset-0 z-0 opacity-40">
-              <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-                 <defs>
-                     <linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                         <stop offset="0%" style="stop-color:#580000;stop-opacity:0.3" />
-                         <stop offset="100%" style="stop-color:#000000;stop-opacity:0.4" />
-                     </linearGradient>
-                 </defs>
-                 <path fill="url(#polyGrad)" d="M0 0 L1000 0 L1000 500 L0 300 Z" />
-                 <path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" />
-                 <path fill="#580000" opacity="0.2" d="M800 0 L1400 0 L1400 400 L600 600 Z" />
-                 <path fill="url(#polyGrad)" opacity="0.3" d="M500 600 L1200 600 L800 200 Z" />
-             </svg>
-         </div>
+        <!-- BUNGKUS DENGAN x-data UNTUK MENGAKSES showImportModal -->
+        <div x-data="{ showImportModal: false }" class="max-w-7xl mx-auto px-4 md:px-6 -mt-20 relative z-20 mb-12">
+            @if(session('success'))
+                <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 animate-fade-in-down shadow-sm">
+                    <div class="bg-green-100 p-2 rounded-full text-green-600"><i class="fas fa-check text-sm"></i></div>
+                    <p class="text-sm font-bold text-green-800 flex-1">{{ session('success') }}</p>
+                    <button onclick="this.parentElement.remove()" class="text-green-400 hover:text-green-600"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3 animate-fade-in-down shadow-sm">
+                    <div class="bg-red-100 p-2 rounded-full text-red-600"><i class="fas fa-exclamation-triangle text-sm"></i></div>
+                    <p class="text-sm font-bold text-red-800 flex-1">{{ session('error') }}</p>
+                    <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>
+                </div>
+            @endif
 
-         <!-- Ornamental Icon -->
-         <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none mix-blend-overlay">
-             <svg width="400" height="400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0L24 12L12 24L0 12L12 0Z" /></svg>
-         </div>
-            
-         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
-            <div class="text-center md:text-left">
-                 <h2 class="text-4xl font-extrabold tracking-tight mb-2 drop-shadow-md">Daftar Arsip</h2>
-                 <p class="text-red-50 text-base font-light opacity-95 max-w-lg leading-relaxed drop-shadow-sm">Kelola dan monitor seluruh dokumen arsip perusahaan.</p>
-            </div>
-            <div>
-                <a href="/input-arsip"
-                    class="group bg-white text-[#e92027] hover:bg-gray-50 px-8 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40 border border-white/20">
-                    <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors">
-                         <svg class="w-5 h-5 text-[#e92027]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            @if ($errors->any())
+                <div class="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl shadow-sm animate-fade-in-down">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="bg-red-100 p-2 rounded-full text-red-600"><i class="fas fa-exclamation-triangle text-sm"></i></div>
+                        <p class="text-sm font-bold text-red-800 flex-1">Terdapat kesalahan import:</p>
+                        <button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>
                     </div>
-                    <span>TAMBAH ARSIP</span>
-                </a>
-            </div>
-        </div>
-    </div>
+                    <ul class="list-disc list-inside text-sm text-red-600 ml-12">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-        {{-- Content Card --}}
-        <div class="w-full max-w-[98%] mx-auto -mt-20 px-2 md:px-0 print:mt-0 print:px-0 relative z-20">
-            <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 p-6 md:p-8 print:shadow-none print:border-0 print:p-0">
-                
-                {{-- Toolbar (Search & Filters) --}}
-                <div class="flex flex-col xl:flex-row items-center gap-4 mb-6 print:hidden">
-                    <form id="filterForm" action="/arsip" method="GET" class="contents">
-                        {{-- Search Input --}}
-                        <div class="relative w-full xl:w-96 group">
-                            <span class="absolute inset-y-0 left-4 flex items-center text-gray-400 group-focus-within:text-red-500 transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            </span>
-                            <input type="text" name="search" placeholder="Cari dokumen..." value="{{ request('search') }}" 
-                                class="w-full pl-12 pr-4 py-4 border-2 border-gray-100 rounded-2xl outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition shadow-sm font-medium text-gray-700">
-                        </div>
-                        
-                        {{-- Sorting & Filters --}}
-                        <div class="flex flex-wrap gap-3 w-full xl:w-auto">
-                            {{-- Filter Tindakan (Permanen / Musnah) --}}
-                             <select name="filter_tindakan" onchange="this.form.submit()" class="px-5 py-4 border-2 border-gray-100 rounded-2xl text-sm font-bold text-gray-600 outline-none cursor-pointer focus:border-red-500 focus:text-red-600 transition hover:bg-gray-50">
-                                <option value="">Semua Status</option>
-                                <option value="Permanen" {{ request('filter_tindakan') == 'Permanen' ? 'selected' : '' }}>Permanen</option>
-                                <option value="Musnah" {{ request('filter_tindakan') == 'Musnah' ? 'selected' : '' }}>Musnah</option>
-                                <option value="Dinilai Kembali" {{ request('filter_tindakan') == 'Dinilai Kembali' ? 'selected' : '' }}>Dinilai Kembali</option>
-                            </select>
-    
-                            {{-- Filter Tahun --}}
-                            <select name="filter_tahun" onchange="this.form.submit()" class="px-5 py-4 border-2 border-gray-100 rounded-2xl text-sm font-bold text-gray-600 outline-none cursor-pointer focus:border-red-500 focus:text-red-600 transition hover:bg-gray-50">
-                                <option value="">Semua Tahun</option>
-                                @foreach($availableYears as $year)
-                                    <option value="{{ $year }}" {{ request('filter_tahun') == $year ? 'selected' : '' }}>{{ $year }}</option>
+            <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-4 md:p-6 mb-8">
+                <!-- FORM PENCARIAN & FILTER -->
+                <form id="filterForm" action="/arsip" method="GET" class="flex flex-col xl:flex-row gap-4 justify-between items-center">
+                    <div class="relative w-full xl:w-96 group">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search" placeholder="Cari nama, kode, isi..." value="{{ request('search') }}" onchange="this.form.submit()"
+                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#e92027] focus:ring-2 focus:ring-red-100 transition shadow-sm text-sm font-medium">
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 w-full xl:w-auto items-center">
+                        @php $chevron = '<i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>'; @endphp
+
+                        <!-- Filter Status -->
+                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[150px]">
+                            @php $tndLabel = request('filter_status') ? request('filter_status') : 'Semua Status'; @endphp
+                            <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $tndLabel }} {!! $chevron !!}</button>
+                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                                @foreach(['' => 'Semua Status', 'Permanen' => 'Permanen', 'Musnah' => 'Musnah', 'Dinilai Kembali' => 'Dinilai Kembali'] as $val => $lbl)
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_status" value="{{ $val }}" onchange="this.form.submit()" class="hidden" {{ request('filter_status') == $val ? 'checked' : '' }}> {{ $lbl }}</label>
                                 @endforeach
-                            </select>
-    
-                            {{-- Filter Box --}}
-                            <select name="filter_box" onchange="this.form.submit()" class="px-5 py-4 border-2 border-gray-100 rounded-2xl text-sm font-bold text-gray-600 outline-none cursor-pointer focus:border-red-500 focus:text-red-600 transition hover:bg-gray-50">
-                                <option value="">Semua Box</option>
-                                @foreach($availableBoxes as $box)
-                                    <option value="{{ $box }}" {{ request('filter_box') == $box ? 'selected' : '' }}>Box {{ $box }}</option>
-                                @endforeach
-                            </select>
-    
-                            <select name="sort" onchange="this.form.submit()" class="px-5 py-4 border-2 border-gray-100 rounded-2xl text-sm font-bold text-gray-600 outline-none cursor-pointer focus:border-red-500 focus:text-red-600 transition hover:bg-gray-50">
-                                <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Input Terbaru</option>
-                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Input Terlama</option>
-                                <option value="year_desc" {{ request('sort') == 'year_desc' ? 'selected' : '' }}>Tahun (Terbaru - Lama)</option>
-                                <option value="year_asc" {{ request('sort') == 'year_asc' ? 'selected' : '' }}>Tahun (Lama - Terbaru)</option>
-                            </select>
-                        </div>
-                    </form>
-
-
-                    {{-- Action Buttons (Right Aligned) --}}
-                    <div class="ml-auto flex items-center gap-3 w-full xl:w-auto justify-end">
-                        
-                        {{-- Import Button --}}
-                        <div x-data="{ open: false }">
-                            <button type="button" @click="open = true" class="px-5 py-4 bg-green-50 text-green-700 rounded-2xl font-bold flex items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                <span>Import</span>
-                            </button>
-
-                            {{-- Modal Import --}}
-                            <div x-show="open" style="display: none;" class="fixed inset-0 z-[999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                                    <div x-show="open" @click="open = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                                    <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-                                        <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data">
-                                            @csrf
-                                            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                                <div class="sm:flex sm:items-start">
-                                                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                                                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                                    </div>
-                                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Import Data Arsip</h3>
-                                                        <div class="mt-2">
-                                                            <p class="text-sm text-gray-500 mb-4">
-                                                                Upload file Excel (.xlsx, .xls) sesuai template. Pastikan "No Berkas" & "Nama Berkas" terisi di baris pertama tiap grup.
-                                                            </p>
-                                                            <input type="file" name="file" required class="block w-full text-sm text-gray-500
-                                                              file:mr-4 file:py-2 file:px-4
-                                                              file:rounded-full file:border-0
-                                                              file:text-sm file:font-semibold
-                                                              file:bg-green-50 file:text-green-700
-                                                              hover:file:bg-green-100 cursor-pointer border rounded-lg p-2
-                                                            "/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                                                <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
-                                                    Import
-                                                </button>
-                                                <button type="button" @click="open = false" class="mt-3 w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                                                    Batal
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
-                        {{-- Existing Export Buttons --}}
-                        {{-- Wrapper for Excel Button form (assumed) --}}
-                        <button type="button" onclick="submitExport('excel')" class="bg-green-50 text-green-700 px-5 py-3 rounded-xl font-bold hover:bg-green-100 hover:-translate-y-1 transition flex items-center gap-2 border border-green-100">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Excel
-                        </button>
-                        <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="bg-gray-100 text-gray-700 px-5 py-3 rounded-xl font-bold hover:bg-gray-200 hover:-translate-y-1 transition flex items-center gap-2 border border-gray-200">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            Print
-                        </a>
+                        <!-- Filter Hak Akses -->
+                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[140px]">
+                            @php $aksLabel = request('filter_hak_akses') ? request('filter_hak_akses') : 'Semua Akses'; @endphp
+                            <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $aksLabel }} {!! $chevron !!}</button>
+                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                                @foreach(['' => 'Semua Akses', 'Biasa' => 'Biasa', 'Terbatas' => 'Terbatas', 'Rahasia' => 'Rahasia', 'Sangat Rahasia' => 'Sangat Rahasia'] as $val => $lbl)
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_hak_akses" value="{{ $val }}" onchange="this.form.submit()" class="hidden" {{ request('filter_hak_akses') == $val ? 'checked' : '' }}> {{ $lbl }}</label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Filter Tahun -->
+                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[130px]">
+                            @php $thnLabel = request('filter_tahun') ? request('filter_tahun') : 'Semua Tahun'; @endphp
+                            <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $thnLabel }} {!! $chevron !!}</button>
+                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_tahun" value="" onchange="this.form.submit()" class="hidden" {{ request('filter_tahun') == '' ? 'checked' : '' }}> Semua Tahun</label>
+                                @foreach($availableYears as $year)
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_tahun" value="{{ $year }}" onchange="this.form.submit()" class="hidden" {{ request('filter_tahun') == $year ? 'checked' : '' }}> {{ $year }}</label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Filter Box -->
+                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[130px]">
+                            @php $boxLabel = request('filter_box') ? 'Box '.request('filter_box') : 'Semua Box'; @endphp
+                            <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $boxLabel }} {!! $chevron !!}</button>
+                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_box" value="" onchange="this.form.submit()" class="hidden" {{ request('filter_box') == '' ? 'checked' : '' }}> Semua Box</label>
+                                @foreach($availableBoxes as $box)
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_box" value="{{ $box }}" onchange="this.form.submit()" class="hidden" {{ request('filter_box') == $box ? 'checked' : '' }}> Box {{ $box }}</label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 flex-grow sm:flex-none">
+                            @if(request()->hasAny(['search', 'filter_status', 'filter_hak_akses', 'filter_tahun', 'filter_box']))
+                                <a href="/arsip" class="flex items-center justify-center px-4 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap hover:bg-[#e92027] hover:text-white transition">Reset</a>
+                            @endif
+
+                            <div class="relative" x-data="{ showSortDropdown: false }">
+                                <button type="button" @click="showSortDropdown = !showSortDropdown" @click.away="showSortDropdown = false" class="px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm flex items-center gap-2"><i class="fas fa-sort-amount-down text-gray-400"></i> Urutkan</button>
+                                <div x-show="showSortDropdown" style="display: none;" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                                    <ul class="text-xs font-medium text-gray-600">
+                                        <li><a href="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}" class="block px-4 py-3 hover:bg-red-50">Input Terbaru</a></li>
+                                        <li><a href="{{ request()->fullUrlWithQuery(['sort' => 'oldest']) }}" class="block px-4 py-3 hover:bg-red-50">Input Terlama</a></li>
+                                        <li><a href="{{ request()->fullUrlWithQuery(['sort' => 'year_desc']) }}" class="block px-4 py-3 hover:bg-red-50">Tahun (Terbaru - Lama)</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- TOMBOL IMPORT MENGUBAH STATE ALpINE showImportModal -->
+                            <button type="button" @click="showImportModal = true" class="px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
+
+                            <button type="button" onclick="submitExport('excel')" class="px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
+                            <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-200 transition shadow-sm border border-gray-200"><i class="fas fa-print"></i> Print</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <form id="export-form" action="/arsip/export" method="POST" target="_blank" class="hidden">
+                @csrf
+                <input type="hidden" name="type" id="export-type">
+                <input type="hidden" name="ids" id="export-ids">
+                <input type="hidden" name="search" value="{{ request('search') }}">
+                <input type="hidden" name="sort" value="{{ request('sort') }}">
+                <input type="hidden" name="filter_status" value="{{ request('filter_status') }}">
+                <input type="hidden" name="filter_hak_akses" value="{{ request('filter_hak_akses') }}">
+                <input type="hidden" name="filter_tahun" value="{{ request('filter_tahun') }}">
+            </form>
+
+            <div id="arsip-table-container">
+                @include('arsip.partials.table')
+            </div>
+
+            <div class="mt-6 mb-10">
+                {{ $arsips->appends(request()->query())->links() }}
+            </div>
+
+            {{-- MODAL IMPORT EXCEL DITEMPATKAN DI LUAR FORM PENCARIAN --}}
+            <div x-show="showImportModal" style="display: none;" class="fixed inset-0 z-[999] overflow-y-auto">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div @click="showImportModal = false" class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                    <div class="relative inline-block align-bottom bg-white rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border-t-8 border-green-600">
+                        <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="bg-white px-6 pt-6 pb-6">
+                                <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+                                    <div class="bg-green-100 p-3 rounded-full text-green-600"><i class="fas fa-file-excel text-xl"></i></div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">Import Data Arsip</h3>
+                                        <p class="text-xs text-gray-500 font-medium">Unggah file template (.xlsx / .csv)</p>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <input type="file" name="file" required accept=".xlsx, .xls, .csv"
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer border-2 border-dashed border-gray-200 rounded-2xl p-4 transition-colors hover:border-green-300"/>
+                                </div>
+                                <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 text-yellow-800 text-xs leading-relaxed font-medium">
+                                    <span class="font-bold block mb-1 uppercase text-[10px] tracking-wider text-yellow-600">Perhatian:</span>
+                                    1. Pastikan ukuran file maksimal 10MB.<br>
+                                    2. Baris Data (Record) akan dibaca mulai dari <b>Baris ke-6</b>.<br>
+                                    3. Kolom "Nomor Berkas", "Kode Klasifikasi", dan "Nama Berkas" wajib diisi pada baris pertama untuk setiap grup.
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
+                                <button type="button" @click="showImportModal = false" class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-50">Batal</button>
+                                <button type="submit" class="px-6 py-2.5 bg-green-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-green-700">Import Data</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
-                <form id="export-form" action="/arsip/export" method="POST" target="_blank" class="hidden">
-                    @csrf
-                    <input type="hidden" name="type" id="export-type">
-                    <input type="hidden" name="ids" id="export-ids">
-                    {{-- Carry over search & filter params --}}
-                    <input type="hidden" name="search" value="{{ request('search') }}">
-                    <input type="hidden" name="sort" value="{{ request('sort') }}">
-                    <input type="hidden" name="filter_tindakan" value="{{ request('filter_tindakan') }}">
-                    <input type="hidden" name="filter_tahun" value="{{ request('filter_tahun') }}">
-                </form>
-
-                <div id="arsip-table-container">
-                    @include('arsip.partials.table')
-                </div>
             </div>
+
         </div>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[name="search"]');
-            const tableContainer = document.getElementById('arsip-table-container');
             let typingTimer;
-            const doneTypingInterval = 500; // 500ms delay
-
             if (searchInput) {
                 searchInput.addEventListener('keyup', function() {
                     clearTimeout(typingTimer);
-                    typingTimer = setTimeout(performSearch, doneTypingInterval);
+                    typingTimer = setTimeout(() => this.form.submit(), 1000);
                 });
-
-                searchInput.addEventListener('keydown', function() {
-                    clearTimeout(typingTimer);
-                });
-            }
-
-            function performSearch() {
-                const query = searchInput.value;
-                const url = new URL(window.location.href);
-                url.searchParams.set('search', query);
-                // Reset to page 1 on new search
-                url.searchParams.set('page', 1);
-
-                // Update URL without refresh
-                window.history.pushState({}, '', url);
-
-                fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    tableContainer.innerHTML = html;
-                })
-                .catch(error => console.error('Error:', error));
+                searchInput.addEventListener('keydown', () => clearTimeout(typingTimer));
             }
         });
 
-        // Global functions for buttons
         function submitExport(type) {
             const checkedBoxes = document.querySelectorAll('input[name="selected_arsip[]"]:checked');
             const ids = Array.from(checkedBoxes).map(cb => cb.value);
-            
             document.getElementById('export-type').value = type;
             document.getElementById('export-ids').value = JSON.stringify(ids);
             document.getElementById('export-form').submit();
-        }
-
-        function printTable() {
-            // Determine if we need to filter by selection
-            const checkedBoxes = document.querySelectorAll('input[name="selected_arsip[]"]:checked');
-            const ids = Array.from(checkedBoxes).map(cb => cb.value);
-            
-            if (ids.length > 0) {
-                // Temporarily hide unselected rows
-                document.querySelectorAll('tbody tr').forEach(tr => {
-                    const cb = tr.querySelector('input[name="selected_arsip[]"]');
-                    if (cb && !cb.checked) {
-                        tr.classList.add('print:hidden');
-                    } else {
-                        tr.classList.remove('print:hidden');
-                    }
-                });
-            } else {
-                // Show all if nothing selected
-                document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('print:hidden'));
-            }
-
-            window.print();
-            
-            // Cleanup (optional, showing all again after print dialog closes)
-            // But browsers block JS during print dialog, so this runs after.
-            // Keeping them hidden might be confusing if user cancels print, so maybe restore?
-            // setTimeout(() => {
-            //     document.querySelectorAll('.print:hidden').forEach(el => el.classList.remove('print:hidden'));
-            // }, 1000);
         }
 
         function toggleAll(source) {
