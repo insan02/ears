@@ -10,9 +10,10 @@
             @media print, screen {
                 body { background-color: white !important; font-family: sans-serif; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; margin: 0; padding: 20px; }
                 .print-header { border-bottom: 3px solid #8B0000; margin-bottom: 20px; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-                table { width: 100%; table-layout: fixed; border-collapse: collapse; border: 1px solid #000; font-size: 9pt; }
+                table { width: 100%; table-layout: fixed; border-collapse: collapse; border: 1px solid #000; font-size: 8.5pt; }
                 thead tr { background-color: #fce4e4 !important; color: #8B0000 !important; }
-                th, td { border: 1px solid #444 !important; padding: 4px 6px; vertical-align: middle; word-wrap: break-word; }
+                /* PERBAIKAN: Menghapus word-wrap: break-word dari th, td agar huruf tidak terpotong-potong */
+                th, td { border: 1px solid #444 !important; padding: 4px 6px; vertical-align: top; }
                 th { text-transform: uppercase; font-weight: bold; text-align: center; background-color: #fce4e4 !important; }
                 th:first-child, td:first-child, th:last-child, td:last-child { display: none; }
                 .rounded-lg, .rounded-full, .bg-red-50, .bg-green-100 { background: none !important; border: none !important; color: black !important; padding: 0 !important; font-weight: normal; }
@@ -53,9 +54,6 @@
                      <path fill="url(#polyGrad)" d="M0 0 L1000 0 L1000 500 L0 300 Z" /><path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" />
                  </svg>
              </div>
-             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none mix-blend-overlay">
-                 <svg width="400" height="400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0L24 12L12 24L0 12L12 0Z" /></svg>
-             </div>
              <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
                 <div class="text-center md:text-left">
                      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 drop-shadow-md">Daftar Arsip</h2>
@@ -70,7 +68,6 @@
             </div>
         </div>
 
-        <!-- BUNGKUS DENGAN x-data UNTUK MENGAKSES showImportModal -->
         <div x-data="{ showImportModal: false }" class="max-w-7xl mx-auto px-4 md:px-6 -mt-20 relative z-20 mb-12">
             @if(session('success'))
                 <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 animate-fade-in-down shadow-sm">
@@ -87,24 +84,9 @@
                 </div>
             @endif
 
-            @if ($errors->any())
-                <div class="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl shadow-sm animate-fade-in-down">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="bg-red-100 p-2 rounded-full text-red-600"><i class="fas fa-exclamation-triangle text-sm"></i></div>
-                        <p class="text-sm font-bold text-red-800 flex-1">Terdapat kesalahan import:</p>
-                        <button onclick="this.parentElement.parentElement.remove()" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>
-                    </div>
-                    <ul class="list-disc list-inside text-sm text-red-600 ml-12">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-4 md:p-6 mb-8">
-                <!-- FORM PENCARIAN & FILTER -->
                 <form id="filterForm" action="/arsip" method="GET" class="flex flex-col xl:flex-row gap-4 justify-between items-center">
+
                     <div class="relative w-full xl:w-96 group">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400"><i class="fas fa-search"></i></span>
                         <input type="text" name="search" placeholder="Cari nama, kode, isi..." value="{{ request('search') }}" onchange="this.form.submit()"
@@ -114,7 +96,6 @@
                     <div class="flex flex-wrap gap-3 w-full xl:w-auto items-center">
                         @php $chevron = '<i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>'; @endphp
 
-                        <!-- Filter Status -->
                         <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[150px]">
                             @php $tndLabel = request('filter_status') ? request('filter_status') : 'Semua Status'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $tndLabel }} {!! $chevron !!}</button>
@@ -125,7 +106,6 @@
                             </div>
                         </div>
 
-                        <!-- Filter Hak Akses -->
                         <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[140px]">
                             @php $aksLabel = request('filter_hak_akses') ? request('filter_hak_akses') : 'Semua Akses'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $aksLabel }} {!! $chevron !!}</button>
@@ -136,7 +116,6 @@
                             </div>
                         </div>
 
-                        <!-- Filter Tahun -->
                         <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[130px]">
                             @php $thnLabel = request('filter_tahun') ? request('filter_tahun') : 'Semua Tahun'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $thnLabel }} {!! $chevron !!}</button>
@@ -148,14 +127,13 @@
                             </div>
                         </div>
 
-                        <!-- Filter Box -->
                         <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[130px]">
-                            @php $boxLabel = request('filter_box') ? 'Box '.request('filter_box') : 'Semua Box'; @endphp
+                            @php $boxLabel = request('filter_box') ? request('filter_box') : 'Semua Box'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $boxLabel }} {!! $chevron !!}</button>
                             <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_box" value="" onchange="this.form.submit()" class="hidden" {{ request('filter_box') == '' ? 'checked' : '' }}> Semua Box</label>
                                 @foreach($availableBoxes as $box)
-                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_box" value="{{ $box }}" onchange="this.form.submit()" class="hidden" {{ request('filter_box') == $box ? 'checked' : '' }}> Box {{ $box }}</label>
+                                <label class="block px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50"><input type="radio" name="filter_box" value="{{ $box }}" onchange="this.form.submit()" class="hidden" {{ request('filter_box') == $box ? 'checked' : '' }}> {{ $box }}</label>
                                 @endforeach
                             </div>
                         </div>
@@ -176,7 +154,6 @@
                                 </div>
                             </div>
 
-                            <!-- TOMBOL IMPORT MENGUBAH STATE ALpINE showImportModal -->
                             <button type="button" @click="showImportModal = true" class="px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
 
                             <button type="button" onclick="submitExport('excel')" class="px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
@@ -205,13 +182,13 @@
                 {{ $arsips->appends(request()->query())->links() }}
             </div>
 
-            {{-- MODAL IMPORT EXCEL DITEMPATKAN DI LUAR FORM PENCARIAN --}}
+            {{-- MODAL IMPORT EXCEL --}}
             <div x-show="showImportModal" style="display: none;" class="fixed inset-0 z-[999] overflow-y-auto">
                 <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                     <div @click="showImportModal = false" class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
                     <div class="relative inline-block align-bottom bg-white rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border-t-8 border-green-600">
-                        <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data" onsubmit="tampilkanAnimasiLoading(event)">
                             @csrf
                             <div class="bg-white px-6 pt-6 pb-6">
                                 <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
@@ -222,14 +199,11 @@
                                     </div>
                                 </div>
                                 <div class="mb-4">
-                                    <input type="file" name="file" required accept=".xlsx, .xls, .csv"
-                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer border-2 border-dashed border-gray-200 rounded-2xl p-4 transition-colors hover:border-green-300"/>
+                                    <input type="file" name="file" required accept=".xlsx, .xls, .csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer border-2 border-dashed border-gray-200 rounded-2xl p-4 transition-colors hover:border-green-300"/>
                                 </div>
                                 <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 text-yellow-800 text-xs leading-relaxed font-medium">
-                                    <span class="font-bold block mb-1 uppercase text-[10px] tracking-wider text-yellow-600">Perhatian:</span>
-                                    1. Pastikan ukuran file maksimal 10MB.<br>
-                                    2. Baris Data (Record) akan dibaca mulai dari <b>Baris ke-6</b>.<br>
-                                    3. Kolom "Nomor Berkas", "Kode Klasifikasi", dan "Nama Berkas" wajib diisi pada baris pertama untuk setiap grup.
+                                    <span class="font-bold block mb-1 uppercase text-[10px] tracking-wider text-yellow-600">Sangat Direkomendasikan:</span>
+                                    Untuk data arsip berjumlah masif (di atas 10.000 baris), disarankan menyimpan file Excel sebagai format <b>.CSV (Comma delimited)</b> terlebih dahulu.
                                 </div>
                             </div>
                             <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 border-t border-gray-100">
@@ -244,6 +218,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.querySelector('input[name="search"]');
@@ -256,6 +231,67 @@
                 searchInput.addEventListener('keydown', () => clearTimeout(typingTimer));
             }
         });
+
+        function tampilkanAnimasiLoading(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const importId = Date.now().toString();
+            formData.append('import_id', importId);
+
+            Swal.fire({
+                title: 'Mengekstrak Data...',
+                html: `
+                    <div class="mt-2 text-sm text-gray-600">
+                        <p class="mb-2">Sedang menyimpan data ke sistem:</p>
+                        <h2 id="progress-text" class="text-4xl font-black text-[#e92027] mb-4">0 <span class="text-sm font-bold text-gray-500 uppercase">Baris</span></h2>
+                        <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold uppercase text-left">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> Mohon JANGAN tutup atau refresh halaman ini!
+                        </div>
+                    </div>
+                `,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    const progressInterval = setInterval(() => {
+                        fetch('/arsip/import/progress?id=' + importId)
+                            .then(res => res.json())
+                            .then(data => {
+                                const progressEl = document.getElementById('progress-text');
+                                if (progressEl && data.processed > 0) {
+                                    progressEl.innerHTML = data.processed.toLocaleString('id-ID') + ' <span class="text-sm font-bold text-gray-500 uppercase">Baris</span>';
+                                }
+                            });
+                    }, 2000);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        clearInterval(progressInterval);
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success', title: 'Selesai!', text: 'Seluruh data arsip berhasil disimpan.',
+                                showConfirmButton: false, timer: 2000
+                            }).then(() => { window.location.reload(); });
+                        } else {
+                            Swal.fire('Gagal', data.message || 'Terjadi kesalahan saat import data.', 'error');
+                        }
+                    }).catch(error => {
+                        clearInterval(progressInterval);
+                        Swal.fire('Error', 'Gagal terhubung ke server atau waktu proses habis.', 'error');
+                    });
+                }
+            });
+        }
 
         function submitExport(type) {
             const checkedBoxes = document.querySelectorAll('input[name="selected_arsip[]"]:checked');

@@ -3,43 +3,51 @@
 namespace App\Exports;
 
 use App\Models\Arsip;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use Carbon\Carbon;
 
-class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithDrawings, WithCustomStartCell, WithEvents
+class ArsipExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents
 {
+    // VARIABEL YANG DIPERBAIKI SESUAI CONTROLLER
     protected $ids;
     protected $search;
     protected $sort;
-    protected $filter_tindakan;
+    protected $filter_status;
     protected $filter_tahun;
+    protected $filter_hak_akses;
 
-    public function __construct($ids = null, $search = null, $sort = null, $filter_tindakan = null, $filter_tahun = null)
+    // Penanda baris untuk di-merge nanti
+    protected $mergedRows = [];
+    protected $currentRow = 5; // Baris mulai data (karena headernya di A5)
+
+    // CONSTRUCTOR DIPERBARUI UNTUK MENERIMA 6 PARAMETER
+    public function __construct($ids = [], $search = '', $sort = 'newest', $filter_status = '', $filter_tahun = '', $filter_hak_akses = '')
     {
         $this->ids = $ids;
         $this->search = $search;
         $this->sort = $sort;
-        $this->filter_tindakan = $filter_tindakan;
+        $this->filter_status = $filter_status;
         $this->filter_tahun = $filter_tahun;
+        $this->filter_hak_akses = $filter_hak_akses;
     }
 
-    public function query()
+    public function collection()
     {
         $query = Arsip::with('klasifikasi');
 
         if (!empty($this->ids)) {
             $query->whereIn('id', $this->ids);
         } else {
-            // Apply Filters (Search & Tindakan)
+            // Apply Filters (Search, Status, Hak Akses, Tahun)
             if ($this->search) {
                 $search = $this->search;
                 $query->where(function($q) use ($search) {
@@ -52,8 +60,12 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
                 });
             }
 
-            if ($this->filter_tindakan) {
-                $query->where('tindakan_akhir', $this->filter_tindakan);
+            if ($this->filter_status) {
+                $query->where('tindakan_akhir', 'like', '%' . $this->filter_status . '%');
+            }
+
+            if ($this->filter_hak_akses) {
+                $query->where('hak_akses', $this->filter_hak_akses);
             }
 
             if ($this->filter_tahun) {
@@ -61,28 +73,21 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             }
         }
 
-        // Apply same sorting as index
+        // Murni urutan ID seperti di Index Web
         switch ($this->sort) {
-            case 'oldest':
-                $query->orderBy('id', 'asc');
-                break;
-            case 'year_desc':
-                $query->orderBy('tahun', 'desc');
-                break;
-            case 'year_asc':
-                $query->orderBy('tahun', 'asc');
-                break;
+            case 'oldest': $query->orderBy('id', 'asc'); break;
+            case 'year_desc': $query->orderBy('tahun', 'desc')->orderBy('id', 'desc'); break;
+            case 'year_asc': $query->orderBy('tahun', 'asc')->orderBy('id', 'desc'); break;
             case 'newest':
-            default:
-                $query->orderBy('id', 'desc');
-                break;
+            default: $query->orderBy('id', 'desc'); break;
         }
 
-        return $query;
+        return $query->get();
     }
 
     public function headings(): array
     {
+        // 14 Kolom Standar Import/Export
         return [
             'No',
             'No Berkas',
@@ -95,13 +100,45 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             'Hak Akses',
             'Masa Simpan',
             'Tindakan',
-            'Box'
+            'Box',
+            'Unit Pengolah',
+            'Jenis Media'
         ];
     }
 
     public function map($arsip): array
     {
         static $no = 0;
+        $this->currentRow++;
+
+        // DETEKSI LOGIKA MERGE (Hanya ada 1 isi yang terisi)
+        $checkFields = [
+            $arsip->no_berkas, $arsip->nama_berkas, $arsip->isi,
+            $arsip->tahun, $arsip->tanggal_masuk, $arsip->jumlah,
+            $arsip->hak_akses, $arsip->masa_simpan, $arsip->tindakan_akhir,
+            $arsip->no_box, $arsip->unit_pengolah, $arsip->jenis_media
+        ];
+
+        $nonEmpty = 0;
+        $mergedText = '';
+        foreach($checkFields as $f) {
+            if ($f !== null && trim($f) !== '' && trim($f) !== '-') {
+                $nonEmpty++;
+                $mergedText = $f;
+            }
+        }
+
+        // Jika hanya 1 kolom yang terisi, anggap ini baris Merge/Header Grup
+        if ($nonEmpty === 1) {
+            $this->mergedRows[] = $this->currentRow;
+
+            // Kembalikan isi hanya di Kolom A (No), sisanya kosong
+            return [
+                $mergedText, '', '', '', '', '', '', '', '', '', '', '', '', ''
+            ];
+        }
+
+        // JIKA BUKAN BARIS MERGE:
         $no++;
         return [
             $no,
@@ -110,19 +147,14 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
             $arsip->nama_berkas,
             $arsip->isi,
             $arsip->tahun,
-            $arsip->tanggal_masuk,
+            $arsip->tanggal_masuk ? Carbon::parse($arsip->tanggal_masuk)->format('d/m/Y') : '-',
             $arsip->jumlah,
             $arsip->hak_akses ?? '-',
             $arsip->masa_simpan ?? '-',
             $arsip->tindakan_akhir ?? '-',
             $arsip->no_box ?? '-',
-        ];
-    }
-
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            5 => ['font' => ['bold' => true]],
+            $arsip->unit_pengolah ?? '-',
+            $arsip->jenis_media ?? '-'
         ];
     }
 
@@ -147,46 +179,64 @@ class ArsipExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSiz
     {
         return [
             AfterSheet::class => function(AfterSheet $event) {
-                $sheet = $event->sheet;
+                $sheet = $event->sheet->getDelegate();
                 $highestRow = $sheet->getHighestRow();
-                $lastColumn = 'L'; // 12 Columns (A-L)
+                $lastColumn = 'N'; // Sampai Kolom N (14 Kolom)
 
-                // Merge cells for Title (Centered across table)
+                // -----------------------------
+                // 1. STYLING KOP / JUDUL SURAT
+                // -----------------------------
                 $sheet->mergeCells("B1:{$lastColumn}1");
                 $sheet->mergeCells("B2:{$lastColumn}2");
                 $sheet->mergeCells("B3:{$lastColumn}3");
 
-                // Set Title Text
                 $sheet->setCellValue('B1', 'PT SEMEN PADANG');
                 $sheet->setCellValue('B2', 'DAFTAR ARSIP DOKUMEN');
                 $sheet->setCellValue('B3', 'Indarung, Padang 25237, Sumatera Barat');
 
-                // Style Title
                 $sheet->getStyle('B1')->getFont()->setBold(true)->setSize(16)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_DARKRED));
                 $sheet->getStyle('B2')->getFont()->setBold(true)->setSize(14);
                 $sheet->getStyle('B3')->getFont()->setSize(10);
-
-                // Align Title
                 $sheet->getStyle("B1:B3")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-                // Style Table Header (Row 5)
+                // -----------------------------
+                // 2. STYLING HEADER TABEL (Baris 5)
+                // -----------------------------
                 $headerRange = "A5:{$lastColumn}5";
                 $sheet->getStyle($headerRange)->getFill()
                       ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                      ->getStartColor()->setARGB('FFFCE4E4'); // Light red
-                
+                      ->getStartColor()->setARGB('FFFCE4E4'); // Merah muda
+                $sheet->getStyle($headerRange)->getFont()->setBold(true);
                 $sheet->getStyle($headerRange)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-                // Style Whole Table (Borders)
+                // -----------------------------
+                // 3. STYLING SELURUH TABEL (Border & Alignment)
+                // -----------------------------
                 $tableRange = "A5:{$lastColumn}{$highestRow}";
                 $sheet->getStyle($tableRange)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
-                
-                // Center Align specific columns: No(A), Tahun(F), Tanggal(G), Jumlah(H), Box(L)
-                // Columns: A B C D E F G H I J K L
-                $sheet->getStyle("A6:A{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // No
-                $sheet->getStyle("F6:H{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Tahun, Tanggal, Jumlah
+
+                // Rata Tengah untuk kolom spesifik
+                $sheet->getStyle("A6:B{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // No, No Berkas
+                $sheet->getStyle("F6:H{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Thn, Tgl, Jml
                 $sheet->getStyle("L6:L{$highestRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER); // Box
-            },
+
+                // -----------------------------
+                // 4. EKSEKUSI MERGE BARIS (Satu baris full)
+                // -----------------------------
+                foreach ($this->mergedRows as $rowNum) {
+                    // Merge dari Kolom A sampai N
+                    $sheet->mergeCells("A{$rowNum}:{$lastColumn}{$rowNum}");
+
+                    // Set isi tulisan di tengah, tebal, dan huruf kapital
+                    $sheet->getStyle("A{$rowNum}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle("A{$rowNum}")->getFont()->setBold(true);
+
+                    // Set background warna abu-abu muda
+                    $sheet->getStyle("A{$rowNum}:{$lastColumn}{$rowNum}")->getFill()
+                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                        ->getStartColor()->setARGB('FFF2F2F2');
+                }
+            }
         ];
     }
 }

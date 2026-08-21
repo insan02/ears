@@ -49,6 +49,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/arsip/export', [ArsipController::class, 'export']);
     Route::get('/arsip/import', [ArsipController::class, 'showImportForm'])->name('arsip.import');
     Route::post('/arsip/import', [ArsipController::class, 'import'])->name('arsip.import.process');
+
+    Route::get('/arsip/import/progress', [ArsipController::class, 'checkProgress'])->name('arsip.import.progress');
+
     Route::get('/api/klasifikasi-options', [ArsipController::class, 'getKlasifikasiOptions']);
 
     // Core Resource Arsip

@@ -9,34 +9,59 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ArsipImport;
+use Illuminate\Support\Facades\Cache;
 
 class ArsipController extends Controller
 {
     public function import(Request $request)
     {
-        // Validasi menggunakan extention, bukan mimes murni agar tidak bentrok dgn OS
         $request->validate([
             'file' => 'required|file|max:10240'
-        ], [
-            'file.required' => 'File Excel wajib diupload.',
-            'file.file' => 'Upload yang dimasukkan harus berupa file.',
-            'file.max' => 'Ukuran file maksimal 10 MB.'
         ]);
 
         $file = $request->file('file');
-        $extension = $file->getClientOriginalExtension();
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // Ambil ID Import dari request AJAX
+        $importId = $request->input('import_id');
 
         if (!in_array($extension, ['xls', 'xlsx', 'csv'])) {
-            return back()->with('error', 'Gagal import: Format file harus berupa Excel (.xlsx, .xls) atau CSV.');
+            return response()->json(['success' => false, 'message' => 'Format file harus Excel (.xlsx) atau CSV.']);
         }
 
         try {
-            Excel::import(new ArsipImport, $file);
-            return back()->with('success', 'Data arsip berhasil diimport!');
+            ini_set('memory_limit', '-1');
+            ini_set('max_execution_time', 0);
+
+            // Inisiasi progress 0
+            if ($importId) {
+                Cache::put('import_arsip_progress_' . $importId, 1, 3600);
+            }
+
+            Excel::import(new ArsipImport($importId), $file);
+
+            // Hapus cache setelah selesai
+            if ($importId) {
+                Cache::forget('import_arsip_progress_' . $importId);
+            }
+
+            // Set session flash message untuk reload halaman
+            session()->flash('success', 'Data arsip berhasil diimport!');
+            return response()->json(['success' => true]);
+
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Import Exception: " . $e->getMessage());
-            return back()->with('error', 'Gagal import: Cek kembali template excel Anda. ' . $e->getMessage());
+            if ($importId) Cache::forget('import_arsip_progress_' . $importId);
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
+    }
+
+    // FUNGSI BARU UNTUK MEMBACA PROGRES
+    public function checkProgress(Request $request)
+    {
+        $id = $request->input('id');
+        $progress = Cache::get('import_arsip_progress_' . $id, 0);
+        return response()->json(['processed' => $progress]);
     }
 
     public function showImportForm()
@@ -44,6 +69,8 @@ class ArsipController extends Controller
         return view('arsip.import');
     }
 
+    // GANTI HANYA FUNGSI index() DI DALAM ArsipController.php
+    // GANTI HANYA FUNGSI index() DI DALAM ArsipController.php
     public function index(Request $request)
     {
         $query = Arsip::with(['klasifikasi']);
@@ -62,30 +89,34 @@ class ArsipController extends Controller
                   ->orWhere('hak_akses', 'like', "%{$search}%")
                   ->orWhere('masa_simpan', 'like', "%{$search}%")
                   ->orWhere('jenis_media', 'like', "%{$search}%")
-                  ->orWhere('tindakan_akhir', 'like', "%{$search}%")
-                  ->orWhereHas('klasifikasi', function($q3) use ($search) {
-                      $q3->where('kode_klasifikasi', 'like', "%{$search}%")
-                         ->orWhere('jenis_arsip', 'like', "%{$search}%");
-                  })
-                  ->orWhereRaw("DATE_FORMAT(tanggal_masuk, '%d %b %Y') LIKE ?", ["%{$search}%"])
-                  ->orWhere('tanggal_masuk', 'like', "%{$search}%");
+                  ->orWhere('tindakan_akhir', 'like', "%{$search}%");
             });
         }
 
-        // Filter Baru
-        if ($request->filled('filter_status')) $query->where('tindakan_akhir', $request->filter_status);
+        // PERBAIKAN: Menggunakan 'like' pada filter_status
+        if ($request->filled('filter_status')) {
+            $query->where('tindakan_akhir', 'like', '%' . $request->filter_status . '%');
+        }
+
         if ($request->filled('filter_hak_akses')) $query->where('hak_akses', $request->filter_hak_akses);
         if ($request->filled('filter_tahun')) $query->where('tahun', $request->filter_tahun);
         if ($request->filled('filter_box')) $query->where('no_box', $request->filter_box);
 
-        switch ($request->input('sort')) {
-            case 'oldest': $query->orderBy('id', 'asc'); break;
-            case 'year_desc': $query->orderBy('tahun', 'desc'); break;
-            case 'year_asc': $query->orderBy('tahun', 'asc'); break;
-            case 'box_desc': $query->orderBy('no_box', 'desc'); break;
-            case 'box_asc': $query->orderBy('no_box', 'asc'); break;
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('id', 'asc');
+                break;
+            case 'year_desc':
+                $query->orderBy('tahun', 'desc')->orderBy('id', 'desc');
+                break;
+            case 'year_asc':
+                $query->orderBy('tahun', 'asc')->orderBy('id', 'desc');
+                break;
             case 'newest':
-            default: $query->orderBy('id', 'desc'); break;
+            default:
+                $query->orderBy('id', 'desc');
+                break;
         }
 
         $printMode = $request->get('print') === 'true';
@@ -96,33 +127,14 @@ class ArsipController extends Controller
              $arsips = $query->paginate(50);
         }
 
-        $groupData = [];
-        $lastNoBerkasOnPage = null;
-
-        $allGroups = Arsip::selectRaw('no_berkas, MIN(id) as first_id')->groupBy('no_berkas')->orderBy('first_id', 'asc')->get();
-
-        $rankMap = [];
-        foreach ($allGroups as $index => $g) {
-            $rankMap[$g->no_berkas] = $index + 1;
-        }
-
-        foreach ($arsips as $arsip) {
-            $currentNo = $arsip->no_berkas;
-            $number = $rankMap[$currentNo] ?? 0;
-            $isStart = ($currentNo !== $lastNoBerkasOnPage);
-
-            $groupData[$arsip->id] = ['number' => $number, 'is_start' => $isStart];
-            $lastNoBerkasOnPage = $currentNo;
-        }
-
         $availableYears = Arsip::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
-        $availableBoxes = Arsip::select('no_box')->whereNotNull('no_box')->where('no_box', '!=', '-')->distinct()->orderByRaw('CAST(no_box AS UNSIGNED) ASC')->pluck('no_box');
+        $availableBoxes = Arsip::select('no_box')->whereNotNull('no_box')->where('no_box', '!=', '')->distinct()->orderByRaw('CAST(no_box AS UNSIGNED) ASC')->pluck('no_box');
 
         if ($request->ajax()) {
-            return view('arsip.partials.table', compact('arsips', 'groupData'));
+            return view('arsip.partials.table', compact('arsips'));
         }
 
-        return view('arsip.arsip', compact('arsips', 'availableYears', 'availableBoxes', 'groupData', 'printMode'));
+        return view('arsip.arsip', compact('arsips', 'availableYears', 'availableBoxes', 'printMode'));
     }
 
     public function create()
@@ -247,7 +259,8 @@ class ArsipController extends Controller
         $arsip = Arsip::find($id);
         if (!$arsip) return redirect()->back()->with('error', 'Data tidak ditemukan');
 
-        if ($arsip->tindakan_akhir == 'Musnah') {
+        // PERBAIKAN: Menggunakan str_contains agar bisa mendeteksi "Musnah kecuali bla bla"
+        if (str_contains(strtolower($arsip->tindakan_akhir ?? ''), 'musnah')) {
             try {
                 DB::transaction(function () use ($arsip) {
                     $data = $arsip->toArray();

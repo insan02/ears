@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semen Padang Arsip</title>
+    <title>E Arsip</title>
     <link rel="icon" href="{{ asset('images/logosp.png') }}" type="image/png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -35,7 +35,7 @@
             <div class="lg:hidden bg-white shadow-sm px-4 py-3 flex items-center justify-between border-b border-gray-200 z-20">
                 <div class="flex items-center gap-3">
                     <img src="{{ asset('images/logo-semen-padang.png') }}" alt="Logo" class="h-8 w-auto">
-                    <span class="font-bold text-gray-800 text-sm">Record Center</span>
+                    <span class="font-bold text-gray-800 text-sm">E-Arsip PT Semen Padang</span>
                 </div>
                 <button @click="sidebarOpen = true" class="p-2 text-gray-600 hover:text-[#e92027] focus:outline-none rounded-lg hover:bg-red-50 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
