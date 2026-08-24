@@ -2,9 +2,8 @@
     {{-- Header Page --}}
     <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
         <div class="relative z-10 max-w-4xl mx-auto text-center md:text-left">
-            <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Tugaskan Staf Baru</h1>
-            <p class="text-red-100 text-sm md:text-base mt-2 opacity-90 font-light">Tambahkan tugas pengarsipan baru untuk staf ke dalam Berita Acara yang ada.</p>
-        </div>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Tambah Data Baru</h1>
+            </div>
         <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
     </div>
 

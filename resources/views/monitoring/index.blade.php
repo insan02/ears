@@ -30,7 +30,7 @@
                     <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors">
                         <svg class="w-5 h-5 text-[#e92027]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                     </div>
-                    <span class="text-sm md:text-base">TUGASKAN STAF</span>
+                    <span class="text-sm md:text-base">TAMBAH DATA</span>
                 </a>
             </div>
         </div>
