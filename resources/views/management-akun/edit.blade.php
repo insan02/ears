@@ -64,26 +64,7 @@
                             </div>
                         </div>
 
-                        {{-- Ganti Password (Opsional) --}}
-                        <div class="md:col-span-2 pt-6 border-t border-gray-100 mt-2">
-                            <h3 class="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <i class="fas fa-lock text-gray-400"></i> Keamanan (Ganti Password)
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-600 mb-2">Password Baru (Opsional)</label>
-                                    <input type="password" name="password"
-                                        class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] focus:ring-2 focus:ring-[#e92027]/20 transition duration-200"
-                                        placeholder="Biarkan kosong jika tidak diubah">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-600 mb-2">Konfirmasi Password Baru</label>
-                                    <input type="password" name="password_confirmation"
-                                        class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] focus:ring-2 focus:ring-[#e92027]/20 transition duration-200"
-                                        placeholder="Ketik ulang password baru">
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>

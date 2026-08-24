@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str; // Tambahkan ini
+use App\Notifications\NewUserAccountNotification; // Tambahkan ini
+use App\Notifications\EmailUpdatedNotification; // Tambahkan ini
 
 class ManagementAkunController extends Controller
 {
@@ -41,24 +44,28 @@ class ManagementAkunController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'role' => 'required|in:admin,karyawan',
-            'password' => 'required|min:6|confirmed',
         ], [
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'email.unique' => 'Email ini sudah terdaftar.'
         ]);
 
-        DB::transaction(function () use ($request) {
+        // Generate password acak yang kuat (mengandung huruf besar, kecil, angka, dan simbol)
+        $rawPassword = Str::random(10) . 'Aa1@'; 
+
+        DB::transaction(function () use ($request, $rawPassword) {
             DB::table('authorized_emails')->insertOrIgnore(['email' => $request->email]);
 
-            User::create([
+            $user = User::create([
                 'nama' => $request->nama,
                 'email' => $request->email,
                 'role' => $request->role,
-                'password' => Hash::make($request->password),
+                'password' => Hash::make($rawPassword),
             ]);
+
+            // Kirim email berisi password ke user baru
+            $user->notify(new NewUserAccountNotification($rawPassword));
         });
 
-        return redirect()->route('management-akun.index')->with('success', 'Pengguna berhasil ditambahkan!');
+        return redirect()->route('management-akun.index')->with('success', 'Pengguna berhasil ditambahkan dan password telah dikirim ke email!');
     }
 
     public function edit(string $id)
@@ -70,46 +77,38 @@ class ManagementAkunController extends Controller
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
+        $oldEmail = $user->email; // Simpan email lama untuk pengecekan
 
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'role' => 'required|in:admin,karyawan',
-            'password' => 'nullable|min:6|confirmed',
-        ], [
-            'password.confirmed' => 'Konfirmasi password tidak cocok.'
         ]);
 
-        // LOGIKA BARU: Mencegah sistem kehabisan Admin
-        // Jika user yang diedit asalnya Admin, dan akan diubah menjadi Karyawan...
         if ($user->role === 'admin' && $request->role !== 'admin') {
             $adminCount = User::where('role', 'admin')->count();
-
-            // ...cek apakah dia adalah satu-satunya admin tersisa?
             if ($adminCount <= 1) {
-                return back()->withErrors(['role' => 'Tindakan Ditolak: Harus ada minimal 1 Admin di dalam sistem. Anda tidak bisa mengubah role satu-satunya Admin.']);
+                return back()->withErrors(['role' => 'Tindakan Ditolak: Harus ada minimal 1 Admin di dalam sistem.']);
             }
         }
 
-        DB::transaction(function () use ($request, $user) {
+        DB::transaction(function () use ($request, $user, $oldEmail) {
             if ($request->email !== $user->email) {
                 DB::table('authorized_emails')->insertOrIgnore(['email' => $request->email]);
             }
 
-            $data = [
+            $user->update([
                 'nama' => $request->nama,
                 'email' => $request->email,
                 'role' => $request->role,
-            ];
+            ]);
 
-            if ($request->filled('password')) {
-                $data['password'] = Hash::make($request->password);
+            // Kirim notifikasi JIKA email berubah
+            if ($oldEmail !== $request->email) {
+                $user->notify(new EmailUpdatedNotification());
             }
-
-            $user->update($data);
         });
 
-        // Jika user mengubah role-nya sendiri menjadi karyawan, redirect ke beranda karena akses adminnya dicabut
         if ($user->id === Auth::id() && $user->role !== 'admin') {
             return redirect()->route('beranda')->with('success', 'Role Anda telah diubah menjadi Karyawan.');
         }

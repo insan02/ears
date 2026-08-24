@@ -20,12 +20,27 @@ class ResetPasswordController extends Controller
 
     public function reset(Request $request)
     {
+        // 1. Definisikan aturan validasi dan pesan error kustom
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'password' => 'required|confirmed|min:8',
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',  // Minimal 8 karakter
+                'max:16', // Maksimal 16 karakter
+                // Regex: Wajib huruf kecil, besar, simbol tertentu.
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&*!?])[A-Za-z\d@#$%^&*!?]+$/'
+            ],
+        ], [
+            // Pesan error kustom
+            'password.min' => 'Password minimal harus 8 karakter.',
+            'password.max' => 'Password tidak boleh lebih dari 16 karakter.',
+            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, dan minimal satu simbol yang diizinkan (@, #, $, %, ^, &, *, !, ?). Karakter lain/spasi tidak diperbolehkan.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok dengan password baru.'
         ]);
 
+        // 2. Proses reset password
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {

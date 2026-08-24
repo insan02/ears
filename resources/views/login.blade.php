@@ -90,6 +90,13 @@
                     <p class="text-sm text-gray-500 md:hidden mt-2">Silakan masuk ke akun Anda</p>
                 </div>
 
+                @if (session('success'))
+                    <div class="bg-green-50 text-green-700 p-4 rounded-xl mb-6 border border-green-200 flex items-center gap-3">
+                        <i class="fas fa-check-circle text-xl"></i>
+                        <span class="text-sm font-bold">{{ session('success') }}</span>
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('login.authenticate') }}" class="space-y-5 md:space-y-6">
                     @csrf
 

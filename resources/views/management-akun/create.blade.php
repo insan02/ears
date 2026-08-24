@@ -65,22 +65,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        {{-- Password --}}
-                        <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-2">Password <span class="text-red-600">*</span></label>
-                            <input type="password" name="password" required
-                                class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] focus:ring-2 focus:ring-[#e92027]/20 transition duration-200"
-                                placeholder="Minimal 6 karakter">
-                        </div>
-
-                        {{-- Konfirmasi Password --}}
-                        <div>
-                            <label class="block text-sm font-bold text-gray-800 mb-2">Konfirmasi Password <span class="text-red-600">*</span></label>
-                            <input type="password" name="password_confirmation" required
-                                class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] focus:ring-2 focus:ring-[#e92027]/20 transition duration-200"
-                                placeholder="Ketik ulang password">
-                        </div>
                     </div>
                 </div>
             </div>
