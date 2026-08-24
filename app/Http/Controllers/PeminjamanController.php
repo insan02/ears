@@ -17,7 +17,6 @@ class PeminjamanController extends Controller
     {
         $totalPeminjaman = DetailPeminjaman::count();
 
-        // FIX STATUS: Hitung murni dari status peminjaman (tanpa pengecualian Softfile)
         $masihDipinjam = DetailPeminjaman::whereHas('peminjaman', function ($q) {
             $q->where('status', 'Sedang Dipinjam');
         })->count();
@@ -95,11 +94,10 @@ class PeminjamanController extends Controller
 
     public function create()
     {
-        // FIX HARDFILE LOGIC: Hanya blokir jika yang sedang dipinjam adalah "Hardfile"
         $arsipDipinjam = DetailPeminjaman::whereHas('peminjaman', function ($q) {
             $q->where('status', 'Sedang Dipinjam');
         })->whereNotNull('arsip_id')
-          ->where('jenis_arsip', 'Hardfile') // Logika baru: Softfile tidak memblokir
+          ->where('jenis_arsip', 'Hardfile')
           ->pluck('arsip_id');
 
         $daftarArsip = Arsip::with('klasifikasi')
@@ -134,8 +132,6 @@ class PeminjamanController extends Controller
         for ($i = 0; $i < count($sources); $i++) {
             if ($sources[$i] == 'db' && !empty($request->items_arsip_id[$i])) {
                 $idArsip = $request->items_arsip_id[$i];
-
-                // Cek ketersediaan di DB (Hanya memblokir jika arsip tersebut sedang dipinjam fisiknya / Hardfile)
                 $sedangDipinjamFisik = DetailPeminjaman::where('arsip_id', $idArsip)
                     ->where('jenis_arsip', 'Hardfile')
                     ->whereHas('peminjaman', function ($q) {
@@ -148,9 +144,14 @@ class PeminjamanController extends Controller
             }
         }
 
+        // DEKLARASI PENGECEKAN JABATAN DAN UNIT (Sesuai Aturan Baru)
         $jabatanInput = trim($request->jabatan_peminjam);
-        $restrictedJabatan = ['Band IV', 'Karyawan/Pelaksana'];
-        $restrictedAkses = ['Rahasia', 'Terbatas'];
+        $unitInput = trim($request->unit);
+
+        $isHukum = stripos($unitInput, 'Hukum') !== false;
+        $isAudit = stripos($unitInput, 'Internal Audit') !== false;
+        // PERBAIKAN: Hanya Karyawan/Pelaksana yang diblokir mutlak dari keistimewaan unit
+        $isPelaksana = ($jabatanInput === 'Karyawan/Pelaksana');
 
         for ($i = 0; $i < count($sources); $i++) {
             $checkAkses = 'Biasa';
@@ -164,9 +165,20 @@ class PeminjamanController extends Controller
                 $checkAkses = $request->items_akses_manual[$i] ?? 'Biasa';
             }
 
-            if (in_array($jabatanInput, $restrictedJabatan)) {
-                if (in_array($checkAkses, $restrictedAkses)) {
-                    return back()->withErrors(['msg' => 'Gagal! Jabatan ' . $jabatanInput . ' tidak diizinkan meminjam arsip dengan klasifikasi ' . $checkAkses . '.'])->withInput();
+            // LOGIKA HAK AKSES KETAT
+            if ($checkAkses == 'Rahasia') {
+                $allowedByJabatan = in_array($jabatanInput, ['Direksi', 'Band I']);
+                $allowedByUnit = $isHukum && !$isPelaksana;
+
+                if (!$allowedByJabatan && !$allowedByUnit) {
+                    return back()->withErrors(['msg' => "Gagal! Jabatan $jabatanInput (Unit: $unitInput) tidak diizinkan meminjam arsip klasifikasi Rahasia."])->withInput();
+                }
+            } elseif ($checkAkses == 'Terbatas') {
+                $allowedByJabatan = in_array($jabatanInput, ['Direksi', 'Band I', 'Band II']);
+                $allowedByUnit = ($isHukum || $isAudit) && !$isPelaksana;
+
+                if (!$allowedByJabatan && !$allowedByUnit) {
+                    return back()->withErrors(['msg' => "Gagal! Jabatan $jabatanInput (Unit: $unitInput) tidak diizinkan meminjam arsip klasifikasi Terbatas."])->withInput();
                 }
             }
         }
@@ -188,7 +200,7 @@ class PeminjamanController extends Controller
             'jabatan_peminjam' => $request->jabatan_peminjam,
             'keperluan' => $request->keperluan,
             'bukti_peminjaman' => !empty($filePaths) ? json_encode($filePaths) : null,
-            'status' => 'Sedang Dipinjam', // MURNI DIPINJAM
+            'status' => 'Sedang Dipinjam',
             'is_approved_khusus' => 0
         ]);
 
@@ -308,6 +320,14 @@ class PeminjamanController extends Controller
 
         if ($request->has('items_source')) {
             $sources = $request->items_source;
+            $jabatanInput = trim($request->jabatan_peminjam);
+            $unitInput = trim($request->unit);
+
+            $isHukum = stripos($unitInput, 'Hukum') !== false;
+            $isAudit = stripos($unitInput, 'Internal Audit') !== false;
+            // PERBAIKAN: Hanya Karyawan/Pelaksana yang diblokir mutlak dari keistimewaan unit
+            $isPelaksana = ($jabatanInput === 'Karyawan/Pelaksana');
+
             for ($i = 0; $i < count($sources); $i++) {
                 if ($sources[$i] == 'db' && !empty($request->items_arsip_id[$i])) {
                     $idArsip = $request->items_arsip_id[$i];
@@ -321,10 +341,6 @@ class PeminjamanController extends Controller
                     if ($sedangDipinjamFisik) return back()->withErrors(['msg' => 'Gagal update! Fisik arsip sedang dipinjam (Hardfile).']);
                 }
 
-                $restrictedJabatan = ['Band IV', 'Karyawan/Pelaksana'];
-                $restrictedAkses = ['Rahasia', 'Terbatas'];
-                $jabatanInput = trim($request->jabatan_peminjam);
-
                 $checkAkses = 'Biasa';
                 if ($sources[$i] == 'db' && !empty($request->items_arsip_id[$i])) {
                     $arsipCheck = Arsip::with('klasifikasi')->find($request->items_arsip_id[$i]);
@@ -335,9 +351,19 @@ class PeminjamanController extends Controller
                     $checkAkses = $request->items_akses_manual[$i] ?? 'Biasa';
                 }
 
-                if (in_array($jabatanInput, $restrictedJabatan)) {
-                    if (in_array($checkAkses, $restrictedAkses)) {
-                        return back()->withErrors(['msg' => 'Gagal Update! Jabatan ' . $request->jabatan_peminjam . ' tidak diizinkan meminjam arsip ' . $checkAkses . '.']);
+                if ($checkAkses == 'Rahasia') {
+                    $allowedByJabatan = in_array($jabatanInput, ['Direksi', 'Band I']);
+                    $allowedByUnit = $isHukum && !$isPelaksana;
+
+                    if (!$allowedByJabatan && !$allowedByUnit) {
+                        return back()->withErrors(['msg' => "Gagal Update! Jabatan $jabatanInput (Unit: $unitInput) tidak diizinkan meminjam arsip klasifikasi Rahasia."]);
+                    }
+                } elseif ($checkAkses == 'Terbatas') {
+                    $allowedByJabatan = in_array($jabatanInput, ['Direksi', 'Band I', 'Band II']);
+                    $allowedByUnit = ($isHukum || $isAudit) && !$isPelaksana;
+
+                    if (!$allowedByJabatan && !$allowedByUnit) {
+                        return back()->withErrors(['msg' => "Gagal Update! Jabatan $jabatanInput (Unit: $unitInput) tidak diizinkan meminjam arsip klasifikasi Terbatas."]);
                     }
                 }
 

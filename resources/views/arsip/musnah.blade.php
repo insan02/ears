@@ -116,11 +116,40 @@
                     </div>
                 </div>
 
-                @if($arsips->hasPages())
-                <div class="p-4 md:p-6 border-t border-gray-100 bg-gray-50 print:hidden">
-                    {{ $arsips->links() }}
-                </div>
+                @if($arsips instanceof \Illuminate\Pagination\LengthAwarePaginator && $arsips->hasPages())
+    @php $paginator = $arsips->appends(request()->query()); @endphp
+    <div class="p-4 md:p-6 border-t border-gray-100 bg-gray-50 print:hidden flex justify-center">
+        <nav class="flex items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-200 shadow-sm max-w-full overflow-x-auto hide-scrollbar">
+
+            @if ($paginator->onFirstPage())
+                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold"><i class="fas fa-chevron-left"></i></span>
+            @else
+                <a href="{{ $paginator->previousPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold"><i class="fas fa-chevron-left"></i></a>
+            @endif
+
+            @foreach ($paginator->linkCollection() as $link)
+                @if (str_contains($link['label'], 'Previous') || str_contains($link['label'], 'Next') || str_contains($link['label'], '&laquo;') || str_contains($link['label'], '&raquo;'))
+                    @continue
                 @endif
+
+                @if ($link['url'] === null)
+                    <span class="px-2 py-2 text-gray-400 text-sm font-bold">...</span>
+                @elseif ($link['active'])
+                    <span class="px-3 md:px-4 py-2 rounded-xl bg-gray-800 text-white font-extrabold text-xs md:text-sm shadow-md">{{ $link['label'] }}</span>
+                @else
+                    <a href="{{ $link['url'] }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors text-xs md:text-sm font-bold">{{ $link['label'] }}</a>
+                @endif
+            @endforeach
+
+            @if ($paginator->hasMorePages())
+                <a href="{{ $paginator->nextPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold"><i class="fas fa-chevron-right"></i></a>
+            @else
+                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold"><i class="fas fa-chevron-right"></i></span>
+            @endif
+
+        </nav>
+    </div>
+@endif
             </div>
         </div>
     </div>

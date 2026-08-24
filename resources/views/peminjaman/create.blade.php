@@ -205,8 +205,12 @@
                             <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Hak Akses</label>
                             <select x-model="tempItem.akses" class="w-full border border-gray-300 rounded-xl p-3 text-sm bg-gray-50 focus:bg-white focus:border-[#e92027] outline-none">
                                 <option value="Biasa">Biasa</option>
-                                <template x-if="!['Band IV', 'Karyawan/Pelaksana'].includes(jabatan)"><option value="Terbatas">Terbatas</option></template>
-                                <template x-if="!['Band IV', 'Karyawan/Pelaksana'].includes(jabatan)"><option value="Rahasia">Rahasia</option></template>
+                                <template x-if="['Direksi', 'Band I', 'Band II'].includes(jabatan) || ( ((unit || '').toLowerCase().includes('hukum') || (unit || '').toLowerCase().includes('internal audit')) && jabatan !== 'Karyawan/Pelaksana' )">
+                                    <option value="Terbatas">Terbatas</option>
+                                </template>
+                                <template x-if="['Direksi', 'Band I'].includes(jabatan) || ( (unit || '').toLowerCase().includes('hukum') && jabatan !== 'Karyawan/Pelaksana' )">
+                                    <option value="Rahasia">Rahasia</option>
+                                </template>
                             </select>
                         </div>
                     </div>
@@ -283,21 +287,45 @@
                 selectArsip(arsip) { this.tempItem.id = arsip.id; this.tempItem.display_name = arsip.nama_berkas; this.tempItem.no_box = arsip.no_box; this.tempItem.akses = arsip.hak_akses; this.searchQuery = arsip.nama_berkas; },
 
                 addItem() {
-                    if (this.tempItem.source === 'db' && !this.tempItem.id) { this.serverErrors = ['Silakan pilih arsip dari database!']; this.showValidationModal = true; return; }
-                    if (this.tempItem.source === 'manual' && !this.tempItem.nama_manual) { this.serverErrors = ['Isi nama arsip untuk input manual!']; this.showValidationModal = true; return; }
+                    if (this.tempItem.source === 'db' && !this.tempItem.id) { this.serverErrors = ['Pilih arsip!']; this.showValidationModal = true; return; }
+                    if (this.tempItem.source === 'manual' && !this.tempItem.nama_manual) { this.serverErrors = ['Nama arsip wajib diisi!']; this.showValidationModal = true; return; }
                     if (!this.jabatan) { this.serverErrors = ['Mohon pilih Jabatan di form utama terlebih dahulu.']; this.showValidationModal = true; return; }
 
                     if (this.tempItem.source === 'manual') this.tempItem.display_name = this.tempItem.nama_manual;
 
-                    const restrictedJabatan = ['Band IV', 'Karyawan/Pelaksana'];
-                    const restrictedAkses = ['Rahasia', 'Terbatas'];
+                    // VALIDASI HAK AKSES FRONTEND ALPINE JS
+                    const unitLower = (this.unit || '').toLowerCase();
+                    const isHukum = unitLower.includes('hukum');
+                    const isAudit = unitLower.includes('internal audit');
 
-                    if (restrictedJabatan.includes(this.jabatan) && restrictedAkses.includes(this.tempItem.akses)) {
-                        this.serverErrors = [`Gagal! Jabatan ${this.jabatan} tidak diizinkan akses arsip berklasifikasi ${this.tempItem.akses}.`];
-                        this.showValidationModal = true; return;
+                    // PERBAIKAN: Hanya Karyawan/Pelaksana (Outsourcing) yang dicegat
+                    const isPelaksana = (this.jabatan === 'Karyawan/Pelaksana');
+
+                    if (this.tempItem.akses === 'Rahasia') {
+                        const allowedByJabatan = ['Direksi', 'Band I'].includes(this.jabatan);
+                        const allowedByUnit = isHukum && !isPelaksana;
+
+                        if (!allowedByJabatan && !allowedByUnit) {
+                            this.serverErrors = [`Gagal! Jabatan ${this.jabatan} (Unit ${this.unit || '-'}) tidak diizinkan akses arsip Rahasia.`];
+                            this.showValidationModal = true; return;
+                        }
+                    } else if (this.tempItem.akses === 'Terbatas') {
+                        const allowedByJabatan = ['Direksi', 'Band I', 'Band II'].includes(this.jabatan);
+                        const allowedByUnit = (isHukum || isAudit) && !isPelaksana;
+
+                        if (!allowedByJabatan && !allowedByUnit) {
+                            this.serverErrors = [`Gagal! Jabatan ${this.jabatan} (Unit ${this.unit || '-'}) tidak diizinkan akses arsip Terbatas.`];
+                            this.showValidationModal = true; return;
+                        }
                     }
 
-                    this.items.push({ ...this.tempItem }); this.closeModal();
+                    if (this.editingIndex !== undefined && this.editingIndex !== null) {
+                        this.items[this.editingIndex] = {...this.tempItem};
+                    } else {
+                        this.items.push({...this.tempItem});
+                    }
+
+                    this.closeModal();
                 },
 
                 removeItem(index) { this.items.splice(index, 1); },

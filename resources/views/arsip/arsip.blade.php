@@ -178,9 +178,54 @@
                 @include('arsip.partials.table')
             </div>
 
-            <div class="mt-6 mb-10">
-                {{ $arsips->appends(request()->query())->links() }}
-            </div>
+            <div class="mt-8 mb-12 flex justify-center w-full">
+    @if ($arsips instanceof \Illuminate\Pagination\LengthAwarePaginator && $arsips->hasPages())
+        @php $paginator = $arsips->appends(request()->query()); @endphp
+        <nav class="flex items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-200 shadow-sm max-w-full overflow-x-auto hide-scrollbar">
+
+            {{-- Tombol Previous --}}
+            @if ($paginator->onFirstPage())
+                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold flex items-center gap-2">
+                    <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span>
+                </span>
+            @else
+                <a href="{{ $paginator->previousPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold flex items-center gap-2">
+                    <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span>
+                </a>
+            @endif
+
+            {{-- Angka Pagination --}}
+            @foreach ($paginator->linkCollection() as $link)
+                {{-- Lewati label tombol Next/Prev bawaan sistem --}}
+                @if (str_contains($link['label'], 'Previous') || str_contains($link['label'], 'Next') || str_contains($link['label'], '&laquo;') || str_contains($link['label'], '&raquo;'))
+                    @continue
+                @endif
+
+                @if ($link['url'] === null)
+                    {{-- Pemisah 3 Titik --}}
+                    <span class="px-2 py-2 text-gray-400 text-sm font-bold">...</span>
+                @elseif ($link['active'])
+                    {{-- Halaman Aktif --}}
+                    <span class="px-3 md:px-4 py-2 rounded-xl bg-[#e92027] text-white font-extrabold text-xs md:text-sm shadow-md">{{ $link['label'] }}</span>
+                @else
+                    {{-- Halaman Tersedia --}}
+                    <a href="{{ $link['url'] }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold">{{ $link['label'] }}</a>
+                @endif
+            @endforeach
+
+            {{-- Tombol Next --}}
+            @if ($paginator->hasMorePages())
+                <a href="{{ $paginator->nextPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold flex items-center gap-2">
+                    <span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i>
+                </a>
+            @else
+                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold flex items-center gap-2">
+                    <span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i>
+                </span>
+            @endif
+        </nav>
+    @endif
+</div>
 
             {{-- MODAL IMPORT EXCEL --}}
             <div x-show="showImportModal" style="display: none;" class="fixed inset-0 z-[999] overflow-y-auto">
