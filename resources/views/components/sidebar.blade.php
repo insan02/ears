@@ -71,6 +71,10 @@
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
             <span x-show="sidebarOpen">Monitoring</span>
         </a>
+        <a href="{{ route('limap.index') }}" class="flex items-center py-2 text-sm font-medium {{ Request::is('5p*') ? 'bg-[#e92027] text-white shadow-md' : 'text-gray-600 hover:bg-red-50 hover:text-[#e92027]' }} rounded-xl transition-all duration-300" :class="sidebarOpen ? 'gap-3 px-4' : 'justify-center px-0'">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+            <span x-show="sidebarOpen">Informasi 5P</span>
+        </a>
 
         @if(Auth::check() && Auth::user()->role == 'admin')
             <div x-show="sidebarOpen" class="pt-4 pb-1"><p class="px-4 text-[9px] font-bold text-gray-400 uppercase">Administrator</p></div>
@@ -92,6 +96,7 @@
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 <span x-show="sidebarOpen">Data Musnah</span>
             </a>
+
         @endif
     </nav>
 
@@ -112,7 +117,7 @@
 <!-- 2. MOBILE BOTTOM NAV & MORE MENU           -->
 <!-- ========================================== -->
 <div x-data="{ showMobileMore: false }" class="lg:hidden">
-    
+
     <!-- ---------------------------------------------------- -->
     <!-- TAMPILAN FIXED BAWAH: Berlaku Untuk SEMUA USER       -->
     <!-- ---------------------------------------------------- -->
@@ -160,14 +165,14 @@
     <!-- BOTTOM SHEET: Menu Tambahan (Dinilai Berdasarkan Role)-->
     <!-- ---------------------------------------------------- -->
     <div x-show="showMobileMore" style="display: none;" class="fixed inset-0 z-[110] flex flex-col justify-end">
-        
+
         <div x-show="showMobileMore" x-transition.opacity @click="showMobileMore = false" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-        <div x-show="showMobileMore" 
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" 
-             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" 
+        <div x-show="showMobileMore"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
              class="relative bg-gray-50 rounded-t-[2rem] w-full max-h-[85vh] flex flex-col overflow-hidden pb-safe shadow-2xl">
-            
+
             <div class="bg-white px-6 py-4 flex justify-between items-center rounded-t-[2rem] shadow-sm z-10">
                 <h3 class="font-bold text-gray-800 text-lg">Menu Lainnya</h3>
                 <button @click="showMobileMore = false" class="bg-gray-100 p-2 rounded-full text-gray-500 hover:text-red-600">
@@ -176,7 +181,7 @@
             </div>
 
             <div class="p-4 overflow-y-auto custom-scrollbar space-y-6">
-                
+
                 <!-- Grup Admin (Hanya tampil jika role admin) -->
                 @if(Auth::check() && Auth::user()->role == 'admin')
                 <div>
@@ -198,6 +203,10 @@
                             <div class="bg-red-50 text-red-600 p-2 rounded-lg"><i class="fas fa-trash-alt w-5 text-center text-lg"></i></div>
                             <span class="font-semibold text-gray-700 text-sm">Data Arsip Musnah</span>
                         </a>
+                        <a href="{{ route('limap.index') }}" class="flex items-center gap-4 px-4 py-3.5 hover:bg-red-50">
+                            <div class="bg-blue-50 text-blue-600 p-2 rounded-lg"><i class="fas fa-flask w-5 text-center text-lg"></i></div>
+                            <span class="font-semibold text-gray-700 text-sm">Informasi 5P</span>
+                        </a>
                     </div>
                 </div>
                 @endif
@@ -217,7 +226,7 @@
                                 <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
                             </div>
                         </a>
-                        
+
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full flex items-center gap-4 px-4 py-3.5 text-red-600 hover:bg-red-50 transition">

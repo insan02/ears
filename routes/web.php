@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ManajemenMediaController;
+use App\Http\Controllers\LimaPController;
 
 // ==========================================
 // 1. AUTHENTICATION & LANDING
@@ -102,6 +103,21 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('manajemen-media', ManajemenMediaController::class);
     Route::resource('manajemen-unit', \App\Http\Controllers\ManajemenUnitController::class);
 
+    // ==========================================
+    // FITUR 5P (Admin Only)
+    // ==========================================
+    Route::get('/5p', [LimaPController::class, 'index'])->name('limap.index');
+    Route::get('/5p/create', [LimaPController::class, 'create'])->name('limap.create');
+    Route::post('/5p', [LimaPController::class, 'store'])->name('limap.store');
+
+    // TAMBAHKAN 2 ROUTE INI:
+    Route::get('/5p/export/excel', [LimaPController::class, 'exportExcel'])->name('limap.export');
+    Route::post('/5p/import/excel', [LimaPController::class, 'importExcel'])->name('limap.import');
+
+    Route::get('/5p/{id}', [LimaPController::class, 'show'])->name('limap.show');
+    Route::get('/5p/{id}/edit', [LimaPController::class, 'edit'])->name('limap.edit');
+    Route::put('/5p/{id}', [LimaPController::class, 'update'])->name('limap.update');
+    Route::delete('/5p/{id}', [LimaPController::class, 'destroy'])->name('limap.destroy');
     // ==========================================
     // PROFILE
     // ==========================================
