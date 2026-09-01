@@ -9,13 +9,19 @@ class LimaPContent extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'kesepakatan',
-        'pembagian_area',
-        'struktur',
-        'visi_misi',
-        'jadwal_kegiatan',
-        'kaizen',
-        'pic'
+    protected $guarded = ['id'];
+
+    // Cast kolom JSON menjadi Array otomatis
+    protected $casts = [
+        'kesepakatan' => 'array',
+        'pembagian_area' => 'array',
+        'struktur' => 'array',
+        'visi_misi' => 'array',
+        'jadwal_kegiatan' => 'array',
     ];
+
+    public function kaizens()
+    {
+        return $this->hasMany(LimaPKaizen::class);
+    }
 }

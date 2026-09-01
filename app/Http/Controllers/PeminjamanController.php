@@ -102,6 +102,7 @@ class PeminjamanController extends Controller
 
         $daftarArsip = Arsip::with('klasifikasi')
             ->whereNotIn('id', $arsipDipinjam)
+            ->where('no_berkas', '!=', '__MERGED_ROW__') // <-- PERBAIKAN: Sembunyikan baris pembatas
             ->orderBy('nama_berkas', 'asc')
             ->get()
             ->map(function ($item) {
@@ -144,13 +145,11 @@ class PeminjamanController extends Controller
             }
         }
 
-        // DEKLARASI PENGECEKAN JABATAN DAN UNIT (Sesuai Aturan Baru)
         $jabatanInput = trim($request->jabatan_peminjam);
         $unitInput = trim($request->unit);
 
         $isHukum = stripos($unitInput, 'Hukum') !== false;
         $isAudit = stripos($unitInput, 'Internal Audit') !== false;
-        // PERBAIKAN: Hanya Karyawan/Pelaksana yang diblokir mutlak dari keistimewaan unit
         $isPelaksana = ($jabatanInput === 'Karyawan/Pelaksana');
 
         for ($i = 0; $i < count($sources); $i++) {
@@ -165,7 +164,6 @@ class PeminjamanController extends Controller
                 $checkAkses = $request->items_akses_manual[$i] ?? 'Biasa';
             }
 
-            // LOGIKA HAK AKSES KETAT
             if ($checkAkses == 'Rahasia') {
                 $allowedByJabatan = in_array($jabatanInput, ['Direksi', 'Band I']);
                 $allowedByUnit = $isHukum && !$isPelaksana;
@@ -250,6 +248,7 @@ class PeminjamanController extends Controller
 
         $daftarArsip = Arsip::with('klasifikasi')
             ->whereNotIn('id', $arsipDipinjam)
+            ->where('no_berkas', '!=', '__MERGED_ROW__') // <-- PERBAIKAN: Sembunyikan baris pembatas
             ->orderBy('nama_berkas', 'asc')
             ->get()
             ->map(function ($item) {
@@ -325,7 +324,6 @@ class PeminjamanController extends Controller
 
             $isHukum = stripos($unitInput, 'Hukum') !== false;
             $isAudit = stripos($unitInput, 'Internal Audit') !== false;
-            // PERBAIKAN: Hanya Karyawan/Pelaksana yang diblokir mutlak dari keistimewaan unit
             $isPelaksana = ($jabatanInput === 'Karyawan/Pelaksana');
 
             for ($i = 0; $i < count($sources); $i++) {

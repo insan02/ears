@@ -97,7 +97,10 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('login.authenticate') }}" class="space-y-5 md:space-y-6">
+                <!-- Ubah tag form Anda menjadi ini -->
+                <form method="POST" action="{{ route('login.authenticate') }}" class="space-y-5 md:space-y-6"
+                    x-data="{ isSubmitting: false }"
+                    @submit="isSubmitting = true">
                     @csrf
 
                     <!-- Alert Error (Tetap sama seperti sebelumnya) -->
@@ -162,9 +165,19 @@
                         </div>
                     </div>
 
+                    <!-- Ubah tombol submit Anda menjadi ini -->
                     <button type="submit"
-                        class="w-full bg-[#e92027] text-white font-bold py-3 md:py-4 mt-2 rounded-xl hover:bg-[#c41820] hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300 transform active:scale-95 text-sm tracking-wide">
-                        LOGIN
+                        x-bind:disabled="isSubmitting"
+                        class="w-full bg-[#e92027] text-white font-bold py-3 md:py-4 mt-2 rounded-xl hover:bg-[#c41820] hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300 transform active:scale-95 text-sm tracking-wide disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+
+                        <!-- Teks Tampil Saat Normal -->
+                        <span x-show="!isSubmitting">LOGIN</span>
+
+                        <!-- Teks Tampil Saat Loading (Disembunyikan secara default) -->
+                        <span x-show="isSubmitting" style="display: none;">
+                            <i class="fas fa-circle-notch fa-spin"></i> Loading...
+                        </span>
+
                     </button>
 
                 </form>

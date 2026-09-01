@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\MediaInformasi;
+use Illuminate\Support\Facades\Storage;
 
 class ManajemenMediaController extends Controller
 {
@@ -45,10 +46,9 @@ class ManajemenMediaController extends Controller
         $imagePaths = [];
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
-                $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
-                $filename = time() . '_' . uniqid() . '_' . $safeName;
-                $file->move(public_path('images/media'), $filename);
-                $imagePaths[] = 'images/media/' . $filename;
+                // Menyimpan langsung ke folder storage/app/public/media
+                $path = $file->store('media', 'public');
+                $imagePaths[] = $path;
             }
         }
 
@@ -72,12 +72,11 @@ class ManajemenMediaController extends Controller
             'judul' => 'required|string|max:255',
             'tanggal' => 'required|date',
             'deskripsi' => 'required|string',
-            'keep_gambar' => 'nullable|array', // Gambar lama yang dipertahankan
-            'gambar' => 'nullable|array',      // Gambar baru yang ditambahkan
+            'keep_gambar' => 'nullable|array',
+            'gambar' => 'nullable|array',
             'gambar.*' => 'image|mimes:jpeg,png,jpg|max:5120',
         ]);
 
-        // Cek total gambar (Lama yg disimpan + Baru yg ditambah)
         $keepImages = $request->keep_gambar ?? [];
         $newFilesCount = $request->hasFile('gambar') ? count($request->file('gambar')) : 0;
 
@@ -88,24 +87,22 @@ class ManajemenMediaController extends Controller
             return back()->withErrors(['gambar' => 'Minimal harus ada 1 gambar.']);
         }
 
-        // Hapus gambar lama dari server jika tidak ada di array 'keep_gambar'
+        // Hapus gambar lama dari Storage
         $oldImages = json_decode($media->gambar, true);
         if (!is_array($oldImages)) $oldImages = [$media->gambar];
 
         foreach ($oldImages as $oldPath) {
-            if (!in_array($oldPath, $keepImages) && file_exists(public_path($oldPath))) {
-                unlink(public_path($oldPath));
+            if (!in_array($oldPath, $keepImages)) {
+                Storage::disk('public')->delete($oldPath);
             }
         }
 
-        // Proses gambar yang baru diupload
         $finalImages = $keepImages;
         if ($request->hasFile('gambar')) {
             foreach ($request->file('gambar') as $file) {
-                $safeName = preg_replace('/[^a-zA-Z0-9_.-]/', '', $file->getClientOriginalName());
-                $filename = time() . '_' . uniqid() . '_' . $safeName;
-                $file->move(public_path('images/media'), $filename);
-                $finalImages[] = 'images/media/' . $filename;
+                // Menyimpan langsung ke folder storage/app/public/media
+                $path = $file->store('media', 'public');
+                $finalImages[] = $path;
             }
         }
 
@@ -126,8 +123,9 @@ class ManajemenMediaController extends Controller
         $oldImages = json_decode($media->gambar, true);
         if (!is_array($oldImages)) $oldImages = [$media->gambar];
 
+        // Hapus semua gambar terkait dari Storage
         foreach ($oldImages as $oldPath) {
-            if (file_exists(public_path($oldPath))) unlink(public_path($oldPath));
+            Storage::disk('public')->delete($oldPath);
         }
 
         $media->delete();

@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             UnitSeeder::class,
             MasterKlasifikasiSeeder::class,
             UpdateKlasifikasiHakAksesSeeder::class,
-            // ArsipSeeder::class,
         ]);
     }
 }

@@ -10,16 +10,10 @@ class MasterKlasifikasi extends Model
     use HasFactory;
 
     protected $table = 'master_klasifikasi';
-    public $timestamps = false;
+    public $timestamps = false; // Di migration tidak ada timestamps
 
-    protected $fillable = [
-        'kode_klasifikasi', 
-        'jenis_arsip', 
-        'masa_simpan', 
-        'tindakan_akhir'
-    ];
+    protected $guarded = ['id'];
 
-    // Relasi: Satu klasifikasi bisa punya banyak arsip
     public function arsip()
     {
         return $this->hasMany(Arsip::class, 'klasifikasi_id');

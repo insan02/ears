@@ -10,28 +10,22 @@ class ArsipMasuk extends Model
     use HasFactory;
 
     protected $table = 'arsip_masuk';
-    // public $timestamps = false; // Timestamps are true by default
+    protected $guarded = ['id'];
 
-    protected $fillable = [
-        'unit_asal',
-        'nomor_berita_acara',
-        'tanggal_terima',
-        'jumlah_box_masuk',
-        'user_penerima',
-    ];
-
-    public function berkas()
+    // Relasi ke User (Penerima)
+    public function penerima()
     {
-        return $this->hasMany(BerkasArsipMasuk::class);
+        return $this->belongsTo(User::class, 'user_penerima');
+    }
+
+    // Relasi ke Arsip
+    public function arsip()
+    {
+        return $this->hasMany(Arsip::class, 'arsip_masuk_id');
     }
 
     public function logAktivitas()
     {
-        return $this->hasMany(LogAktivitas::class);
-    }
-
-    public function penerima()
-    {
-        return $this->belongsTo(User::class, 'user_penerima');
+        return $this->hasMany(LogAktivitas::class, 'arsip_masuk_id');
     }
 }

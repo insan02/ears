@@ -1,7 +1,9 @@
 <x-layout>
+    <!-- Tambahkan isDeleting: false -->
     <div x-data="{
         showDeleteModal: false,
         deleteUrl: '',
+        isDeleting: false,
         showEditModal: false,
         isEdit: false,
         modalTitle: '',
@@ -103,8 +105,8 @@
                      @endif
                 </div>
 
-                {{-- Table Container --}}
-                <div class="flex-grow overflow-x-auto w-full">
+                {{-- TAMPILAN LAPTOP: TABEL --}}
+                <div class="hidden md:block flex-grow overflow-x-auto w-full">
                     <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
                         <thead>
                             <tr class="bg-gray-50 text-gray-600 border-b border-gray-200">
@@ -138,7 +140,8 @@
                                                 <i class="fas fa-pen text-xs"></i>
                                             </button>
 
-                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-unit.destroy', $unit->id) }}'"
+                                            <!-- Reset isDeleting ke false saat membuka modal -->
+                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-unit.destroy', $unit->id) }}'; isDeleting = false"
                                                 class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus">
                                                 <i class="fas fa-trash-alt text-xs"></i>
                                             </button>
@@ -159,10 +162,96 @@
                     </table>
                 </div>
 
-                {{-- Pagination --}}
-                @if($units->hasPages())
-                <div class="p-4 md:p-6 border-t border-gray-100 bg-gray-50">
-                    {{ $units->links() }}
+                {{-- TAMPILAN HP: CARD LIST --}}
+                <div class="md:hidden flex flex-col p-4 gap-4 bg-gray-50">
+                    @forelse($units as $unit)
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative">
+                            <div class="mb-3">
+                                <h3 class="font-bold text-gray-800 text-base leading-tight">{{ $unit->nama_unit }}</h3>
+                                <p class="text-xs text-gray-500 mt-2 line-clamp-3 leading-relaxed">{{ $unit->keterangan ?? 'Tidak ada keterangan tambahan.' }}</p>
+                            </div>
+
+                            {{-- Action Buttons for Mobile --}}
+                            <div class="flex gap-2 pt-3 border-t border-gray-50">
+                                <button @click="
+                                    showEditModal = true;
+                                    isEdit = true;
+                                    modalTitle = 'Edit Unit';
+                                    formAction = '{{ route('manajemen-unit.update', $unit->id) }}';
+                                    formData.nama_unit = '{{ addslashes($unit->nama_unit) }}';
+                                    formData.keterangan = '{{ addslashes($unit->keterangan ?? '') }}';
+                                " class="flex-1 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-100 hover:bg-amber-100 flex items-center justify-center gap-1.5 transition">
+                                    <i class="fas fa-pen"></i> Edit
+                                </button>
+
+                                <!-- Reset isDeleting ke false saat membuka modal -->
+                                <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-unit.destroy', $unit->id) }}'; isDeleting = false" class="flex-1 py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-xl border border-red-100 hover:bg-red-100 flex items-center justify-center gap-1.5 transition">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-8 text-gray-400 italic text-sm">
+                            <i class="fas fa-building text-2xl mb-2 text-gray-300 block"></i>
+                            Tidak ada data unit kerja ditemukan.
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- Pagination Custom Berangka (Tampil di Laptop & HP) --}}
+                @if ($units->hasPages())
+                <div class="p-4 md:p-6 border-t border-gray-100 bg-white md:bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+
+                    <!-- Info Data -->
+                    <div class="text-xs md:text-sm text-gray-500 font-medium text-center md:text-left">
+                        Menampilkan <span class="font-bold text-gray-800">{{ $units->firstItem() }}</span> -
+                        <span class="font-bold text-gray-800">{{ $units->lastItem() }}</span>
+                        dari <span class="font-bold text-gray-800">{{ $units->total() }}</span> data
+                    </div>
+
+                    <!-- Kotak Angka Pagination -->
+                    <div class="flex flex-wrap items-center justify-center gap-1.5">
+
+                        {{-- Tombol Previous --}}
+                        @if ($units->onFirstPage())
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </span>
+                        @else
+                            <a href="{{ $units->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-[#e92027] hover:bg-red-50 hover:border-red-200 transition shadow-sm">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </a>
+                        @endif
+
+                        {{-- Logika Angka Pagination --}}
+                        @php
+                            $links = $units->linkCollection()->toArray();
+                            array_shift($links);
+                            array_pop($links);
+                        @endphp
+
+                        @foreach ($links as $link)
+                            @if ($link['url'] == null)
+                                <span class="w-8 h-8 flex items-center justify-center text-gray-400 text-sm font-bold">{{ $link['label'] }}</span>
+                            @elseif ($link['active'])
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#e92027] text-white font-bold text-sm shadow-md">{{ $link['label'] }}</span>
+                            @else
+                                <a href="{{ $link['url'] }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-[#e92027] transition text-sm font-bold shadow-sm">{{ $link['label'] }}</a>
+                            @endif
+                        @endforeach
+
+                        {{-- Tombol Next --}}
+                        @if ($units->hasMorePages())
+                            <a href="{{ $units->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-[#e92027] hover:bg-red-50 hover:border-red-200 transition shadow-sm">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </a>
+                        @else
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </span>
+                        @endif
+
+                    </div>
                 </div>
                 @endif
             </div>
@@ -209,10 +298,10 @@
             </div>
         </div>
 
-        {{-- Delete Modal Responsif --}}
+        {{-- Delete Modal Responsif (Dengan Animasi Menghapus) --}}
         <div x-show="showDeleteModal" style="display: none;"
             class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div @click.away="showDeleteModal = false"
+            <div @click.away="!isDeleting && (showDeleteModal = false)"
                 x-show="showDeleteModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white rounded-3xl w-full max-w-sm p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">
                 <div class="absolute top-0 left-0 w-full h-2 bg-[#e92027]"></div>
@@ -222,14 +311,25 @@
                 <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Unit Kerja?</h3>
                 <p class="text-gray-500 mb-8 text-sm md:text-base leading-relaxed">Unit ini akan dihapus permanen dari sistem.</p>
                 <div class="flex flex-col gap-3">
-                    <form :action="deleteUrl" method="POST" class="w-full">
+
+                    <!-- TAMBAHKAN hx-disable dan @submit="isDeleting = true" DI SINI -->
+                    <form :action="deleteUrl" method="POST" class="w-full" hx-disable @submit="isDeleting = true">
                         @csrf @method('DELETE')
-                        <button type="submit" class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold hover:bg-[#c41820] shadow-lg transform hover:-translate-y-0.5 transition">
-                            Ya, Hapus Sekarang
+
+                        <button type="submit" :disabled="isDeleting"
+                            class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold shadow-lg transition flex justify-center items-center gap-2"
+                            :class="isDeleting ? 'opacity-70 cursor-wait' : 'hover:bg-[#c41820] transform hover:-translate-y-0.5'">
+
+                            <span x-show="!isDeleting">Ya, Hapus Sekarang</span>
+                            <span x-show="isDeleting" style="display: none;">
+                                <i class="fas fa-circle-notch fa-spin"></i> Menghapus...
+                            </span>
                         </button>
                     </form>
-                    <button @click="showDeleteModal = false" type="button"
-                        class="w-full py-3.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition">
+
+                    <button @click="showDeleteModal = false" type="button" :disabled="isDeleting"
+                        class="w-full py-3.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 transition"
+                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 hover:text-gray-800'">
                         Batalkan
                     </button>
                 </div>

@@ -301,7 +301,7 @@
                     <div class="px-5 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
                         <div class="bg-white p-2 rounded shadow-sm text-[#e92027]"><i class="fas fa-medal"></i></div>
                         <div>
-                            <h3 class="font-bold text-gray-800 text-sm md:text-base">Papan Peringkat Kinerja Staf</h3>
+                            <h3 class="font-bold text-gray-800 text-sm md:text-base">Kinerja Staf</h3>
                             <p class="text-[10px] md:text-xs text-gray-500">Produktivitas penyelesaian tugas berdasarkan tahapan</p>
                         </div>
                     </div>
@@ -309,7 +309,7 @@
                     <!-- Alpine Tabs Header -->
                     <div class="flex overflow-x-auto border-b border-gray-200 hide-scrollbar bg-white">
                         @foreach(['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'] as $stage)
-                        <button @click="stageTab = '{{ $stage }}'" 
+                        <button @click="stageTab = '{{ $stage }}'"
                                 :class="stageTab === '{{ $stage }}' ? 'border-[#e92027] text-[#e92027] bg-red-50/50' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'"
                                 class="flex-1 min-w-[120px] py-4 px-4 font-bold text-xs md:text-sm border-b-[3px] transition-colors whitespace-nowrap focus:outline-none flex flex-col items-center justify-center gap-1">
                             <span>{{ $stage }}</span>
@@ -341,7 +341,7 @@
                                             {{ $stat->user->nama ?? 'Unknown' }}
                                         </td>
                                         <td class="px-6 py-4 text-center text-[#e92027] font-black text-lg">
-                                            {{ number_format($stat->total_selesai, 0, ',', '.') }} 
+                                            {{ number_format($stat->total_selesai, 0, ',', '.') }}
                                             <span class="text-[9px] font-medium text-gray-500 uppercase ml-0.5">{{ $stage == 'Alih Media' ? 'Lbr' : 'Box' }}</span>
                                         </td>
                                         <td class="px-6 py-4">
@@ -360,13 +360,13 @@
                                         </td>
                                     </tr>
                                     @endforelse
-                                    
+
                                     <!-- Baris Total Bawah -->
                                     @if($performancePerStage[$stage]->count() > 0)
                                     <tr class="bg-gray-50 border-t-2 border-gray-200">
                                         <td colspan="2" class="px-6 py-4 text-right font-bold text-gray-600 uppercase text-xs">Total</td>
                                         <td class="px-6 py-4 text-center font-black text-gray-900 text-xl">
-                                            {{ number_format($performancePerStage[$stage]->sum('total_selesai'), 0, ',', '.') }} 
+                                            {{ number_format($performancePerStage[$stage]->sum('total_selesai'), 0, ',', '.') }}
                                             <span class="text-[9px] font-medium text-gray-500 uppercase ml-0.5">{{ $stage == 'Alih Media' ? 'Lbr' : 'Box' }}</span>
                                         </td>
                                         <td></td>
@@ -386,7 +386,7 @@
     <!-- ApexCharts Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            
+
             // GLOBAL CONFIG CHART.JS
             Chart.defaults.font.family = "'Montserrat', sans-serif";
             Chart.defaults.color = '#64748b';

@@ -60,10 +60,10 @@
                      <p class="text-red-50 text-sm md:text-base font-light opacity-95 max-w-lg leading-relaxed drop-shadow-sm">Kelola dan monitor seluruh dokumen arsip perusahaan.</p>
                 </div>
                 <div>
-                    <a href="/input-arsip" class="group bg-white text-[#e92027] hover:bg-gray-50 px-8 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
-                        <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors"><i class="fas fa-plus"></i></div>
-                        <span>TAMBAH ARSIP</span>
-                    </a>
+                    <a href="{{ route('arsip.create') }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-8 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
+    <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors"><i class="fas fa-plus"></i></div>
+    <span>TAMBAH ARSIP</span>
+</a>
                 </div>
             </div>
         </div>
@@ -233,7 +233,7 @@
                     <div @click="showImportModal = false" class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
                     <div class="relative inline-block align-bottom bg-white rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border-t-8 border-green-600">
-                        <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data" onsubmit="tampilkanAnimasiLoading(event)">
+                        <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data" onsubmit="tampilkanAnimasiLoading(event)" hx-disable>
                             @csrf
                             <div class="bg-white px-6 pt-6 pb-6">
                                 <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">

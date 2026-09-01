@@ -275,15 +275,17 @@
         </div>
     </div>
 
+    <!-- Script SweetAlert & Alpine -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const daftarArsip = @json($daftarArsip ?? []);
-        const currentItems = @json($currentItems ?? []);
+        window.daftarArsipEdit = @json($daftarArsip ?? []);
+        window.currentItemsEdit = @json($currentItems ?? []);
 
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('peminjamanEdit', () => ({
+        window.peminjamanEdit = function() {
+            return {
                 jabatan: '{{ $editData->jabatan_peminjam }}',
                 unit: '{{ $editData->unit_peminjam }}',
-                items: currentItems.map(item => ({
+                items: window.currentItemsEdit.map(item => ({
                     source: item.source, id: item.id || null, display_name: item.display_name,
                     nama_manual: item.nama_manual, no_box: item.no_box, akses: item.akses,
                     media: item.media, fisik: item.fisik
@@ -309,7 +311,7 @@
 
                 get filteredArsip() {
                     const query = this.searchQuery.toLowerCase();
-                    return daftarArsip.filter(item => {
+                    return window.daftarArsipEdit.filter(item => {
                         if (query === '') return true;
                         const matchNama = (item.nama_berkas || '').toLowerCase().includes(query);
                         const matchIsi = (item.isi || '').toLowerCase().includes(query);
@@ -327,12 +329,9 @@
 
                     if (this.tempItem.source === 'manual') this.tempItem.display_name = this.tempItem.nama_manual;
 
-                    // VALIDASI HAK AKSES FRONTEND ALPINE JS
                     const unitLower = (this.unit || '').toLowerCase();
                     const isHukum = unitLower.includes('hukum');
                     const isAudit = unitLower.includes('internal audit');
-
-                    // PERBAIKAN: Hanya Karyawan/Pelaksana (Outsourcing) yang dicegat
                     const isPelaksana = (this.jabatan === 'Karyawan/Pelaksana');
 
                     if (this.tempItem.akses === 'Rahasia') {
@@ -392,11 +391,8 @@
                     let formValid = true;
 
                     const fieldLabels = {
-                        'tanggal': 'Tanggal Peminjaman',
-                        'nama_peminjam': 'Nama Peminjam',
-                        'nip': 'NIP',
-                        'unit': 'Unit Kerja',
-                        'keperluan': 'Keperluan'
+                        'tanggal': 'Tanggal Peminjaman', 'nama_peminjam': 'Nama Peminjam',
+                        'nip': 'NIP', 'unit': 'Unit Kerja', 'keperluan': 'Keperluan'
                     };
 
                     ['tanggal', 'nama_peminjam', 'nip', 'unit', 'keperluan'].forEach(field => {
@@ -418,31 +414,16 @@
                     }
 
                     if (!formValid) { this.showValidationModal = true; return; }
+
+                    Swal.fire({
+                        title: 'Perbarui Data Peminjaman?', text: "Pastikan data dan arsip yang dipilih sudah benar.",
+                        icon: 'question', showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
+                        confirmButtonText: 'Ya, Perbarui', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
+                    }).then((result) => {
+                        if (result.isConfirmed) { form.submit(); }
+                    });
                 }
-            }));
-        });
-
-        function confirmSubmit(formElement) {
-            let alpineData = Alpine.$data(formElement);
-            alpineData.submitForm(formElement);
-
-            if (alpineData.serverErrors.length === 0) {
-                Swal.fire({
-                    title: 'Perbarui Data Peminjaman?',
-                    text: "Pastikan data dan arsip yang dipilih sudah benar.",
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#e92027',
-                    cancelButtonColor: '#E5E7EB',
-                    confirmButtonText: 'Ya, Perbarui',
-                    cancelButtonText: 'Batal',
-                    customClass: { cancelButton: 'text-gray-700 font-bold' }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        formElement.submit();
-                    }
-                });
-            }
-        }
+            };
+        };
     </script>
 </x-layout>

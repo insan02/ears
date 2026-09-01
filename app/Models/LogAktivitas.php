@@ -7,33 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 class LogAktivitas extends Model
 {
     protected $table = 'log_aktivitas';
-    public $timestamps = false; // Disable timestamps because table doesn't have created_at/updated_at
+    // $timestamps = false dihapus karena butuh record waktu kerja di sistem
 
-    protected $fillable = [
-        'user_id',
-        'arsip_masuk_id', // Menambahkan foreign key
-        'tahapan',
-        'tanggal_kerja', // Mengubah tanggal_berkas_masuk menjadi tanggal_kerja
-        'unit_kerja',
-        'nba',
-        'jumlah_box',
-        'jumlah_box_selesai', // Menambahkan kolom baru
-        'keterangan',
-        'status_kerja',
-    ];
+    protected $guarded = ['id'];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function arsipMasuk()
     {
-        return $this->belongsTo(ArsipMasuk::class);
+        return $this->belongsTo(ArsipMasuk::class, 'arsip_masuk_id');
     }
 
     public function riwayat()
     {
-        return $this->hasMany(RiwayatMonitoring::class)->orderBy('created_at', 'desc');
+        return $this->hasMany(RiwayatMonitoring::class, 'log_aktivitas_id')->orderBy('created_at', 'desc');
     }
 }

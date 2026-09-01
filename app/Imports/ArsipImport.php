@@ -27,25 +27,65 @@ class ArsipImport implements ToModel, WithStartRow, WithChunkReading, WithBatchI
 
     public function model(array $row)
     {
-        // FILTER BARIS KOSONG
-        $isEmptyRow = true;
+        // 1. HITUNG BERAPA KOLOM YANG TERISI DI BARIS INI
+        $filledCount = 0;
+        $mergedText = '';
+
         for ($i = 0; $i <= 15; $i++) {
-            if (trim($row[$i] ?? '') !== '') {
-                $isEmptyRow = false;
-                break;
+            $val = trim($row[$i] ?? '');
+            if ($val !== '') {
+                $filledCount++;
+                // Ambil teks dari kolom yang terisi
+                $mergedText = $val;
             }
         }
 
-        if ($isEmptyRow) return null;
+        // Jika kosong semua, abaikan
+        if ($filledCount === 0) {
+            return null;
+        }
 
+        // Abaikan baris header / judul kolom bawaan dari Excel
         $namaBerkas = trim($row[2] ?? '');
         $isi = trim($row[4] ?? '');
-
         if (strtolower($namaBerkas) == 'nama berkas' || strtolower($isi) == 'isi berkas' || strtolower($isi) == 'uraian') {
             return null;
         }
 
-        // TANGKAP DATA APA ADANYA
+        $user = Auth::user() ?: \App\Models\User::first();
+        $userId = $user ? $user->id : 1;
+
+        // --- PROGRESS TRACKING ---
+        self::$processedCount++;
+        if ($this->importId && self::$processedCount % 500 === 0) {
+            Cache::put('import_arsip_progress_' . $this->importId, self::$processedCount, 3600);
+        }
+
+        // ==============================================================
+        // KASUS KHUSUS: HANYA 1 KOLOM SAJA YANG TERISI DI BARIS TERSEBUT
+        // ==============================================================
+        if ($filledCount === 1) {
+            return new Arsip([
+                'no_berkas'      => '__MERGED_ROW__', // Tanda khusus untuk baris merge
+                'klasifikasi_id' => 1,
+                'nama_berkas'    => $mergedText,
+                'isi'            => '-',
+                'tahun'          => null,
+                'tanggal_masuk'  => null,
+                'jumlah'         => 1,
+                'jenis_media'    => '-',
+                'masa_simpan'    => '-',
+                'tindakan_akhir' => '-',
+                'hak_akses'      => '-',
+                'unit_pengolah'  => '-',
+                'no_box'         => '-',
+                'user_id'        => $userId
+            ]);
+        }
+
+        // ==============================================================
+        // LOGIKA NORMAL: DATA ARSIP ASLI (BANYAK KOLOM TERISI)
+        // ==============================================================
         $noBerkas = trim($row[0] ?? '');
         $kodeKlas = trim($row[1] ?? '');
 
@@ -54,42 +94,45 @@ class ArsipImport implements ToModel, WithStartRow, WithChunkReading, WithBatchI
             $klasifikasiId = $this->resolveKlasifikasiId($kodeKlas);
         }
 
-        $user = Auth::user() ?: \App\Models\User::first();
-        $userId = $user ? $user->id : 1;
-
         $jumlahRaw = trim($row[6] ?? '');
-        $jumlahFinal = null;
+        $jumlahFinal = 1;
         if ($jumlahRaw !== '') {
             preg_match('/\d+/', $jumlahRaw, $matches);
-            $jumlahFinal = !empty($matches[0]) ? (int)$matches[0] : 1;
+            if (!empty($matches[0])) {
+                $jumlahFinal = (int)$matches[0];
+            }
         }
 
-        $hakAksesRaw = trim($row[10] ?? '');
-        $jenisMediaRaw = trim($row[7] ?? '');
-        if (empty($jenisMediaRaw)) {
-            $jenisMediaRaw = trim($row[10] ?? '');
+        $tahunRaw = trim($row[3] ?? '');
+        $tahunFinal = null;
+        if (preg_match('/\d{4}/', $tahunRaw, $matches)) {
+            $tahunFinal = (int)$matches[0];
         }
 
-        // --- UPDATE PROGRESS KE CACHE SETIAP 500 BARIS ---
-        self::$processedCount++;
-        if ($this->importId && self::$processedCount % 500 === 0) {
-            Cache::put('import_arsip_progress_' . $this->importId, self::$processedCount, 3600);
+        $hakAksesRaw = trim($row[10] ?? '') ?: '-';
+        $jenisMediaRaw = trim($row[7] ?? '') ?: '-';
+        if ($jenisMediaRaw === '-') {
+            $jenisMediaRaw = trim($row[10] ?? '') ?: '-';
         }
+        $masaSimpanRaw = trim($row[8] ?? '') ?: '-';
+        $tindakanAkhirRaw = trim($row[9] ?? '') ?: '-';
+        $unitPengolahRaw = trim($row[12] ?? '') ?: '-';
+        $noBoxRaw = trim($row[15] ?? '') ?: '-';
 
         return new Arsip([
-            'no_berkas'      => $noBerkas ?: null,
+            'no_berkas'      => $noBerkas ?: '-',
             'klasifikasi_id' => $klasifikasiId,
-            'nama_berkas'    => $namaBerkas ?: null,
-            'isi'            => $isi ?: null,
-            'tahun'          => trim($row[3] ?? '') ?: null,
+            'nama_berkas'    => $namaBerkas ?: '-',
+            'isi'            => $isi ?: '-',
+            'tahun'          => $tahunFinal,
             'tanggal_masuk'  => $this->parseDate($row[5] ?? null),
             'jumlah'         => $jumlahFinal,
-            'jenis_media'    => trim($row[7] ?? '') ?: null,
-            'masa_simpan'    => trim($row[8] ?? '') ?: null,
-            'tindakan_akhir' => trim($row[9] ?? '') ?: null,
-            'hak_akses'      => $hakAksesRaw ?: null,
-            'unit_pengolah'  => trim($row[12] ?? '') ?: null,
-            'no_box'         => trim($row[15] ?? '') ?: null,
+            'jenis_media'    => $jenisMediaRaw,
+            'masa_simpan'    => $masaSimpanRaw,
+            'tindakan_akhir' => $tindakanAkhirRaw,
+            'hak_akses'      => $hakAksesRaw,
+            'unit_pengolah'  => $unitPengolahRaw,
+            'no_box'         => $noBoxRaw,
             'user_id'        => $userId
         ]);
     }

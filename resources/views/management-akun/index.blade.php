@@ -1,5 +1,6 @@
 <x-layout>
-    <div x-data="{ showDeleteModal: false, deleteUrl: '' }" class="bg-gray-50 min-h-screen pb-20">
+    <!-- Tambahkan isDeleting: false -->
+    <div x-data="{ showDeleteModal: false, deleteUrl: '', isDeleting: false }" class="bg-gray-50 min-h-screen pb-20">
 
         {{-- Header Section --}}
         <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
@@ -60,23 +61,19 @@
                 <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex flex-col md:flex-row gap-4 justify-between items-center relative z-30">
                      <!-- Search -->
                     <div class="relative w-full md:w-96 group">
-                        <!-- Ikon Kaca Pembesar -->
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-[#e92027] transition-colors pointer-events-none">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </span>
 
                         <form action="{{ route('management-akun.index') }}" method="GET" class="w-full">
-                            <!-- Input Pencarian -->
                             <input type="text" name="search" value="{{ request('search') }}"
                                 placeholder="Cari nama, email, role..."
                                 class="w-full py-3 pl-12 {{ request('search') ? 'pr-12' : 'pr-4' }} bg-gray-50 border border-gray-200 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#e92027] focus:bg-white focus:border-transparent text-sm font-medium transition-all shadow-sm">
                         </form>
 
-                        <!-- Tombol Reset (Silang X) - Hanya muncul saat ada pencarian -->
                         @if(request('search'))
                             <a href="{{ route('management-akun.index') }}"
-                               class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#e92027] transition-colors"
-                               title="Reset Pencarian">
+                               class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-[#e92027] transition-colors" title="Reset Pencarian">
                                 <svg class="w-5 h-5 bg-gray-100 hover:bg-red-100 rounded-full p-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
@@ -95,8 +92,8 @@
                      @endif
                 </div>
 
-                {{-- Table Container --}}
-                <div class="flex-grow overflow-x-auto">
+                {{-- TAMPILAN LAPTOP: TABEL --}}
+                <div class="hidden md:block flex-grow overflow-x-auto">
                     <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
                         <thead>
                             <tr class="bg-gray-50 text-gray-600 border-b border-gray-200">
@@ -133,13 +130,11 @@
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex justify-center items-center gap-2">
-                                            <a href="{{ route('management-akun.edit', $user->id) }}"
-                                                class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm border border-gray-200 hover:border-amber-300" title="Edit">
+                                            <a href="{{ route('management-akun.edit', $user->id) }}" class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm border border-gray-200 hover:border-amber-300" title="Edit">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </a>
                                             @if($user->id !== auth()->id())
-                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'"
-                                                class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus">
+                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus">
                                                 <i class="fas fa-trash-alt text-xs"></i>
                                             </button>
                                             @endif
@@ -160,19 +155,117 @@
                     </table>
                 </div>
 
-                {{-- Pagination Pagination --}}
+                {{-- TAMPILAN HP: CARD LIST --}}
+                <div class="md:hidden flex flex-col p-4 gap-4 bg-gray-50">
+                    @forelse($users as $user)
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="pr-4">
+                                    <h3 class="font-bold text-gray-800 text-base leading-tight">
+                                        {{ $user->nama }}
+                                        @if($user->id === auth()->id())
+                                            <span class="inline-block ml-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600">Anda</span>
+                                        @endif
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-1">{{ $user->email }}</p>
+                                </div>
+                                <div>
+                                    @if($user->role == 'admin')
+                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold bg-red-50 text-[#e92027] border border-red-100 whitespace-nowrap">
+                                            <i class="fas fa-shield-alt mr-1"></i> Admin
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-bold bg-gray-100 text-gray-600 border border-gray-200 whitespace-nowrap">
+                                            <i class="fas fa-user mr-1"></i> Karyawan
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Action Buttons for Mobile --}}
+                            <div class="flex gap-2 pt-3 border-t border-gray-50">
+                                <a href="{{ route('management-akun.edit', $user->id) }}" class="flex-1 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-100 hover:bg-amber-100 flex items-center justify-center gap-1.5 transition">
+                                    <i class="fas fa-pen"></i> Edit
+                                </a>
+                                @if($user->id !== auth()->id())
+                                <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="flex-1 py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-xl border border-red-100 hover:bg-red-100 flex items-center justify-center gap-1.5 transition">
+                                    <i class="fas fa-trash-alt"></i> Hapus
+                                </button>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-8 text-gray-400 italic text-sm">
+                            <i class="fas fa-users-slash text-2xl mb-2 text-gray-300 block"></i>
+                            Tidak ada data pengguna ditemukan.
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- Pagination Custom --}}
                 @if($users->hasPages())
-                <div class="p-4 md:p-6 border-t border-gray-100 bg-gray-50">
-                    {{ $users->links() }}
+                <div class="p-4 md:p-6 border-t border-gray-100 bg-white md:bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+
+                    <!-- Info Data -->
+                    <div class="text-xs md:text-sm text-gray-500 font-medium text-center md:text-left">
+                        Menampilkan <span class="font-bold text-gray-800">{{ $users->firstItem() }}</span> -
+                        <span class="font-bold text-gray-800">{{ $users->lastItem() }}</span>
+                        dari <span class="font-bold text-gray-800">{{ $users->total() }}</span> data
+                    </div>
+
+                    <!-- Kotak Angka Pagination -->
+                    <div class="flex flex-wrap items-center justify-center gap-1.5">
+
+                        {{-- Tombol Previous --}}
+                        @if ($users->onFirstPage())
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </span>
+                        @else
+                            <a href="{{ $users->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-[#e92027] hover:bg-red-50 hover:border-red-200 transition shadow-sm">
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </a>
+                        @endif
+
+                        {{-- Logika Angka Pagination --}}
+                        @php
+                            $links = $users->linkCollection()->toArray();
+                            array_shift($links);
+                            array_pop($links);
+                        @endphp
+
+                        @foreach ($links as $link)
+                            @if ($link['url'] == null)
+                                <span class="w-8 h-8 flex items-center justify-center text-gray-400 text-sm font-bold">{{ $link['label'] }}</span>
+                            @elseif ($link['active'])
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#e92027] text-white font-bold text-sm shadow-md">{{ $link['label'] }}</span>
+                            @else
+                                <a href="{{ $link['url'] }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-[#e92027] transition text-sm font-bold shadow-sm">{{ $link['label'] }}</a>
+                            @endif
+                        @endforeach
+
+                        {{-- Tombol Next --}}
+                        @if ($users->hasMorePages())
+                            <a href="{{ $users->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-[#e92027] hover:bg-red-50 hover:border-red-200 transition shadow-sm">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </a>
+                        @else
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </span>
+                        @endif
+
+                    </div>
                 </div>
                 @endif
+
             </div>
         </div>
 
-        {{-- Delete Modal Responsif --}}
+        {{-- Delete Modal Responsif (Dengan Animasi Menghapus) --}}
         <div x-show="showDeleteModal" style="display: none;"
             class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div @click.away="showDeleteModal = false"
+            <div @click.away="!isDeleting && (showDeleteModal = false)"
                 x-show="showDeleteModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white rounded-3xl w-full max-w-sm p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">
                 <div class="absolute top-0 left-0 w-full h-2 bg-[#e92027]"></div>
@@ -182,14 +275,25 @@
                 <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Pengguna?</h3>
                 <p class="text-gray-500 mb-8 text-sm md:text-base leading-relaxed">Akun pengguna ini akan dihapus permanen dari sistem.</p>
                 <div class="flex flex-col gap-3">
-                    <form :action="deleteUrl" method="POST" class="w-full">
+
+                    <!-- TAMBAHKAN hx-disable dan @submit="isDeleting = true" DI SINI -->
+                    <form :action="deleteUrl" method="POST" class="w-full" hx-disable @submit="isDeleting = true">
                         @csrf @method('DELETE')
-                        <button type="submit" class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold hover:bg-[#c41820] shadow-lg transform hover:-translate-y-0.5 transition">
-                            Ya, Hapus Sekarang
+
+                        <button type="submit" :disabled="isDeleting"
+                            class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold shadow-lg transition flex justify-center items-center gap-2"
+                            :class="isDeleting ? 'opacity-70 cursor-wait' : 'hover:bg-[#c41820] transform hover:-translate-y-0.5'">
+
+                            <span x-show="!isDeleting">Ya, Hapus Sekarang</span>
+                            <span x-show="isDeleting" style="display: none;">
+                                <i class="fas fa-circle-notch fa-spin"></i> Menghapus...
+                            </span>
                         </button>
                     </form>
-                    <button @click="showDeleteModal = false" type="button"
-                        class="w-full py-3.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition">
+
+                    <button @click="showDeleteModal = false" type="button" :disabled="isDeleting"
+                        class="w-full py-3.5 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 transition"
+                        :class="isDeleting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 hover:text-gray-800'">
                         Batalkan
                     </button>
                 </div>

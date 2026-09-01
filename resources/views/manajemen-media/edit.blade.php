@@ -77,7 +77,7 @@
                             <template x-for="(img, index) in oldImages" :key="'old-'+index">
                                 <div class="flex items-center gap-4 bg-white p-3 rounded-xl border shadow-sm">
                                     <input type="hidden" name="keep_gambar[]" :value="img">
-                                    <img :src="'/' + img" class="w-16 h-16 object-cover rounded-lg border">
+                                    <img :src="'{{ asset('storage') }}/' + img" class="w-16 h-16 object-cover rounded-lg border">
                                     <div class="flex-grow"><span class="text-sm text-gray-500 font-medium">Foto Terpasang Saat Ini</span></div>
                                     <button type="button" @click="removeOldImage(index)" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>

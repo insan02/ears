@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -19,16 +20,13 @@ class LoginController extends Controller
     public function authenticate(Request $request)
     {
         // 1. Validasi Input
-        // 1. Validasi Input
         $credentials = $request->validate([
-            // Batasi email maksimal 255 karakter
-            'email' => ['required', 'email', 'max:50'],
-            // Batasi password maksimal 64 atau 255 karakter (64 disarankan untuk mencegah bcrypt DoS)
-            'password' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required', 'string', 'max:64'],
         ], [
             'required' => 'Kolom :attribute wajib diisi.',
             'email' => 'Format email tidak valid.',
-            'max' => 'Karakter dibatasi.', // Tambahan pesan error jika melewati batas
+            'max' => 'Karakter dibatasi.',
         ]);
 
         // 2. Cek apakah user sedang terkena limit (Brute-force protection)
@@ -41,6 +39,18 @@ class LoginController extends Controller
 
             // Mencegah Session Fixation Attack
             $request->session()->regenerate();
+
+            // --- KODE PEMBATASAN REMEMBER ME 3 HARI ---
+            if ($request->boolean('remember')) {
+                $rememberTokenName = Auth::getRecallerName();
+                $rememberCookie = request()->cookie($rememberTokenName);
+
+                if ($rememberCookie) {
+                    // Timpa cookie bawaan Laravel dengan durasi 4320 menit (3 hari)
+                    Cookie::queue($rememberTokenName, $rememberCookie, 4320);
+                }
+            }
+            // ------------------------------------------
 
             return redirect()->intended('/beranda');
         }

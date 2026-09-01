@@ -57,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Core Resource Arsip
     Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
-    Route::get('/input-arsip', [ArsipController::class, 'create']);
+    Route::get('/input-arsip', [ArsipController::class, 'create'])->name('arsip.create');
     Route::post('/input-arsip', [ArsipController::class, 'store'])->name('arsip.store');
     Route::get('/arsip/{id}/edit', [ArsipController::class, 'edit'])->name('arsip.edit');
     Route::put('/arsip/{id}', [ArsipController::class, 'update'])->name('arsip.update');
@@ -110,14 +110,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/5p/create', [LimaPController::class, 'create'])->name('limap.create');
     Route::post('/5p', [LimaPController::class, 'store'])->name('limap.store');
 
-    // TAMBAHKAN 2 ROUTE INI:
-    Route::get('/5p/export/excel', [LimaPController::class, 'exportExcel'])->name('limap.export');
-    Route::post('/5p/import/excel', [LimaPController::class, 'importExcel'])->name('limap.import');
 
     Route::get('/5p/{id}', [LimaPController::class, 'show'])->name('limap.show');
     Route::get('/5p/{id}/edit', [LimaPController::class, 'edit'])->name('limap.edit');
     Route::put('/5p/{id}', [LimaPController::class, 'update'])->name('limap.update');
     Route::delete('/5p/{id}', [LimaPController::class, 'destroy'])->name('limap.destroy');
+
+    // Hapus rute limap.export dan limap.import lama Anda, ganti/tambahkan dengan:
+    Route::post('/5p/{id}/kaizen', [LimaPController::class, 'storeKaizen'])->name('limap.kaizen.store');
+    Route::delete('/5p/kaizen/{id}', [LimaPController::class, 'destroyKaizen'])->name('limap.kaizen.destroy');
     // ==========================================
     // PROFILE
     // ==========================================

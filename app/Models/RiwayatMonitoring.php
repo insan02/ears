@@ -10,24 +10,15 @@ class RiwayatMonitoring extends Model
     use HasFactory;
 
     protected $table = 'riwayat_monitoring';
-
-    protected $fillable = [
-        'log_aktivitas_id',
-        'user_id',
-        'tahapan',
-        'tanggal_kerja',
-        'jumlah_box_selesai',
-        'jumlah_tambahan',
-        'keterangan',
-    ];
+    protected $guarded = ['id'];
 
     public function logAktivitas()
     {
-        return $this->belongsTo(LogAktivitas::class);
+        return $this->belongsTo(LogAktivitas::class, 'log_aktivitas_id');
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

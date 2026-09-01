@@ -11,11 +11,29 @@ class Arsip extends Model
 
     protected $table = 'arsip';
     protected $guarded = ['id'];
-    public $timestamps = false;
+    // Timestamps sudah aktif (dihapus tulisan public $timestamps = false;)
 
+    // Relasi ke Klasifikasi
     public function klasifikasi()
     {
-        return $this->belongsTo(\App\Models\MasterKlasifikasi::class, 'klasifikasi_id');
+        return $this->belongsTo(MasterKlasifikasi::class, 'klasifikasi_id');
     }
 
+    // Relasi ke Arsip Masuk (Berita Acara)
+    public function arsipMasuk()
+    {
+        return $this->belongsTo(ArsipMasuk::class, 'arsip_masuk_id');
+    }
+
+    // Relasi ke User pembuat/PIC
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Relasi ke Detail Peminjaman
+    public function detailPeminjaman()
+    {
+        return $this->hasMany(DetailPeminjaman::class, 'arsip_id');
+    }
 }

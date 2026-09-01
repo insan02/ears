@@ -9,25 +9,24 @@ use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Check if user exists to avoid duplicates
-        if (User::count() == 0) {
-             // Ensure email is authorized
-             $email = 'admin@admin.com';
-             if (DB::table('authorized_emails')->where('email', $email)->doesntExist()) {
-                 DB::table('authorized_emails')->insert(['email' => $email]);
-             }
+        // Pastikan email sudah ada di authorized_emails
+        DB::table('authorized_emails')->updateOrInsert(
+            ['email' => 'admin@gmail.com'],
+        );
 
-             User::create([
-                'nama' => 'Admin',
-                'email' => $email,
-                'password' => Hash::make('password'),
-                'last_login' => now(),
-            ]);
-            $this->command->info('User Admin created!');
-        } else {
-            $this->command->info('User already exists.');
-        }
+        // Buat atau update akun admin
+        User::updateOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'nama' => 'Administrator',
+                'role' => 'admin',
+                'password' => Hash::make('password123'),
+                'photo' => null,
+                'last_login' => null,
+                'remember_token' => null,
+            ]
+        );
     }
 }

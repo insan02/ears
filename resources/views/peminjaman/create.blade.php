@@ -258,12 +258,14 @@
         </div>
     </div>
 
-    <!-- Script SweetAlert -->
+    <!-- Script SweetAlert & Alpine -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        const daftarArsip = @json($daftarArsip ?? []);
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('peminjamanForm', () => ({
+        // Gunakan window agar tidak error deklarasi ganda saat diload HTMX
+        window.daftarArsipData = @json($daftarArsip ?? []);
+
+        window.peminjamanForm = function() {
+            return {
                 jabatan: '', unit: '', items: [], files: [{ id: Date.now(), name: null }],
                 showModal: false, showValidationModal: false, serverErrors: @json($errors->all()),
                 searchQuery: '', openDropdown: false,
@@ -275,7 +277,7 @@
 
                 get filteredArsip() {
                     const query = this.searchQuery.toLowerCase();
-                    return daftarArsip.filter(item => {
+                    return window.daftarArsipData.filter(item => {
                         if (query === '') return true;
                         const matchNama = (item.nama_berkas || '').toLowerCase().includes(query);
                         const matchIsi = (item.isi || '').toLowerCase().includes(query);
@@ -293,12 +295,9 @@
 
                     if (this.tempItem.source === 'manual') this.tempItem.display_name = this.tempItem.nama_manual;
 
-                    // VALIDASI HAK AKSES FRONTEND ALPINE JS
                     const unitLower = (this.unit || '').toLowerCase();
                     const isHukum = unitLower.includes('hukum');
                     const isAudit = unitLower.includes('internal audit');
-
-                    // PERBAIKAN: Hanya Karyawan/Pelaksana (Outsourcing) yang dicegat
                     const isPelaksana = (this.jabatan === 'Karyawan/Pelaksana');
 
                     if (this.tempItem.akses === 'Rahasia') {
@@ -354,11 +353,8 @@
                     let formValid = true;
 
                     const fieldLabels = {
-                        'tanggal': 'Tanggal Peminjaman',
-                        'nama_peminjam': 'Nama Peminjam',
-                        'nip': 'NIP',
-                        'unit': 'Unit Kerja',
-                        'keperluan': 'Keperluan'
+                        'tanggal': 'Tanggal Peminjaman', 'nama_peminjam': 'Nama Peminjam',
+                        'nip': 'NIP', 'unit': 'Unit Kerja', 'keperluan': 'Keperluan'
                     };
 
                     ['tanggal', 'nama_peminjam', 'nip', 'unit', 'keperluan'].forEach(field => {
@@ -374,22 +370,14 @@
                     if (!formValid) { this.showValidationModal = true; return; }
 
                     Swal.fire({
-                        title: 'Simpan Peminjaman?',
-                        text: "Pastikan data dan daftar arsip sudah benar.",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#e92027',
-                        cancelButtonColor: '#E5E7EB',
-                        confirmButtonText: 'Ya, Simpan',
-                        cancelButtonText: 'Batal',
-                        customClass: { cancelButton: 'text-gray-700 font-bold' }
+                        title: 'Simpan Peminjaman?', text: "Pastikan data dan daftar arsip sudah benar.",
+                        icon: 'question', showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
+                        confirmButtonText: 'Ya, Simpan', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
                     }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
+                        if (result.isConfirmed) { form.submit(); }
                     });
                 }
-            }));
-        });
+            };
+        };
     </script>
 </x-layout>

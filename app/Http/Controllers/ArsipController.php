@@ -21,12 +21,16 @@ class ArsipController extends Controller
 
         $file = $request->file('file');
         $extension = strtolower($file->getClientOriginalExtension());
-
-        // Ambil ID Import dari request AJAX
         $importId = $request->input('import_id');
 
         if (!in_array($extension, ['xls', 'xlsx', 'csv'])) {
-            return response()->json(['success' => false, 'message' => 'Format file harus Excel (.xlsx) atau CSV.']);
+            $msg = 'Format file harus Excel (.xlsx) atau CSV.';
+            // Jika via Modal/AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $msg]);
+            }
+            // Jika via halaman biasa
+            return back()->with('error', $msg);
         }
 
         try {
@@ -45,14 +49,26 @@ class ArsipController extends Controller
                 Cache::forget('import_arsip_progress_' . $importId);
             }
 
-            // Set session flash message untuk reload halaman
-            session()->flash('success', 'Data arsip berhasil diimport!');
-            return response()->json(['success' => true]);
+            // Jika via Modal/AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                session()->flash('success', 'Data arsip berhasil diimport!');
+                return response()->json(['success' => true]);
+            }
+
+            // Jika via halaman biasa
+            return redirect()->route('arsip.index')->with('success', 'Data arsip berhasil diimport!');
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Import Exception: " . $e->getMessage());
             if ($importId) Cache::forget('import_arsip_progress_' . $importId);
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+
+            // Jika via Modal/AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+            }
+
+            // Jika via halaman biasa
+            return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
@@ -212,7 +228,9 @@ class ArsipController extends Controller
         ]];
 
         $units = \App\Models\Unit::all();
-        return view('arsip.input-arsip', compact('arsip', 'nextNumber', 'initialData', 'units'));
+
+        // ARAHKAN KE VIEW KHUSUS EDIT
+        return view('arsip.edit-arsip', compact('arsip', 'nextNumber', 'initialData', 'units'));
     }
 
     public function update(Request $request, $id)
@@ -280,7 +298,8 @@ class ArsipController extends Controller
 
     public function musnah(Request $request)
     {
-        $query = ArsipMusnah::with('klasifikasi');
+        // PERBAIKAN: Tambahkan withTrashed() agar data dengan 'deleted_at' tetap ditampilkan
+        $query = ArsipMusnah::withTrashed()->with('klasifikasi');
 
         if ($request->filled('search')) {
             $search = $request->search;

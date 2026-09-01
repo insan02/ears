@@ -1,88 +1,160 @@
-@if(isset($printMode) && $printMode)
-    <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Papan Informasi 5P - {{ $data->pic }}</title>
-        <style>
-            body { font-family: Arial, sans-serif; background: #fff; color: #000; padding: 20px; line-height: 1.5; font-size: 11pt; }
-            .header { text-align: center; border-bottom: 4px solid #c41820; padding-bottom: 10px; margin-bottom: 20px; }
-            .header h1 { margin: 0; color: #c41820; font-size: 24px; text-transform: uppercase; }
-            .header p { margin: 5px 0 0; font-size: 14px; font-weight: bold; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-            .box { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
-            .box-title { font-weight: bold; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: #c41820; text-transform: uppercase; font-size: 12px; }
-            .content { white-space: pre-line; }
-            @page { size: A4 portrait; margin: 15mm; }
-        </style>
-    </head>
-    <body onload="window.print()">
-        <div class="header">
-            <h1>Papan Informasi 5P (Pemilahan, Penataan, Pembersihan, Penjagaan, Pendisiplinan)</h1>
-            <p>Person In Charge (PIC): {{ $data->pic ?: 'Belum Ditentukan' }}</p>
-        </div>
-
-        <div class="grid">
-            <div class="box"><div class="box-title">Kesepakatan</div><div class="content">{{ $data->kesepakatan ?: '-' }}</div></div>
-            <div class="box"><div class="box-title">Pembagian Area</div><div class="content">{{ $data->pembagian_area ?: '-' }}</div></div>
-            <div class="box"><div class="box-title">Visi & Misi</div><div class="content">{{ $data->visi_misi ?: '-' }}</div></div>
-            <div class="box"><div class="box-title">Struktur</div><div class="content">{{ $data->struktur ?: '-' }}</div></div>
-            <div class="box"><div class="box-title">Jadwal Kegiatan</div><div class="content">{{ $data->jadwal_kegiatan ?: '-' }}</div></div>
-            <div class="box"><div class="box-title">Kaizen</div><div class="content">{{ $data->kaizen ?: '-' }}</div></div>
-        </div>
-    </body>
-    </html>
-@else
 <x-layout>
     <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
            <div class="text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start gap-3 mb-2">
                     <a href="{{ route('limap.index') }}" class="bg-white/20 hover:bg-white/40 p-2 rounded-full transition"><i class="fas fa-arrow-left"></i></a>
-                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Papan 5P Area</h2>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Papan 5P</h2>
                 </div>
-                <p class="text-red-50 text-sm md:text-base font-light ml-12">Detail papan informasi 5P.</p>
+                <p class="text-red-50 text-sm md:text-base font-light ml-12">PIC: <strong class="font-bold">{{ $data->pic }}</strong></p>
            </div>
            <div class="flex gap-2">
-               <!-- Tombol Cetak PDF dibiarkan agar user biasa bisa mencetak -->
-               <a href="{{ route('limap.show', ['id' => $data->id, 'print' => 'true']) }}" target="_blank" class="group bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-full font-bold border border-white/30 flex items-center gap-2 transition">
-                   <i class="fas fa-print"></i> Cetak PDF
-               </a>
-
-               <!-- TOMBOL EDIT HANYA UNTUK ADMIN -->
                @if(Auth::check() && Auth::user()->role == 'admin')
-                   <a href="{{ route('limap.edit', $data->id) }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-2 transition">
+                   <a href="{{ route('limap.edit', $data->id) }}" class="bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-2 transition">
                        <i class="fas fa-pen"></i> Edit Papan
                    </a>
                @endif
            </div>
        </div>
-   </div>
+    </div>
 
-   <div class="max-w-7xl mx-auto px-4 -mt-20 relative z-20 mb-12">
+    <div class="max-w-7xl mx-auto px-4 -mt-20 relative z-20 mb-12 space-y-8">
         @if(session('success'))
-            <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 shadow-sm">
+            <div class="bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 shadow-sm">
                 <div class="bg-green-100 p-2 rounded-full text-green-600"><i class="fas fa-check"></i></div>
                 <p class="text-sm font-bold text-green-800 flex-1">{{ session('success') }}</p>
                 <button onclick="this.parentElement.remove()" class="text-green-400 hover:text-green-600"><i class="fas fa-times"></i></button>
             </div>
         @endif
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="space-y-6 lg:col-span-2">
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-6 md:p-8"><h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-3"><i class="fas fa-handshake text-[#e92027]"></i> Kesepakatan</h3><div class="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">{{ $data->kesepakatan ?: '-' }}</div></div>
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-6 md:p-8"><h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-3"><i class="fas fa-bullseye text-[#e92027]"></i> Visi & Misi</h3><div class="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">{{ $data->visi_misi ?: '-' }}</div></div>
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-6 md:p-8"><h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-3"><i class="fas fa-sitemap text-[#e92027]"></i> Struktur</h3><div class="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">{{ $data->struktur ?: '-' }}</div></div>
-            </div>
+        {{-- BAGIAN 1: GALERI GAMBAR --}}
+        @php
+            $categories = [
+                'kesepakatan' => 'Kesepakatan', 'visi_misi' => 'Visi & Misi',
+                'pembagian_area' => 'Pembagian Area', 'struktur' => 'Struktur',
+                'jadwal_kegiatan' => 'Jadwal Kegiatan'
+            ];
+        @endphp
 
-            <div class="space-y-6">
-                <div class="bg-[#e92027] rounded-[2rem] shadow-xl border border-red-800 p-6 md:p-8 text-white text-center relative overflow-hidden"><i class="fas fa-user-shield absolute -right-4 -bottom-4 text-7xl text-white opacity-10"></i><h3 class="text-sm font-bold text-red-100 uppercase tracking-widest mb-2 relative z-10">PIC Area Ini</h3><div class="text-2xl font-extrabold relative z-10">{{ $data->pic ?: 'Belum Ditentukan' }}</div></div>
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-6 md:p-8"><h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-3"><i class="fas fa-map-marked-alt text-[#e92027]"></i> Pembagian Area</h3><div class="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">{{ $data->pembagian_area ?: '-' }}</div></div>
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-6 md:p-8"><h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-3"><i class="fas fa-calendar-alt text-[#e92027]"></i> Jadwal Kegiatan</h3><div class="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">{{ $data->jadwal_kegiatan ?: '-' }}</div></div>
-                <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-6 md:p-8"><h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 flex items-center gap-3"><i class="fas fa-lightbulb text-[#e92027]"></i> Kaizen</h3><div class="prose prose-sm max-w-none text-gray-600 whitespace-pre-line leading-relaxed">{{ $data->kaizen ?: '-' }}</div></div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            @foreach($categories as $key => $label)
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
+                <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 text-[#e92027] uppercase tracking-wide">{{ $label }}</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    @if(!empty($data->$key))
+                        @foreach($data->$key as $img)
+                            <a href="{{ asset('storage/'.$img) }}" target="_blank" class="block h-40 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
+                                <img src="{{ asset('storage/'.$img) }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                            </a>
+                        @endforeach
+                    @else
+                        <div class="col-span-2 text-center py-8 text-gray-400 text-sm italic">Belum ada gambar diunggah.</div>
+                    @endif
+                </div>
             </div>
+            @endforeach
         </div>
-   </div>
+
+        {{-- BAGIAN 2: KAIZEN PDF MANAGEMENT --}}
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8 mt-8" x-data="{ expandedYear: {{ date('Y') }}, expandedMonth: null }">
+            <h3 class="text-2xl font-bold text-gray-800 border-b border-gray-100 pb-4 mb-6"><i class="fas fa-lightbulb text-amber-500 mr-2"></i> Dokumen Kaizen (PDF)</h3>
+
+            <!-- Loop Tahun dari 2026 s/d Tahun Saat Ini -->
+            @for($year = 2026; $year <= date('Y'); $year++)
+            <div class="mb-4 border border-gray-200 rounded-2xl overflow-hidden">
+
+                <!-- Header Tahun -->
+                <button @click="expandedYear = expandedYear === {{ $year }} ? null : {{ $year }}" class="w-full bg-gray-50 px-6 py-4 flex justify-between items-center hover:bg-gray-100 transition">
+                    <span class="font-bold text-lg text-gray-800">Tahun {{ $year }}</span>
+                    <i class="fas fa-chevron-down text-gray-500 transition-transform" :class="expandedYear === {{ $year }} ? 'rotate-180' : ''"></i>
+                </button>
+
+                <!-- Konten Bulan -->
+                <div x-show="expandedYear === {{ $year }}" x-collapse class="p-4 bg-white border-t border-gray-100">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                        @php
+                            $months = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
+                        @endphp
+
+                        @foreach($months as $num => $monthName)
+                            <div class="border border-gray-200 rounded-xl overflow-hidden" x-data="{ openUpload: false }">
+                                <button @click="expandedMonth = expandedMonth === '{{$year}}-{{$num}}' ? null : '{{$year}}-{{$num}}'" class="w-full bg-red-50 px-4 py-3 flex justify-between items-center hover:bg-red-100 transition">
+                                    <span class="font-bold text-sm text-[#e92027]">{{ $monthName }}</span>
+                                    <i class="fas fa-chevron-down text-[#e92027] text-xs transition-transform" :class="expandedMonth === '{{$year}}-{{$num}}' ? 'rotate-180' : ''"></i>
+                                </button>
+
+                                <div x-show="expandedMonth === '{{$year}}-{{$num}}'" x-collapse class="p-4 bg-white space-y-3">
+                                    <!-- List PDF -->
+                                    @php
+                                        $kaizens = $data->kaizens->where('tahun', $year)->where('bulan', $num);
+                                    @endphp
+
+                                    @forelse($kaizens as $file)
+                                        <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                                            <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank" class="text-xs font-bold text-blue-600 hover:underline truncate flex-1 flex items-center gap-2" title="{{ $file->original_name }}">
+                                                <i class="fas fa-file-pdf text-red-500 text-lg"></i> <span class="truncate">{{ $file->original_name }}</span>
+                                            </a>
+                                            @if(Auth::check() && Auth::user()->role == 'admin')
+                                                <!-- PANGGIL FUNGSI SWEET ALERT DI ONSUBMIT -->
+                                                <form action="{{ route('limap.kaizen.destroy', $file->id) }}" method="POST" onsubmit="confirmDeleteKaizen(event, this)" hx-disable>
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="text-gray-400 hover:text-red-600 ml-2" title="Hapus PDF"><i class="fas fa-times-circle"></i></button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @empty
+                                        <p class="text-[10px] text-gray-400 italic text-center">Kosong</p>
+                                    @endforelse
+
+                                    <!-- Form Upload (Admin Only) -->
+                                    @if(Auth::check() && Auth::user()->role == 'admin')
+                                        <div class="pt-3 border-t border-gray-100 mt-3">
+                                            <button @click="openUpload = !openUpload" x-show="!openUpload" class="text-[10px] font-bold bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg w-full hover:bg-gray-50 shadow-sm">+ Upload PDF</button>
+
+                                            <form x-show="openUpload" x-collapse action="{{ route('limap.kaizen.store', $data->id) }}" method="POST" enctype="multipart/form-data" hx-disable class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+                                                @csrf
+                                                <input type="hidden" name="tahun" value="{{ $year }}">
+                                                <input type="hidden" name="bulan" value="{{ $num }}">
+                                                <input type="file" name="kaizen_files[]" multiple required accept="application/pdf" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-[#e92027] file:text-white mb-2">
+                                                <div class="flex gap-2">
+                                                    <button type="submit" class="flex-1 bg-[#e92027] text-white text-[10px] font-bold py-1.5 rounded hover:bg-red-700">Simpan</button>
+                                                    <button type="button" @click="openUpload = false" class="flex-1 bg-white border border-gray-300 text-gray-600 text-[10px] font-bold py-1.5 rounded hover:bg-gray-100">Batal</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endfor
+
+        </div>
+    </div>
+
+    <!-- Script SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmDeleteKaizen(event, form) {
+            event.preventDefault();
+            Swal.fire({
+                title: 'Hapus File PDF Kaizen?',
+                text: "Dokumen ini akan dihapus secara permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e92027',
+                cancelButtonColor: '#9ca3af',
+                confirmButtonText: 'Ya, Hapus File',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
 </x-layout>
-@endif

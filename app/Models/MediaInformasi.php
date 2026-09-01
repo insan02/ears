@@ -10,10 +10,5 @@ class MediaInformasi extends Model
 
     protected $table = 'media_informasi';
 
-    protected $fillable = [
-        'judul',
-        'tanggal',
-        'deskripsi',
-        'gambar',
-    ];
+    protected $guarded = ['id'];
 }

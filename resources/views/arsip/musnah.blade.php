@@ -45,10 +45,11 @@
                     @forelse ($arsips as $arsip)
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 relative">
                             <div class="mb-3 border-b border-gray-100 pb-3">
-                                <span class="inline-block bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded border border-red-200 mb-1">{{ $arsip->klasifikasi->kode_klasifikasi ?? '-' }}</span>
-                                <div class="font-bold text-gray-900 text-sm leading-relaxed">{{ $arsip->nama_berkas }}</div>
+                                <!-- PENGGUNAAN OPTIONAL CHAINING AGAR TIDAK ERROR JIKA KLASIFIKASI KOSONG -->
+                                <span class="inline-block bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded border border-red-200 mb-1">{{ optional($arsip->klasifikasi)->kode_klasifikasi ?? '-' }}</span>
+                                <div class="font-bold text-gray-900 text-sm leading-relaxed">{{ $arsip->nama_berkas ?? '-' }}</div>
                             </div>
-                            <div class="text-xs text-gray-600 mb-3 whitespace-normal leading-relaxed">{{ $arsip->isi }}</div>
+                            <div class="text-xs text-gray-600 mb-3 whitespace-normal leading-relaxed">{{ $arsip->isi ?? '-' }}</div>
                             <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl border border-gray-100 mb-3 text-[11px]">
                                 <div><span class="text-gray-400 font-bold uppercase block">Tahun</span><span class="font-bold text-gray-800">{{ $arsip->tahun ?? '-' }}</span></div>
                                 <div><span class="text-gray-400 font-bold uppercase block">Box</span><span class="font-mono font-bold text-gray-600">{{ $arsip->no_box ?? '-' }}</span></div>
@@ -83,13 +84,14 @@
                                     <tr class="hover:bg-gray-50 transition duration-200">
                                         <td class="py-2 px-2 text-center font-bold border-r border-gray-100 align-top whitespace-nowrap">{{ $arsips->firstItem() + $index }}</td>
                                         <td class="py-2 px-2 text-center border-r border-gray-100 font-bold text-gray-700 align-top">
-                                            {{ $arsip->klasifikasi->kode_klasifikasi ?? '-' }}
+                                            <!-- PENGGUNAAN OPTIONAL CHAINING -->
+                                            {{ optional($arsip->klasifikasi)->kode_klasifikasi ?? '-' }}
                                         </td>
                                         <td class="py-2 px-3 font-bold text-gray-800 border-r border-gray-100 align-top whitespace-normal break-words">
-                                            {{ $arsip->nama_berkas }}
+                                            {{ $arsip->nama_berkas ?? '-' }}
                                         </td>
                                         <td class="py-2 px-3 text-gray-600 border-r border-gray-100 align-top whitespace-normal break-words leading-relaxed">
-                                            {{ $arsip->isi }}
+                                            {{ $arsip->isi ?? '-' }}
                                         </td>
                                         <td class="py-2 px-2 text-center font-medium border-r border-gray-100 align-top whitespace-nowrap">{{ $arsip->tahun ?? '-' }}</td>
                                         <td class="py-2 px-2 text-center border-r border-gray-100 align-top whitespace-nowrap">
@@ -105,7 +107,7 @@
                                             </span>
                                         </td>
                                         <td class="py-2 px-2 text-center text-[#e92027] font-mono font-bold bg-red-50/50 align-top whitespace-nowrap">
-                                            {{ \Carbon\Carbon::parse($arsip->deleted_at)->format('d M y H:i') }}
+                                            {{ \Carbon\Carbon::parse($arsip->deleted_at)->format('d/m/y') }}
                                         </td>
                                     </tr>
                                 @empty
