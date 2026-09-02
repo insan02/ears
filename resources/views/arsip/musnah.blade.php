@@ -30,7 +30,7 @@
         <div class="max-w-7xl mx-auto px-4 -mt-12 md:-mt-20 relative z-20 mb-12 print:mt-0 print:px-0">
             <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-[400px] flex flex-col print:shadow-none print:border-0 print:p-0">
 
-                <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex justify-between items-center relative z-30 print:hidden">
+                <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex flex-col md:flex-row justify-between items-center gap-4 relative z-30 print:hidden">
                     <div class="relative w-full md:w-96 group">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-gray-700 transition-colors pointer-events-none"><i class="fas fa-search"></i></span>
                         <form action="{{ route('arsip.musnah') }}" method="GET" class="w-full">
@@ -38,6 +38,11 @@
                                 class="w-full py-3 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-sm font-medium transition-all shadow-sm">
                         </form>
                     </div>
+
+                    <!-- TOMBOL EXPORT DITAMBAHKAN DI SINI -->
+                    <a href="/arsip/musnah/export?{{ http_build_query(request()->all()) }}" target="_blank" class="w-full md:w-auto px-5 py-3 bg-green-600 text-white rounded-xl font-bold shadow-sm hover:bg-green-700 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-file-excel"></i> Export
+                    </a>
                 </div>
 
                 <!-- TAMPILAN MOBILE -->
@@ -45,7 +50,6 @@
                     @forelse ($arsips as $arsip)
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 relative">
                             <div class="mb-3 border-b border-gray-100 pb-3">
-                                <!-- PENGGUNAAN OPTIONAL CHAINING AGAR TIDAK ERROR JIKA KLASIFIKASI KOSONG -->
                                 <span class="inline-block bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded border border-red-200 mb-1">{{ optional($arsip->klasifikasi)->kode_klasifikasi ?? '-' }}</span>
                                 <div class="font-bold text-gray-900 text-sm leading-relaxed">{{ $arsip->nama_berkas ?? '-' }}</div>
                             </div>
@@ -84,7 +88,6 @@
                                     <tr class="hover:bg-gray-50 transition duration-200">
                                         <td class="py-2 px-2 text-center font-bold border-r border-gray-100 align-top whitespace-nowrap">{{ $arsips->firstItem() + $index }}</td>
                                         <td class="py-2 px-2 text-center border-r border-gray-100 font-bold text-gray-700 align-top">
-                                            <!-- PENGGUNAAN OPTIONAL CHAINING -->
                                             {{ optional($arsip->klasifikasi)->kode_klasifikasi ?? '-' }}
                                         </td>
                                         <td class="py-2 px-3 font-bold text-gray-800 border-r border-gray-100 align-top whitespace-normal break-words">
@@ -119,39 +122,39 @@
                 </div>
 
                 @if($arsips instanceof \Illuminate\Pagination\LengthAwarePaginator && $arsips->hasPages())
-    @php $paginator = $arsips->appends(request()->query()); @endphp
-    <div class="p-4 md:p-6 border-t border-gray-100 bg-gray-50 print:hidden flex justify-center">
-        <nav class="flex items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-200 shadow-sm max-w-full overflow-x-auto hide-scrollbar">
+                    @php $paginator = $arsips->appends(request()->query()); @endphp
+                    <div class="p-4 md:p-6 border-t border-gray-100 bg-gray-50 print:hidden flex justify-center">
+                        <nav class="flex items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-200 shadow-sm max-w-full overflow-x-auto hide-scrollbar">
 
-            @if ($paginator->onFirstPage())
-                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold"><i class="fas fa-chevron-left"></i></span>
-            @else
-                <a href="{{ $paginator->previousPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold"><i class="fas fa-chevron-left"></i></a>
-            @endif
+                            @if ($paginator->onFirstPage())
+                                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold"><i class="fas fa-chevron-left"></i></span>
+                            @else
+                                <a href="{{ $paginator->previousPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold"><i class="fas fa-chevron-left"></i></a>
+                            @endif
 
-            @foreach ($paginator->linkCollection() as $link)
-                @if (str_contains($link['label'], 'Previous') || str_contains($link['label'], 'Next') || str_contains($link['label'], '&laquo;') || str_contains($link['label'], '&raquo;'))
-                    @continue
+                            @foreach ($paginator->linkCollection() as $link)
+                                @if (str_contains($link['label'], 'Previous') || str_contains($link['label'], 'Next') || str_contains($link['label'], '&laquo;') || str_contains($link['label'], '&raquo;'))
+                                    @continue
+                                @endif
+
+                                @if ($link['url'] === null)
+                                    <span class="px-2 py-2 text-gray-400 text-sm font-bold">...</span>
+                                @elseif ($link['active'])
+                                    <span class="px-3 md:px-4 py-2 rounded-xl bg-gray-800 text-white font-extrabold text-xs md:text-sm shadow-md">{{ $link['label'] }}</span>
+                                @else
+                                    <a href="{{ $link['url'] }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors text-xs md:text-sm font-bold">{{ $link['label'] }}</a>
+                                @endif
+                            @endforeach
+
+                            @if ($paginator->hasMorePages())
+                                <a href="{{ $paginator->nextPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold"><i class="fas fa-chevron-right"></i></a>
+                            @else
+                                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold"><i class="fas fa-chevron-right"></i></span>
+                            @endif
+
+                        </nav>
+                    </div>
                 @endif
-
-                @if ($link['url'] === null)
-                    <span class="px-2 py-2 text-gray-400 text-sm font-bold">...</span>
-                @elseif ($link['active'])
-                    <span class="px-3 md:px-4 py-2 rounded-xl bg-gray-800 text-white font-extrabold text-xs md:text-sm shadow-md">{{ $link['label'] }}</span>
-                @else
-                    <a href="{{ $link['url'] }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors text-xs md:text-sm font-bold">{{ $link['label'] }}</a>
-                @endif
-            @endforeach
-
-            @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold"><i class="fas fa-chevron-right"></i></a>
-            @else
-                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold"><i class="fas fa-chevron-right"></i></span>
-            @endif
-
-        </nav>
-    </div>
-@endif
             </div>
         </div>
     </div>

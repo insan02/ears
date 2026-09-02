@@ -62,6 +62,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/arsip/{id}/edit', [ArsipController::class, 'edit'])->name('arsip.edit');
     Route::put('/arsip/{id}', [ArsipController::class, 'update'])->name('arsip.update');
     Route::delete('/arsip/{id}', [ArsipController::class, 'destroy'])->name('arsip.destroy');
+    // Tambahkan baris ini untuk Export Data Musnah
+    Route::get('/arsip/musnah/export', [ArsipController::class, 'exportMusnah']);
 
     // ==========================================
     // FITUR PEMINJAMAN

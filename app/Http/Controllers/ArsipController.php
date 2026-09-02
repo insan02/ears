@@ -314,6 +314,16 @@ class ArsipController extends Controller
         return view('arsip.musnah', compact('arsips'));
     }
 
+    // Letakkan di bawah public function musnah()
+    public function exportMusnah(Request $request)
+    {
+        $search = $request->input('search');
+
+        $filename = 'Daftar_Arsip_Musnah_' . date('Y-m-d') . '.xlsx';
+
+        return Excel::download(new \App\Exports\ArsipMusnahExport($search), $filename);
+    }
+
     public function export(Request $request)
     {
         $type = $request->input('type');

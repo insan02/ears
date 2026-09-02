@@ -5,24 +5,50 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 
-    <div x-data="{
-        showDeleteModal: false,
-        deleteUrl: '',
-        showSortModal: false,
-        showSortDropdown: false,
-        showFilesModal: false,
-        selectedFiles: [],
-        selectedItems: [],
-        allSelected: false,
-        toggleSelectAll() {
-            this.allSelected = !this.allSelected;
-            if (this.allSelected) {
-                this.selectedItems = {{ json_encode($peminjaman->pluck('id')) }};
-            } else {
-                this.selectedItems = [];
-            }
-        }
-    }" class="bg-gray-50 min-h-screen pb-20">
+    <!-- SCRIPT WAJIB DI ATAS AGAR AMAN DARI HTMX -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        window.peminjamanIndex = function() {
+            return {
+                showDeleteModal: false,
+                deleteUrl: '',
+                showSortModal: false,
+                showSortDropdown: false,
+                showFilesModal: false,
+                selectedFiles: [],
+                selectedItems: [],
+                allSelected: false,
+                toggleSelectAll() {
+                    this.allSelected = !this.allSelected;
+                    if (this.allSelected) {
+                        this.selectedItems = {{ json_encode($peminjaman->pluck('id')) }};
+                    } else {
+                        this.selectedItems = [];
+                    }
+                }
+            };
+        };
+
+        window.confirmComplete = function(formId) {
+            Swal.fire({
+                title: 'Selesaikan Peminjaman?',
+                text: "Arsip ini akan ditandai sebagai 'Sudah Dikembalikan' dan tersedia kembali di database.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#E5E7EB',
+                confirmButtonText: 'Ya, Selesaikan',
+                cancelButtonText: 'Batal',
+                customClass: { cancelButton: 'text-gray-700 font-bold' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        };
+    </script>
+
+    <div x-data="peminjamanIndex()" class="bg-gray-50 min-h-screen pb-20">
 
         <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
              <div class="absolute inset-0 z-0 opacity-40">
@@ -86,7 +112,7 @@
 
             <!-- Toolbar (Search & Alpine Filters) -->
             <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 mb-6">
-                <form action="/peminjaman" method="GET" class="flex flex-col lg:flex-row gap-4 justify-between items-center">
+                <form action="/peminjaman" method="GET" class="flex flex-col lg:flex-row gap-4 justify-between items-center" hx-disable>
 
                     <!-- Search Box -->
                     <div class="relative w-full lg:w-96 group">
@@ -180,6 +206,7 @@
                                 <i class="fas fa-file-excel text-green-600"></i> Export
                             </a>
 
+                            <!-- Tombol Hapus Terpilih -->
                             <button type="button" x-show="selectedItems.length > 0" x-cloak @click="document.getElementById('bulk-delete-form').submit()" class="px-4 py-3 bg-[#e92027] border border-[#e92027] rounded-xl text-sm font-bold text-white hover:bg-[#c41820] transition shadow-sm flex items-center gap-2 animate-fade-in">
                                 <i class="fas fa-trash-alt"></i> Hapus (<span x-text="selectedItems.length"></span>)
                             </button>
@@ -189,8 +216,8 @@
                 </form>
             </div>
 
-            {{-- Hidden Form for Bulk Delete --}}
-            <form id="bulk-delete-form" action="/peminjaman/bulk-delete" method="POST" class="hidden">
+            {{-- Hidden Form for Bulk Delete dengan hx-disable --}}
+            <form id="bulk-delete-form" action="/peminjaman/bulk-delete" method="POST" class="hidden" hx-disable>
                 @csrf
                 <template x-for="id in selectedItems">
                     <input type="hidden" name="ids[]" :value="id">
@@ -234,7 +261,8 @@
                             </div>
                             <div class="flex gap-1">
                                 @if($detail->peminjaman->status == 'Sedang Dipinjam')
-                                    <form id="complete-m-{{ $detail->peminjaman->id }}" action="/peminjaman/{{ $detail->peminjaman->id }}/complete" method="POST">
+                                    {{-- PERBAIKAN: Form Selesaikan dengan hx-disable --}}
+                                    <form id="complete-m-{{ $detail->peminjaman->id }}" action="/peminjaman/{{ $detail->peminjaman->id }}/complete" method="POST" hx-disable>
                                         @csrf @method('PATCH')
                                         <button type="button" onclick="confirmComplete('complete-m-{{ $detail->peminjaman->id }}')" class="p-2 bg-white text-green-600 rounded-lg shadow-sm border border-gray-200"><i class="fas fa-check text-xs"></i></button>
                                     </form>
@@ -304,7 +332,8 @@
                                 <td class="px-4 py-4 text-center">
                                     <div class="flex justify-center items-center gap-1.5">
                                         @if($detail->peminjaman->status == 'Sedang Dipinjam')
-                                            <form id="complete-d-{{ $detail->peminjaman->id }}" action="/peminjaman/{{ $detail->peminjaman->id }}/complete" method="POST">
+                                            {{-- PERBAIKAN: Form Selesaikan dengan hx-disable --}}
+                                            <form id="complete-d-{{ $detail->peminjaman->id }}" action="/peminjaman/{{ $detail->peminjaman->id }}/complete" method="POST" hx-disable>
                                                 @csrf @method('PATCH')
                                                 <button type="button" onclick="confirmComplete('complete-d-{{ $detail->peminjaman->id }}')" class="w-8 h-8 bg-white text-green-600 rounded-lg hover:bg-green-50 transition shadow-sm border border-gray-200" title="Selesaikan"><i class="fas fa-check text-xs"></i></button>
                                             </form>
@@ -340,21 +369,21 @@
                                 <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-[#e92027]"><i class="fas fa-file-pdf text-lg"></i></div>
                                 <span x-text="file.split('/').pop()" class="text-xs truncate font-bold text-gray-700 max-w-[200px]"></span>
                             </div>
-                            <a :href="`{{ asset('') }}${file}`" target="_blank" class="px-4 py-2 text-[10px] font-bold text-white bg-[#e92027] rounded-xl hover:bg-[#c41820] shadow-md transition">Lihat / Download</a>
+                            <a :href="`{{ asset('storage') }}/${file}`" target="_blank" class="px-4 py-2 text-[10px] font-bold text-white bg-[#e92027] rounded-xl hover:bg-[#c41820] shadow-md transition">Lihat / Download</a>
                         </div>
                     </template>
                 </div>
             </div>
         </div>
 
-        {{-- Delete Modal --}}
+        {{-- Delete Modal (Form Hapus dengan hx-disable) --}}
         <div x-show="showDeleteModal" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="showDeleteModal = false" class="bg-white rounded-[2rem] w-full max-w-sm p-8 text-center relative overflow-hidden shadow-2xl">
                 <div class="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-[#e92027] shadow-sm animate-bounce"><i class="fas fa-trash-alt text-3xl"></i></div>
                 <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Transaksi?</h3>
                 <p class="text-gray-500 text-sm mb-8 leading-relaxed">Data peminjaman beserta detail arsipnya akan dihapus permanen dari sistem.</p>
                 <div class="flex flex-col gap-3">
-                    <form :action="deleteUrl" method="POST" class="w-full">
+                    <form :action="deleteUrl" method="POST" class="w-full" hx-disable>
                         @csrf @method('DELETE')
                         <button type="submit" class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold hover:bg-[#c41820] shadow-md transform hover:scale-[1.02] transition">Ya, Hapus Sekarang</button>
                     </form>
@@ -364,26 +393,4 @@
         </div>
 
     </div>
-
-    <!-- Script SweetAlert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function confirmComplete(formId) {
-            Swal.fire({
-                title: 'Selesaikan Peminjaman?',
-                text: "Arsip ini akan ditandai sebagai 'Sudah Dikembalikan' dan tersedia kembali di database.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#E5E7EB',
-                confirmButtonText: 'Ya, Selesaikan',
-                cancelButtonText: 'Batal',
-                customClass: { cancelButton: 'text-gray-700 font-bold' }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById(formId).submit();
-                }
-            });
-        }
-    </script>
 </x-layout>

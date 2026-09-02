@@ -8,7 +8,8 @@ use App\Models\DetailPeminjaman;
 use App\Models\Arsip;
 use App\Exports\PeminjamanExport;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\File;
+// PERBAIKAN: Gunakan facade Storage
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class PeminjamanController extends Controller
@@ -102,7 +103,7 @@ class PeminjamanController extends Controller
 
         $daftarArsip = Arsip::with('klasifikasi')
             ->whereNotIn('id', $arsipDipinjam)
-            ->where('no_berkas', '!=', '__MERGED_ROW__') // <-- PERBAIKAN: Sembunyikan baris pembatas
+            ->where('no_berkas', '!=', '__MERGED_ROW__')
             ->orderBy('nama_berkas', 'asc')
             ->get()
             ->map(function ($item) {
@@ -185,8 +186,9 @@ class PeminjamanController extends Controller
         if ($request->hasFile('bukti_pinjam')) {
             foreach ($request->file('bukti_pinjam') as $file) {
                 $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('bukti_pinjam'), $filename);
-                $filePaths[] = 'bukti_pinjam/' . $filename;
+                // PERBAIKAN: Simpan file ke storage/app/public/bukti_pinjam
+                $path = $file->storeAs('bukti_pinjam', $filename, 'public');
+                $filePaths[] = $path;
             }
         }
 
@@ -248,7 +250,7 @@ class PeminjamanController extends Controller
 
         $daftarArsip = Arsip::with('klasifikasi')
             ->whereNotIn('id', $arsipDipinjam)
-            ->where('no_berkas', '!=', '__MERGED_ROW__') // <-- PERBAIKAN: Sembunyikan baris pembatas
+            ->where('no_berkas', '!=', '__MERGED_ROW__')
             ->orderBy('nama_berkas', 'asc')
             ->get()
             ->map(function ($item) {
@@ -287,12 +289,16 @@ class PeminjamanController extends Controller
         ]);
 
         $existingFiles = json_decode($peminjaman->bukti_peminjaman) ?? [];
-        if (!is_array($existingFiles) && $peminjaman->bukti_peminjaman)
+        if (!is_array($existingFiles) && $peminjaman->bukti_peminjaman) {
             $existingFiles = [$peminjaman->bukti_peminjaman];
+        }
 
+        // PERBAIKAN: Hapus file dari Storage Public
         if ($request->boolean('delete_existing_bukti')) {
             foreach ($existingFiles as $file) {
-                if (File::exists(public_path($file))) File::delete(public_path($file));
+                if (Storage::disk('public')->exists($file)) {
+                    Storage::disk('public')->delete($file);
+                }
             }
             $existingFiles = [];
         }
@@ -300,8 +306,9 @@ class PeminjamanController extends Controller
         if ($request->hasFile('bukti_pinjam')) {
             foreach ($request->file('bukti_pinjam') as $file) {
                 $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('bukti_pinjam'), $filename);
-                $existingFiles[] = 'bukti_pinjam/' . $filename;
+                // PERBAIKAN: Simpan file ke storage/app/public/bukti_pinjam
+                $path = $file->storeAs('bukti_pinjam', $filename, 'public');
+                $existingFiles[] = $path;
             }
         }
 
@@ -409,8 +416,9 @@ class PeminjamanController extends Controller
         $files = json_decode($peminjaman->bukti_peminjaman) ?? [];
         if (!is_array($files) && $peminjaman->bukti_peminjaman) $files = [$peminjaman->bukti_peminjaman];
 
+        // PERBAIKAN: Hapus file dari Storage Public
         foreach ($files as $file) {
-            if (File::exists(public_path($file))) File::delete(public_path($file));
+            if (Storage::disk('public')->exists($file)) Storage::disk('public')->delete($file);
         }
 
         $peminjaman->delete();
@@ -435,8 +443,10 @@ class PeminjamanController extends Controller
                     if ($peminjaman) {
                         $files = json_decode($peminjaman->bukti_peminjaman) ?? [];
                         if (!is_array($files) && $peminjaman->bukti_peminjaman) $files = [$peminjaman->bukti_peminjaman];
+
+                        // PERBAIKAN: Hapus file dari Storage Public
                         foreach ($files as $file) {
-                            if (File::exists(public_path($file))) File::delete(public_path($file));
+                            if (Storage::disk('public')->exists($file)) Storage::disk('public')->delete($file);
                         }
                         $peminjaman->delete();
                     }

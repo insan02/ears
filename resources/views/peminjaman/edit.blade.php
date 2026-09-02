@@ -1,9 +1,19 @@
 <x-layout>
+    <!-- SCRIPT WAJIB DI ATAS AGAR AMAN DARI HTMX -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- JSON DATA TERSEMBUNYI UNTUK DIBACA OLEH ALPINE -->
+    <script type="application/json" id="data-arsip-edit">{!! json_encode($daftarArsip ?? []) !!}</script>
+    <script type="application/json" id="data-items-edit">{!! json_encode($currentItems ?? []) !!}</script>
+    <script type="application/json" id="data-errors-edit">{!! json_encode($errors->all()) !!}</script>
+
     <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-40">
             <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                 <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#580000;stop-opacity:0.3" /><stop offset="100%" style="stop-color:#000000;stop-opacity:0.4" /></linearGradient></defs>
-                <path fill="url(#polyGrad)" d="M0 0 L1000 0 L1000 500 L0 300 Z" /><path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" /><path fill="#580000" opacity="0.2" d="M800 0 L1400 0 L1400 400 L600 600 Z" />
+                <path fill="url(#polyGrad)" d="M0 0 L1000 0 L1000 500 L0 300 Z" />
+                <path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" />
+                <path fill="#580000" opacity="0.2" d="M800 0 L1400 0 L1400 400 L600 600 Z" />
             </svg>
         </div>
         <div class="max-w-7xl mx-auto relative z-10 text-center md:text-left">
@@ -12,8 +22,157 @@
         </div>
     </div>
 
-    <div class="max-w-5xl mx-auto px-4 md:px-6 -mt-20 relative z-20 mb-10" x-data="peminjamanEdit()">
-        <form action="/peminjaman/{{ $editData->id }}" method="POST" enctype="multipart/form-data" @submit.prevent="submitForm($el)" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" novalidate>
+    <!-- INLINE X-DATA MEMBUATNYA KEBAL DARI BUG HTMX -->
+    <div class="max-w-5xl mx-auto px-4 md:px-6 -mt-20 relative z-20 mb-10"
+         x-data="{
+            daftarArsip: [], serverErrors: [],
+            jabatan: '{{ addslashes($editData->jabatan_peminjam ?? '') }}',
+            unit: '{{ addslashes($editData->unit_peminjam ?? '') }}',
+            items: [], files: [{ id: Date.now(), name: null }], deleteOldFile: false,
+            showModal: false, showValidationModal: false, searchQuery: '', openDropdown: false, editingIndex: null,
+            tempItem: { source: 'db', id: null, display_name: '', nama_manual: '', no_box: '', akses: 'Biasa', media: 'Softfile', fisik: 'Berkas Asli' },
+
+            init() {
+                this.daftarArsip = JSON.parse(document.getElementById('data-arsip-edit').textContent || '[]');
+                this.serverErrors = JSON.parse(document.getElementById('data-errors-edit').textContent || '[]');
+                const rawItems = JSON.parse(document.getElementById('data-items-edit').textContent || '[]');
+
+                this.items = rawItems.map(item => ({
+                    source: item.source, id: item.id || null, display_name: item.display_name,
+                    nama_manual: item.nama_manual, no_box: item.no_box, akses: item.akses,
+                    media: item.media, fisik: item.fisik
+                }));
+
+                if (this.serverErrors.length > 0) this.showValidationModal = true;
+            },
+            openModal(index = null) {
+                this.editingIndex = index;
+                if (index !== null) {
+                    this.tempItem = {...this.items[index]};
+                    this.searchQuery = this.tempItem.source === 'db' ? this.tempItem.display_name : '';
+                } else {
+                    this.tempItem = { source: 'db', id: null, display_name: '', nama_manual: '', no_box: '', akses: 'Biasa', media: 'Softfile', fisik: 'Berkas Asli' };
+                    this.searchQuery = '';
+                }
+                this.showModal = true;
+            },
+            closeModal() { this.showModal = false; },
+
+            get filteredArsip() {
+                const query = this.searchQuery.toLowerCase();
+                return this.daftarArsip.filter(item => {
+                    if (query === '') return true;
+                    const matchNama = (item.nama_berkas || '').toLowerCase().includes(query);
+                    const matchIsi = (item.isi || '').toLowerCase().includes(query);
+                    const matchBox = (item.no_box || '').toLowerCase().includes(query);
+                    return matchNama || matchIsi || matchBox;
+                }).slice(0, 15);
+            },
+
+            selectArsip(arsip) { this.tempItem.id = arsip.id; this.tempItem.display_name = arsip.nama_berkas; this.tempItem.no_box = arsip.no_box; this.tempItem.akses = arsip.hak_akses; this.searchQuery = arsip.nama_berkas; },
+
+            addItem() {
+                if (this.tempItem.source === 'db' && !this.tempItem.id) { this.serverErrors = ['Pilih arsip!']; this.showValidationModal = true; return; }
+                if (this.tempItem.source === 'manual' && !this.tempItem.nama_manual) { this.serverErrors = ['Nama arsip wajib diisi!']; this.showValidationModal = true; return; }
+                if (!this.jabatan) { this.serverErrors = ['Mohon pilih Jabatan di form utama terlebih dahulu.']; this.showValidationModal = true; return; }
+
+                if (this.tempItem.source === 'manual') this.tempItem.display_name = this.tempItem.nama_manual;
+
+                const unitLower = (this.unit || '').toLowerCase();
+                const isHukum = unitLower.includes('hukum');
+                const isAudit = unitLower.includes('internal audit');
+                const isPelaksana = (this.jabatan === 'Karyawan/Pelaksana');
+
+                if (this.tempItem.akses === 'Rahasia') {
+                    const allowedByJabatan = ['Direksi', 'Band I'].includes(this.jabatan);
+                    const allowedByUnit = isHukum && !isPelaksana;
+
+                    if (!allowedByJabatan && !allowedByUnit) {
+                        this.serverErrors = [`Gagal! Jabatan ${this.jabatan} (Unit ${this.unit || '-'}) tidak diizinkan akses arsip Rahasia.`];
+                        this.showValidationModal = true; return;
+                    }
+                } else if (this.tempItem.akses === 'Terbatas') {
+                    const allowedByJabatan = ['Direksi', 'Band I', 'Band II'].includes(this.jabatan);
+                    const allowedByUnit = (isHukum || isAudit) && !isPelaksana;
+
+                    if (!allowedByJabatan && !allowedByUnit) {
+                        this.serverErrors = [`Gagal! Jabatan ${this.jabatan} (Unit ${this.unit || '-'}) tidak diizinkan akses arsip Terbatas.`];
+                        this.showValidationModal = true; return;
+                    }
+                }
+
+                if (this.editingIndex !== undefined && this.editingIndex !== null) {
+                    this.items[this.editingIndex] = {...this.tempItem};
+                } else {
+                    this.items.push({...this.tempItem});
+                }
+                this.closeModal();
+            },
+
+            removeItem(index) {
+                if(this.items.length > 1) this.items.splice(index, 1);
+                else { this.serverErrors = ['Minimal harus ada 1 arsip!']; this.showValidationModal = true; }
+            },
+            addFile() { this.files.push({ id: Date.now(), name: null }); },
+            removeFile(index) { if (this.files.length > 1) this.files.splice(index, 1); else this.files[0].name = null; },
+
+            handleFileChange(e, i) {
+                const file = e.target.files[0];
+                if(file) {
+                    if(file.type !== 'application/pdf') {
+                        this.serverErrors = ['File bukti wajib berformat PDF!'];
+                        this.showValidationModal = true; e.target.value = ''; this.files[i].name = null; return;
+                    }
+                    if(file.size > 2097152) {
+                        this.serverErrors = ['Ukuran file PDF tidak boleh lebih dari 2 MB!'];
+                        this.showValidationModal = true; e.target.value = ''; this.files[i].name = null; return;
+                    }
+                    this.files[i].name = file.name;
+                } else {
+                    this.files[i].name = null;
+                }
+            },
+
+            submitForm(form) {
+                this.serverErrors = [];
+                let formValid = true;
+
+                const fieldLabels = {
+                    'tanggal': 'Tanggal Peminjaman', 'nama_peminjam': 'Nama Peminjam',
+                    'nip': 'NIP', 'unit': 'Unit Kerja', 'keperluan': 'Keperluan'
+                };
+
+                ['tanggal', 'nama_peminjam', 'nip', 'unit', 'keperluan'].forEach(field => {
+                    const input = form.querySelector(`[name='${field}']`);
+                    if (!input || !input.value.trim()) { this.serverErrors.push(`Kotak ${fieldLabels[field]} harus diisi.`); formValid = false; }
+                });
+                if (!this.jabatan) { this.serverErrors.push('Kotak Jabatan harus dipilih.'); formValid = false; }
+                if (this.items.length === 0) { this.serverErrors.push('Tambahkan minimal 1 item arsip yang dipinjam.'); formValid = false; }
+
+                const hasNewFile = this.files.some(f => f.name !== null);
+                const hasExistingFile = {{ $editData->bukti_peminjaman ? 'true' : 'false' }};
+
+                if (this.deleteOldFile && !hasNewFile) {
+                    this.serverErrors.push('Anda menghapus file lama. Wajib mengupload Bukti (PDF) baru!');
+                    formValid = false;
+                } else if (!this.deleteOldFile && !hasExistingFile && !hasNewFile) {
+                    this.serverErrors.push('Wajib mengupload minimal 1 File Bukti Peminjaman (Format PDF)');
+                    formValid = false;
+                }
+
+                if (!formValid) { this.showValidationModal = true; return; }
+
+                Swal.fire({
+                    title: 'Perbarui Data Peminjaman?', text: 'Pastikan data dan arsip yang dipilih sudah benar.',
+                    icon: 'question', showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
+                    confirmButtonText: 'Ya, Perbarui', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
+                }).then((result) => {
+                    if (result.isConfirmed) { form.submit(); }
+                });
+            }
+         }">
+
+        <form action="/peminjaman/{{ $editData->id }}" method="POST" enctype="multipart/form-data" @submit.prevent="submitForm($el)" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" novalidate hx-disable>
             @csrf @method('PUT')
             <input type="hidden" name="delete_existing_bukti" :value="deleteOldFile ? 1 : 0">
 
@@ -71,10 +230,9 @@
                                     <div class="text-gray-500">Media: <span class="font-bold text-gray-800" x-text="item.media"></span></div>
                                 </div>
                                 <div class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-50 text-[#a0131a] border border-red-200 inline-block mt-1" x-text="item.akses"></div>
-
-                                <input type="hidden" name="items_source[]" :value="item.source"><input type="hidden" name="items_arsip_id[]" :value="item.id"><input type="hidden" name="items_nama_manual[]" :value="item.nama_manual"><input type="hidden" name="items_box_manual[]" :value="item.no_box"><input type="hidden" name="items_akses_manual[]" :value="item.akses"><input type="hidden" name="items_media[]" :value="item.media"><input type="hidden" name="items_fisik[]" :value="item.fisik">
                             </div>
                         </template>
+                        <div x-show="items.length === 0" class="p-6 text-center text-gray-400 bg-white rounded-xl border border-gray-200 italic text-sm">Belum ada arsip yang ditambahkan.</div>
                     </div>
 
                     <!-- Desktop Table View -->
@@ -109,7 +267,6 @@
                                                 <button type="button" @click="openModal(index)" class="text-yellow-600 hover:text-white bg-white border border-yellow-200 hover:bg-yellow-500 w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition"><i class="fas fa-pen text-xs"></i></button>
                                                 <button type="button" @click="removeItem(index)" class="text-[#e92027] hover:text-white bg-white border border-red-200 hover:bg-[#e92027] w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition"><i class="fas fa-trash-alt text-xs"></i></button>
                                             </div>
-                                            <input type="hidden" name="items_source[]" :value="item.source"><input type="hidden" name="items_arsip_id[]" :value="item.id"><input type="hidden" name="items_nama_manual[]" :value="item.nama_manual"><input type="hidden" name="items_box_manual[]" :value="item.no_box"><input type="hidden" name="items_akses_manual[]" :value="item.akses"><input type="hidden" name="items_media[]" :value="item.media"><input type="hidden" name="items_fisik[]" :value="item.fisik">
                                         </td>
                                     </tr>
                                 </template>
@@ -117,6 +274,21 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Input Hidden Terpusat -->
+                <div>
+                    <template x-for="(item, index) in items" :key="index">
+                        <div>
+                            <input type="hidden" name="items_source[]" :value="item.source">
+                            <input type="hidden" name="items_arsip_id[]" :value="item.id">
+                            <input type="hidden" name="items_nama_manual[]" :value="item.nama_manual">
+                            <input type="hidden" name="items_box_manual[]" :value="item.no_box">
+                            <input type="hidden" name="items_akses_manual[]" :value="item.akses">
+                            <input type="hidden" name="items_media[]" :value="item.media">
+                            <input type="hidden" name="items_fisik[]" :value="item.fisik">
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Bukti -->
@@ -132,7 +304,7 @@
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($existingFiles as $file)
-                                    <a href="{{ asset($file) }}" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-[#c41820] hover:border-[#e92027] transition"><div class="bg-red-50 p-1 rounded text-[#e92027]"><i class="fas fa-file-pdf"></i></div><span class="truncate max-w-[150px]">{{ basename($file) }}</span></a>
+                                    <a href="{{ asset('storage/' . $file) }}" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-[#c41820] hover:border-[#e92027] transition"><div class="bg-red-50 p-1 rounded text-[#e92027]"><i class="fas fa-file-pdf"></i></div><span class="truncate max-w-[150px]">{{ basename($file) }}</span></a>
                                 @endforeach
                             </div>
                         </div>
@@ -165,7 +337,7 @@
             </div>
 
             <div class="bg-gray-50 px-6 py-5 border-t border-gray-100 flex justify-end gap-3 rounded-b-3xl">
-                <a href="/peminjaman" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-100 transition">Batal</a>
+                <a href="/peminjaman" class="px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition">Batal</a>
                 <button type="submit" class="px-8 py-3 bg-[#e92027] text-white rounded-xl font-bold shadow-lg hover:bg-[#a0131a] transition transform hover:-translate-y-0.5">Perbarui Peminjaman</button>
             </div>
         </form>
@@ -176,7 +348,7 @@
                 <div class="p-6 md:p-8 space-y-6">
                     <div class="flex justify-between items-center mb-2">
                         <h3 class="text-xl font-extrabold text-gray-800" x-text="editingIndex !== null ? 'Edit Pilihan Arsip' : 'Pilih Arsip Baru'"></h3>
-                        <button @click="closeModal()" class="text-gray-400 hover:text-[#e92027]"><i class="fas fa-times text-xl"></i></button>
+                        <button type="button" @click="closeModal()" class="text-gray-400 hover:text-[#e92027]"><i class="fas fa-times text-xl"></i></button>
                     </div>
 
                     <div class="flex bg-gray-100 p-1 rounded-xl">
@@ -270,160 +442,8 @@
                 <template x-if="serverErrors.length === 0">
                     <p class="text-gray-500 mb-8 leading-relaxed">Mohon lengkapi form dengan benar sebelum menyimpan.</p>
                 </template>
-                <button @click="showValidationModal = false" class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold hover:bg-[#801010] shadow-lg transition">OK, Saya Mengerti</button>
+                <button type="button" @click="showValidationModal = false" class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold hover:bg-[#801010] shadow-lg transition">OK, Saya Mengerti</button>
             </div>
         </div>
     </div>
-
-    <!-- Script SweetAlert & Alpine -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        window.daftarArsipEdit = @json($daftarArsip ?? []);
-        window.currentItemsEdit = @json($currentItems ?? []);
-
-        window.peminjamanEdit = function() {
-            return {
-                jabatan: '{{ $editData->jabatan_peminjam }}',
-                unit: '{{ $editData->unit_peminjam }}',
-                items: window.currentItemsEdit.map(item => ({
-                    source: item.source, id: item.id || null, display_name: item.display_name,
-                    nama_manual: item.nama_manual, no_box: item.no_box, akses: item.akses,
-                    media: item.media, fisik: item.fisik
-                })),
-                files: [{ id: Date.now(), name: null }], deleteOldFile: false,
-                showModal: false, showValidationModal: false, serverErrors: @json($errors->all()),
-                searchQuery: '', openDropdown: false, editingIndex: null,
-                tempItem: { source: 'db', id: null, display_name: '', nama_manual: '', no_box: '', akses: 'Biasa', media: 'Softfile', fisik: 'Berkas Asli' },
-
-                init() { if (this.serverErrors.length > 0) this.showValidationModal = true; },
-                openModal(index = null) {
-                    this.editingIndex = index;
-                    if (index !== null) {
-                        this.tempItem = {...this.items[index]};
-                        this.searchQuery = this.tempItem.source === 'db' ? this.tempItem.display_name : '';
-                    } else {
-                        this.tempItem = { source: 'db', id: null, display_name: '', nama_manual: '', no_box: '', akses: 'Biasa', media: 'Softfile', fisik: 'Berkas Asli' };
-                        this.searchQuery = '';
-                    }
-                    this.showModal = true;
-                },
-                closeModal() { this.showModal = false; },
-
-                get filteredArsip() {
-                    const query = this.searchQuery.toLowerCase();
-                    return window.daftarArsipEdit.filter(item => {
-                        if (query === '') return true;
-                        const matchNama = (item.nama_berkas || '').toLowerCase().includes(query);
-                        const matchIsi = (item.isi || '').toLowerCase().includes(query);
-                        const matchBox = (item.no_box || '').toLowerCase().includes(query);
-                        return matchNama || matchIsi || matchBox;
-                    }).slice(0, 15);
-                },
-
-                selectArsip(arsip) { this.tempItem.id = arsip.id; this.tempItem.display_name = arsip.nama_berkas; this.tempItem.no_box = arsip.no_box; this.tempItem.akses = arsip.hak_akses; this.searchQuery = arsip.nama_berkas; },
-
-                addItem() {
-                    if (this.tempItem.source === 'db' && !this.tempItem.id) { this.serverErrors = ['Pilih arsip!']; this.showValidationModal = true; return; }
-                    if (this.tempItem.source === 'manual' && !this.tempItem.nama_manual) { this.serverErrors = ['Nama arsip wajib diisi!']; this.showValidationModal = true; return; }
-                    if (!this.jabatan) { this.serverErrors = ['Mohon pilih Jabatan di form utama terlebih dahulu.']; this.showValidationModal = true; return; }
-
-                    if (this.tempItem.source === 'manual') this.tempItem.display_name = this.tempItem.nama_manual;
-
-                    const unitLower = (this.unit || '').toLowerCase();
-                    const isHukum = unitLower.includes('hukum');
-                    const isAudit = unitLower.includes('internal audit');
-                    const isPelaksana = (this.jabatan === 'Karyawan/Pelaksana');
-
-                    if (this.tempItem.akses === 'Rahasia') {
-                        const allowedByJabatan = ['Direksi', 'Band I'].includes(this.jabatan);
-                        const allowedByUnit = isHukum && !isPelaksana;
-
-                        if (!allowedByJabatan && !allowedByUnit) {
-                            this.serverErrors = [`Gagal! Jabatan ${this.jabatan} (Unit ${this.unit || '-'}) tidak diizinkan akses arsip Rahasia.`];
-                            this.showValidationModal = true; return;
-                        }
-                    } else if (this.tempItem.akses === 'Terbatas') {
-                        const allowedByJabatan = ['Direksi', 'Band I', 'Band II'].includes(this.jabatan);
-                        const allowedByUnit = (isHukum || isAudit) && !isPelaksana;
-
-                        if (!allowedByJabatan && !allowedByUnit) {
-                            this.serverErrors = [`Gagal! Jabatan ${this.jabatan} (Unit ${this.unit || '-'}) tidak diizinkan akses arsip Terbatas.`];
-                            this.showValidationModal = true; return;
-                        }
-                    }
-
-                    if (this.editingIndex !== undefined && this.editingIndex !== null) {
-                        this.items[this.editingIndex] = {...this.tempItem};
-                    } else {
-                        this.items.push({...this.tempItem});
-                    }
-
-                    this.closeModal();
-                },
-
-                removeItem(index) {
-                    if(this.items.length > 1) this.items.splice(index, 1);
-                    else { this.serverErrors = ['Minimal harus ada 1 arsip!']; this.showValidationModal = true; }
-                },
-
-                addFile() { this.files.push({ id: Date.now(), name: null }); },
-                removeFile(index) { if (this.files.length > 1) this.files.splice(index, 1); else this.files[0].name = null; },
-
-                handleFileChange(e, i) {
-                    const file = e.target.files[0];
-                    if(file) {
-                        if(file.type !== 'application/pdf') {
-                            this.serverErrors = ['File bukti wajib berformat PDF!'];
-                            this.showValidationModal = true; e.target.value = ''; this.files[i].name = null; return;
-                        }
-                        if(file.size > 2097152) {
-                            this.serverErrors = ['Ukuran file PDF tidak boleh lebih dari 2 MB!'];
-                            this.showValidationModal = true; e.target.value = ''; this.files[i].name = null; return;
-                        }
-                        this.files[i].name = file.name;
-                    } else {
-                        this.files[i].name = null;
-                    }
-                },
-
-                submitForm(form) {
-                    this.serverErrors = [];
-                    let formValid = true;
-
-                    const fieldLabels = {
-                        'tanggal': 'Tanggal Peminjaman', 'nama_peminjam': 'Nama Peminjam',
-                        'nip': 'NIP', 'unit': 'Unit Kerja', 'keperluan': 'Keperluan'
-                    };
-
-                    ['tanggal', 'nama_peminjam', 'nip', 'unit', 'keperluan'].forEach(field => {
-                        const input = form.querySelector(`[name="${field}"]`);
-                        if (!input || !input.value.trim()) { this.serverErrors.push(`Kotak ${fieldLabels[field]} harus diisi.`); formValid = false; }
-                    });
-                    if (!this.jabatan) { this.serverErrors.push('Kotak Jabatan harus dipilih.'); formValid = false; }
-                    if (this.items.length === 0) { this.serverErrors.push('Tambahkan minimal 1 item arsip yang dipinjam.'); formValid = false; }
-
-                    const hasNewFile = this.files.some(f => f.name !== null);
-                    const hasExistingFile = {{ $editData->bukti_peminjaman ? 'true' : 'false' }};
-
-                    if (this.deleteOldFile && !hasNewFile) {
-                        this.serverErrors.push('Anda menghapus file lama. Wajib mengupload Bukti (PDF) baru!');
-                        formValid = false;
-                    } else if (!this.deleteOldFile && !hasExistingFile && !hasNewFile) {
-                        this.serverErrors.push('Wajib mengupload minimal 1 File Bukti Peminjaman (Format PDF)');
-                        formValid = false;
-                    }
-
-                    if (!formValid) { this.showValidationModal = true; return; }
-
-                    Swal.fire({
-                        title: 'Perbarui Data Peminjaman?', text: "Pastikan data dan arsip yang dipilih sudah benar.",
-                        icon: 'question', showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
-                        confirmButtonText: 'Ya, Perbarui', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
-                    }).then((result) => {
-                        if (result.isConfirmed) { form.submit(); }
-                    });
-                }
-            };
-        };
-    </script>
 </x-layout>

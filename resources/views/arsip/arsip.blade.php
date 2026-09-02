@@ -12,7 +12,6 @@
                 .print-header { border-bottom: 3px solid #8B0000; margin-bottom: 20px; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
                 table { width: 100%; table-layout: fixed; border-collapse: collapse; border: 1px solid #000; font-size: 8.5pt; }
                 thead tr { background-color: #fce4e4 !important; color: #8B0000 !important; }
-                /* PERBAIKAN: Menghapus word-wrap: break-word dari th, td agar huruf tidak terpotong-potong */
                 th, td { border: 1px solid #444 !important; padding: 4px 6px; vertical-align: top; }
                 th { text-transform: uppercase; font-weight: bold; text-align: center; background-color: #fce4e4 !important; }
                 th:first-child, td:first-child, th:last-child, td:last-child { display: none; }
@@ -61,23 +60,23 @@
                 </div>
                 <div>
                     <a href="{{ route('arsip.create') }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-8 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
-    <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors"><i class="fas fa-plus"></i></div>
-    <span>TAMBAH ARSIP</span>
-</a>
+                        <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors"><i class="fas fa-plus"></i></div>
+                        <span>TAMBAH ARSIP</span>
+                    </a>
                 </div>
             </div>
         </div>
 
         <div x-data="{ showImportModal: false }" class="max-w-7xl mx-auto px-4 md:px-6 -mt-20 relative z-20 mb-12">
             @if(session('success'))
-                <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 animate-fade-in-down shadow-sm">
+                <div class="mb-6 bg-green-50 border border-green-200 p-4 rounded-xl flex items-center gap-3 shadow-sm">
                     <div class="bg-green-100 p-2 rounded-full text-green-600"><i class="fas fa-check text-sm"></i></div>
                     <p class="text-sm font-bold text-green-800 flex-1">{{ session('success') }}</p>
                     <button onclick="this.parentElement.remove()" class="text-green-400 hover:text-green-600"><i class="fas fa-times"></i></button>
                 </div>
             @endif
             @if(session('error'))
-                <div class="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3 animate-fade-in-down shadow-sm">
+                <div class="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-3 shadow-sm">
                     <div class="bg-red-100 p-2 rounded-full text-red-600"><i class="fas fa-exclamation-triangle text-sm"></i></div>
                     <p class="text-sm font-bold text-red-800 flex-1">{{ session('error') }}</p>
                     <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>
@@ -138,13 +137,14 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 flex-grow sm:flex-none">
+                        <!-- PERBAIKAN TOMBOL RESPONSIF DI SINI -->
+                        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto mt-2 lg:mt-0">
                             @if(request()->hasAny(['search', 'filter_status', 'filter_hak_akses', 'filter_tahun', 'filter_box']))
-                                <a href="/arsip" class="flex items-center justify-center px-4 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap hover:bg-[#e92027] hover:text-white transition">Reset</a>
+                                <a href="/arsip" class="flex-grow md:flex-none flex items-center justify-center px-4 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm hover:bg-[#e92027] hover:text-white transition">Reset</a>
                             @endif
 
-                            <div class="relative" x-data="{ showSortDropdown: false }">
-                                <button type="button" @click="showSortDropdown = !showSortDropdown" @click.away="showSortDropdown = false" class="px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm flex items-center gap-2"><i class="fas fa-sort-amount-down text-gray-400"></i> Urutkan</button>
+                            <div class="relative flex-grow md:flex-none" x-data="{ showSortDropdown: false }">
+                                <button type="button" @click="showSortDropdown = !showSortDropdown" @click.away="showSortDropdown = false" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2"><i class="fas fa-sort-amount-down text-gray-400"></i> Urutkan</button>
                                 <div x-show="showSortDropdown" style="display: none;" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
                                     <ul class="text-xs font-medium text-gray-600">
                                         <li><a href="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}" class="block px-4 py-3 hover:bg-red-50">Input Terbaru</a></li>
@@ -154,10 +154,11 @@
                                 </div>
                             </div>
 
-                            <button type="button" @click="showImportModal = true" class="px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
+                            <button type="button" @click="showImportModal = true" class="flex-grow md:flex-none px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
 
-                            <button type="button" onclick="submitExport('excel')" class="px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
-                            <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold flex items-center gap-2 hover:bg-gray-200 transition shadow-sm border border-gray-200"><i class="fas fa-print"></i> Print</a>
+                            <button type="button" onclick="submitExport('excel')" class="flex-grow md:flex-none px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
+
+                            <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="flex-grow md:flex-none px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-gray-200 transition shadow-sm border border-gray-200"><i class="fas fa-print"></i> Print</a>
                         </div>
                     </div>
                 </form>
@@ -179,53 +180,34 @@
             </div>
 
             <div class="mt-8 mb-12 flex justify-center w-full">
-    @if ($arsips instanceof \Illuminate\Pagination\LengthAwarePaginator && $arsips->hasPages())
-        @php $paginator = $arsips->appends(request()->query()); @endphp
-        <nav class="flex items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-200 shadow-sm max-w-full overflow-x-auto hide-scrollbar">
+                @if ($arsips instanceof \Illuminate\Pagination\LengthAwarePaginator && $arsips->hasPages())
+                    @php $paginator = $arsips->appends(request()->query()); @endphp
+                    <nav class="flex items-center gap-1 md:gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-200 shadow-sm max-w-full overflow-x-auto hide-scrollbar">
+                        @if ($paginator->onFirstPage())
+                            <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold flex items-center gap-2"><i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span></span>
+                        @else
+                            <a href="{{ $paginator->previousPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold flex items-center gap-2"><i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span></a>
+                        @endif
 
-            {{-- Tombol Previous --}}
-            @if ($paginator->onFirstPage())
-                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold flex items-center gap-2">
-                    <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span>
-                </span>
-            @else
-                <a href="{{ $paginator->previousPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold flex items-center gap-2">
-                    <i class="fas fa-chevron-left"></i> <span class="hidden sm:inline">Prev</span>
-                </a>
-            @endif
+                        @foreach ($paginator->linkCollection() as $link)
+                            @if (str_contains($link['label'], 'Previous') || str_contains($link['label'], 'Next') || str_contains($link['label'], '&laquo;') || str_contains($link['label'], '&raquo;')) @continue @endif
+                            @if ($link['url'] === null)
+                                <span class="px-2 py-2 text-gray-400 text-sm font-bold">...</span>
+                            @elseif ($link['active'])
+                                <span class="px-3 md:px-4 py-2 rounded-xl bg-[#e92027] text-white font-extrabold text-xs md:text-sm shadow-md">{{ $link['label'] }}</span>
+                            @else
+                                <a href="{{ $link['url'] }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold">{{ $link['label'] }}</a>
+                            @endif
+                        @endforeach
 
-            {{-- Angka Pagination --}}
-            @foreach ($paginator->linkCollection() as $link)
-                {{-- Lewati label tombol Next/Prev bawaan sistem --}}
-                @if (str_contains($link['label'], 'Previous') || str_contains($link['label'], 'Next') || str_contains($link['label'], '&laquo;') || str_contains($link['label'], '&raquo;'))
-                    @continue
+                        @if ($paginator->hasMorePages())
+                            <a href="{{ $paginator->nextPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold flex items-center gap-2"><span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i></a>
+                        @else
+                            <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold flex items-center gap-2"><span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i></span>
+                        @endif
+                    </nav>
                 @endif
-
-                @if ($link['url'] === null)
-                    {{-- Pemisah 3 Titik --}}
-                    <span class="px-2 py-2 text-gray-400 text-sm font-bold">...</span>
-                @elseif ($link['active'])
-                    {{-- Halaman Aktif --}}
-                    <span class="px-3 md:px-4 py-2 rounded-xl bg-[#e92027] text-white font-extrabold text-xs md:text-sm shadow-md">{{ $link['label'] }}</span>
-                @else
-                    {{-- Halaman Tersedia --}}
-                    <a href="{{ $link['url'] }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold">{{ $link['label'] }}</a>
-                @endif
-            @endforeach
-
-            {{-- Tombol Next --}}
-            @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" class="px-3 md:px-4 py-2 rounded-xl text-gray-600 hover:bg-red-50 hover:text-[#e92027] transition-colors text-xs md:text-sm font-bold flex items-center gap-2">
-                    <span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i>
-                </a>
-            @else
-                <span class="px-3 md:px-4 py-2 rounded-xl text-gray-300 bg-gray-50 cursor-not-allowed text-xs md:text-sm font-bold flex items-center gap-2">
-                    <span class="hidden sm:inline">Next</span> <i class="fas fa-chevron-right"></i>
-                </span>
-            @endif
-        </nav>
-    @endif
-</div>
+            </div>
 
             {{-- MODAL IMPORT EXCEL --}}
             <div x-show="showImportModal" style="display: none;" class="fixed inset-0 z-[999] overflow-y-auto">
