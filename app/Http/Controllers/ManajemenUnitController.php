@@ -19,7 +19,7 @@ class ManajemenUnitController extends Controller
         }
 
         // Menggunakan Pagination (10 baris per halaman) agar lebih ringan
-        $units = $query->orderBy('nama_unit', 'asc')->paginate(15)->withQueryString();
+        $units = $query->latest()->paginate(30)->withQueryString();
 
         return view('manajemen-unit.index', compact('units'));
     }
@@ -27,11 +27,13 @@ class ManajemenUnitController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_unit' => 'required|string|max:255|unique:units,nama_unit',
-            'keterangan' => 'nullable|string|max:1000'
+            'nama_unit' => 'required|string|max:50|unique:units,nama_unit', // Ubah max jadi 25
+            'keterangan' => 'nullable|string|max:50' // Ubah max jadi 50
         ], [
             'nama_unit.unique' => 'Nama unit ini sudah terdaftar di sistem.',
-            'nama_unit.required' => 'Nama unit wajib diisi.'
+            'nama_unit.required' => 'Nama unit wajib diisi.',
+            'nama_unit.max' => 'Nama unit maksimal 50 karakter.',
+            'keterangan.max' => 'Keterangan maksimal 50 karakter.'
         ]);
 
         Unit::create($request->only(['nama_unit', 'keterangan']));
@@ -48,12 +50,15 @@ class ManajemenUnitController extends Controller
             'nama_unit' => [
                 'required',
                 'string',
-                'max:255',
+                'max:50', // Ubah max jadi 25
                 Rule::unique('units')->ignore($unit->id)
             ],
-            'keterangan' => 'nullable|string|max:1000'
+            'keterangan' => 'nullable|string|max:50' // Ubah max jadi 50
         ], [
-            'nama_unit.unique' => 'Nama unit ini sudah terdaftar di sistem.'
+            'nama_unit.unique' => 'Nama unit ini sudah terdaftar di sistem.',
+            'nama_unit.required' => 'Nama unit wajib diisi.',
+            'nama_unit.max' => 'Nama unit maksimal 50 karakter.',
+            'keterangan.max' => 'Keterangan maksimal 50 karakter.'
         ]);
 
         $unit->update($request->only(['nama_unit', 'keterangan']));

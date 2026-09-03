@@ -15,7 +15,7 @@
                      </defs>
                      <path fill="url(#polyGrad)" d="M0 0 L1000 0 L1000 500 L0 300 Z" />
                      <path fill="#000000" opacity="0.1" d="M-100 0 L500 0 L200 600 L-100 400 Z" />
-                 </svg>
+                  </svg>
              </div>
 
              <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none mix-blend-overlay">
@@ -74,23 +74,27 @@
                     @forelse($media as $item)
                         @php
                             $gambarList = json_decode($item->gambar, true);
-                            if(!is_array($gambarList)) $gambarList = [$item->gambar];
+                            if(!is_array($gambarList)) {
+                                $gambarList = $item->gambar ? [$item->gambar] : [];
+                            }
                         @endphp
                         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 relative">
-                            <!-- Mobile Alpine Carousel -->
-                            <div x-data="{ active: 0, imgs: {{ Js::from($gambarList) }} }" class="relative h-48 w-full rounded-xl overflow-hidden shadow-sm border border-gray-200 mb-4 bg-gray-100">
+                            <!-- Mobile Alpine Carousel (Proporsi Utuh) -->
+                            <div x-data="{ active: 0, imgs: {{ Js::from($gambarList) }} }" class="relative h-48 w-full rounded-xl overflow-hidden shadow-sm border border-gray-800 mb-4 bg-slate-900 flex items-center justify-center">
                                 <template x-for="(img, idx) in imgs" :key="idx">
-                                    <img x-show="active === idx" :src="'{{ asset('storage') }}/' + img" class="absolute inset-0 w-full h-full object-cover">
+                                    <img x-show="active === idx"
+                                         :src="'{{ asset('storage') }}/' + img"
+                                         class="max-h-full max-w-full w-auto h-auto object-contain select-none">
                                 </template>
                                 <template x-if="imgs.length > 1">
                                     <div>
-                                        <button @click="active = active === 0 ? imgs.length - 1 : active - 1" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full p-1.5 hover:bg-[#e92027]">
+                                        <button @click="active = active === 0 ? imgs.length - 1 : active - 1" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1.5 hover:bg-[#e92027] transition z-10">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                                         </button>
-                                        <button @click="active = active === imgs.length - 1 ? 0 : active + 1" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full p-1.5 hover:bg-[#e92027]">
+                                        <button @click="active = active === imgs.length - 1 ? 0 : active + 1" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1.5 hover:bg-[#e92027] transition z-10">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                                         </button>
-                                        <div class="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded" x-text="(active + 1) + '/' + imgs.length"></div>
+                                        <div class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-2 py-0.5 rounded z-10" x-text="(active + 1) + '/' + imgs.length"></div>
                                     </div>
                                 </template>
                             </div>
@@ -108,7 +112,6 @@
                                 <a href="{{ route('manajemen-media.edit', $item->id) }}" class="flex-1 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-100 hover:bg-amber-100 flex items-center justify-center gap-1.5 transition">
                                     <i class="fas fa-pen"></i> Edit
                                 </a>
-                                <!-- Reset isDeleting ke false saat membuka modal hapus -->
                                 <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-media.destroy', $item->id) }}'; isDeleting = false" class="flex-1 py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-xl border border-red-100 hover:bg-red-100 flex items-center justify-center gap-1.5 transition">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
@@ -138,27 +141,31 @@
                             @forelse($media as $item)
                                 @php
                                     $gambarList = json_decode($item->gambar, true);
-                                    if(!is_array($gambarList)) $gambarList = [$item->gambar];
+                                    if(!is_array($gambarList)) {
+                                        $gambarList = $item->gambar ? [$item->gambar] : [];
+                                    }
                                 @endphp
                                 <tr class="hover:bg-red-50/30 transition duration-200 group">
                                     <td class="py-4 px-6 text-center">
-                                        <!-- ALPINE MINI CAROUSEL -->
-                                        <div x-data="{ active: 0, imgs: {{ Js::from($gambarList) }} }" class="relative h-20 w-32 md:h-24 md:w-36 rounded-xl overflow-hidden shadow-sm border border-gray-200 mx-auto group-hover:border-red-300 bg-gray-100">
-                                            <!-- Render Images -->
+                                        <!-- ALPINE MINI CAROUSEL TABEL (Proporsi Utuh) -->
+                                        <div x-data="{ active: 0, imgs: {{ Js::from($gambarList) }} }" class="relative h-20 w-32 md:h-24 md:w-36 rounded-xl overflow-hidden shadow-sm border border-gray-800 mx-auto bg-slate-900 flex items-center justify-center">
+                                            <!-- Render Images Utuh -->
                                             <template x-for="(img, idx) in imgs" :key="idx">
-                                                <img x-show="active === idx" :src="'{{ asset('storage') }}/' + img" class="absolute inset-0 w-full h-full object-cover">
+                                                <img x-show="active === idx"
+                                                     :src="'{{ asset('storage') }}/' + img"
+                                                     class="max-h-full max-w-full w-auto h-auto object-contain select-none">
                                             </template>
 
                                             <!-- Panah Kiri Kanan -->
                                             <template x-if="imgs.length > 1">
                                                 <div>
-                                                    <button @click="active = active === 0 ? imgs.length - 1 : active - 1" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full p-1 hover:bg-[#e92027]">
+                                                    <button @click="active = active === 0 ? imgs.length - 1 : active - 1" class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1 hover:bg-[#e92027] transition z-10">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                                                     </button>
-                                                    <button @click="active = active === imgs.length - 1 ? 0 : active + 1" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full p-1 hover:bg-[#e92027]">
+                                                    <button @click="active = active === imgs.length - 1 ? 0 : active + 1" class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full p-1 hover:bg-[#e92027] transition z-10">
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                                                     </button>
-                                                    <div class="absolute bottom-1 right-2 bg-black/60 text-white text-[9px] px-1.5 rounded" x-text="(active + 1) + '/' + imgs.length"></div>
+                                                    <div class="absolute bottom-1 right-2 bg-black/70 text-white text-[9px] font-semibold px-1.5 rounded z-10" x-text="(active + 1) + '/' + imgs.length"></div>
                                                 </div>
                                             </template>
                                         </div>
@@ -179,7 +186,6 @@
                                             <a href="{{ route('manajemen-media.edit', $item->id) }}" class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg border border-gray-200 hover:border-amber-300">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </a>
-                                            <!-- Reset isDeleting ke false saat membuka modal hapus -->
                                             <button @click="showDeleteModal = true; deleteUrl = '{{ route('manajemen-media.destroy', $item->id) }}'; isDeleting = false" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg border border-gray-200 hover:border-red-300">
                                                 <i class="fas fa-trash-alt text-xs"></i>
                                             </button>
@@ -225,7 +231,7 @@
                             @elseif ($link['active'])
                                 <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#e92027] text-white font-bold text-sm shadow-md">{{ $link['label'] }}</span>
                             @else
-                                <a href="{{ $link['url'] }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-[#e92027] transition text-sm font-bold shadow-sm">{{ $link['label'] }}</a>
+                                <a href="{{ link['url'] }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-[#e92027] transition text-sm font-bold shadow-sm">{{ $link['label'] }}</a>
                             @endif
                         @endforeach
 
@@ -240,7 +246,7 @@
             </div>
         </div>
 
-        {{-- Delete Modal Responsif (Dengan Animasi Menghapus) --}}
+        {{-- Delete Modal Responsif --}}
         <div x-show="showDeleteModal" style="display: none;"
             class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="!isDeleting && (showDeleteModal = false)"
@@ -254,19 +260,13 @@
                 <p class="text-gray-500 mb-8 text-sm md:text-base leading-relaxed">Data berita dan gambar akan dihapus permanen dari sistem.</p>
                 <div class="flex flex-col gap-3">
 
-                    <!-- Form Delete - Menambahkan event @submit="isDeleting = true" -->
                     <form :action="deleteUrl" method="POST" class="w-full" hx-disable @submit="isDeleting = true">
                         @csrf @method('DELETE')
 
-                        <!-- Logika style tombol dan Teks -->
                         <button type="submit" :disabled="isDeleting"
                             class="w-full py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold shadow-lg transition flex justify-center items-center gap-2"
                             :class="isDeleting ? 'opacity-70 cursor-wait' : 'hover:bg-[#c41820] transform hover:-translate-y-0.5'">
-
-                            <!-- Muncul saat belum di-klik -->
                             <span x-show="!isDeleting">Ya, Hapus Sekarang</span>
-
-                            <!-- Muncul saat sedang memproses -->
                             <span x-show="isDeleting" style="display: none;">
                                 <i class="fas fa-circle-notch fa-spin"></i> Menghapus...
                             </span>

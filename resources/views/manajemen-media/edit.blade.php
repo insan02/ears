@@ -61,7 +61,7 @@
                 <div class="p-6 md:p-8 grid gap-6">
                     <div>
                         <label class="block font-bold mb-2">Judul</label>
-                        <input type="text" name="judul" value="{{ old('judul', $media->judul) }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027]/20">
+                        <input type="text" name="judul" value="{{ old('judul', $media->judul) }}" maxlength="50" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027]/20">
                     </div>
                     <div>
                         <label class="block font-bold mb-2">Tanggal</label>
@@ -106,7 +106,7 @@
 
                     <div>
                         <label class="block font-bold mb-2">Deskripsi</label>
-                        <textarea name="deskripsi" rows="5" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">{{ old('deskripsi', $media->deskripsi) }}</textarea>
+                        <textarea name="deskripsi" rows="5" maxlength="100" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl">{{ old('deskripsi', $media->deskripsi) }}</textarea>
                     </div>
                 </div>
 

@@ -4,14 +4,14 @@
            <div class="text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start gap-3 mb-2">
                     <a href="{{ route('limap.index') }}" class="bg-white/20 hover:bg-white/40 p-2 rounded-full transition"><i class="fas fa-arrow-left"></i></a>
-                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Papan 5P</h2>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Data 5P</h2>
                 </div>
                 <p class="text-red-50 text-sm md:text-base font-light ml-12">PIC: <strong class="font-bold">{{ $data->pic }}</strong></p>
            </div>
            <div class="flex gap-2">
                @if(Auth::check() && Auth::user()->role == 'admin')
                    <a href="{{ route('limap.edit', $data->id) }}" class="bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-full font-bold shadow-2xl flex items-center gap-2 transition">
-                       <i class="fas fa-pen"></i> Edit Papan
+                       <i class="fas fa-pen"></i> Edit
                    </a>
                @endif
            </div>
@@ -40,15 +40,15 @@
             @foreach($categories as $key => $label)
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
                 <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 text-[#e92027] uppercase tracking-wide">{{ $label }}</h3>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @if(!empty($data->$key))
                         @foreach($data->$key as $img)
-                            <a href="{{ asset('storage/'.$img) }}" target="_blank" class="block h-40 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-                                <img src="{{ asset('storage/'.$img) }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                            <a href="{{ asset('storage/'.$img) }}" target="_blank" class="block h-52 sm:h-56 md:h-60 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white border border-gray-200 hover:border-[#e92027] group flex items-center justify-center p-2" title="Klik untuk membuka ukuran asli">
+                                <img src="{{ asset('storage/'.$img) }}" class="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-105 transition duration-300 select-none">
                             </a>
                         @endforeach
                     @else
-                        <div class="col-span-2 text-center py-8 text-gray-400 text-sm italic">Belum ada gambar diunggah.</div>
+                        <div class="col-span-full text-center py-8 text-gray-400 text-sm italic">Belum ada gambar diunggah.</div>
                     @endif
                 </div>
             </div>
@@ -59,20 +59,15 @@
         <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 md:p-8 mt-8" x-data="{ expandedYear: {{ date('Y') }}, expandedMonth: null }">
             <h3 class="text-2xl font-bold text-gray-800 border-b border-gray-100 pb-4 mb-6"><i class="fas fa-lightbulb text-amber-500 mr-2"></i> Dokumen Kaizen (PDF)</h3>
 
-            <!-- Loop Tahun dari 2026 s/d Tahun Saat Ini -->
             @for($year = 2026; $year <= date('Y'); $year++)
             <div class="mb-4 border border-gray-200 rounded-2xl overflow-hidden">
-
-                <!-- Header Tahun -->
                 <button @click="expandedYear = expandedYear === {{ $year }} ? null : {{ $year }}" class="w-full bg-gray-50 px-6 py-4 flex justify-between items-center hover:bg-gray-100 transition">
                     <span class="font-bold text-lg text-gray-800">Tahun {{ $year }}</span>
                     <i class="fas fa-chevron-down text-gray-500 transition-transform" :class="expandedYear === {{ $year }} ? 'rotate-180' : ''"></i>
                 </button>
 
-                <!-- Konten Bulan -->
                 <div x-show="expandedYear === {{ $year }}" x-collapse class="p-4 bg-white border-t border-gray-100">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
                         @php
                             $months = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
                         @endphp
@@ -85,7 +80,6 @@
                                 </button>
 
                                 <div x-show="expandedMonth === '{{$year}}-{{$num}}'" x-collapse class="p-4 bg-white space-y-3">
-                                    <!-- List PDF -->
                                     @php
                                         $kaizens = $data->kaizens->where('tahun', $year)->where('bulan', $num);
                                     @endphp
@@ -96,7 +90,6 @@
                                                 <i class="fas fa-file-pdf text-red-500 text-lg"></i> <span class="truncate">{{ $file->original_name }}</span>
                                             </a>
                                             @if(Auth::check() && Auth::user()->role == 'admin')
-                                                <!-- PANGGIL FUNGSI SWEET ALERT DI ONSUBMIT -->
                                                 <form action="{{ route('limap.kaizen.destroy', $file->id) }}" method="POST" onsubmit="confirmDeleteKaizen(event, this)" hx-disable>
                                                     @csrf @method('DELETE')
                                                     <button type="submit" class="text-gray-400 hover:text-red-600 ml-2" title="Hapus PDF"><i class="fas fa-times-circle"></i></button>
@@ -107,7 +100,6 @@
                                         <p class="text-[10px] text-gray-400 italic text-center">Kosong</p>
                                     @endforelse
 
-                                    <!-- Form Upload (Admin Only) -->
                                     @if(Auth::check() && Auth::user()->role == 'admin')
                                         <div class="pt-3 border-t border-gray-100 mt-3">
                                             <button @click="openUpload = !openUpload" x-show="!openUpload" class="text-[10px] font-bold bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg w-full hover:bg-gray-50 shadow-sm">+ Upload PDF</button>
@@ -131,11 +123,9 @@
                 </div>
             </div>
             @endfor
-
         </div>
     </div>
 
-    <!-- Script SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function confirmDeleteKaizen(event, form) {

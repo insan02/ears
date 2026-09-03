@@ -5,13 +5,13 @@
         <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
                 <div class="text-center md:text-left">
-                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Daftar Papan 5P</h2>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Daftar 5P</h2>
                     <p class="text-red-50 text-sm md:text-base font-light opacity-95">Informasi visual pemilahan, penataan, pembersihan, penjagaan, dan pendisiplinan.</p>
                 </div>
                 <div class="flex flex-wrap gap-2 justify-center">
                     @if(Auth::check() && Auth::user()->role == 'admin')
                         <a href="{{ route('limap.create') }}" class="bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-xl font-extrabold shadow-xl flex items-center gap-2 transition">
-                            <i class="fas fa-plus-circle"></i> Tambah Papan 5P
+                            <i class="fas fa-plus-circle"></i> Tambah Data 5P
                         </a>
                     @endif
                 </div>
@@ -39,7 +39,7 @@
                             <b>Status:</b> Galeri foto dan dokumen PDF Kaizen tersedia.
                         </div>
                         <div class="flex justify-between items-center pt-3 border-t border-gray-100 relative z-10">
-                            <a href="{{ route('limap.show', $item->id) }}" class="text-xs font-bold text-[#e92027] hover:text-[#c41820] flex items-center gap-1">Detail Papan <i class="fas fa-arrow-right"></i></a>
+                            <a href="{{ route('limap.show', $item->id) }}" class="text-xs font-bold text-[#e92027] hover:text-[#c41820] flex items-center gap-1">Detail <i class="fas fa-arrow-right"></i></a>
                             @if(Auth::check() && Auth::user()->role == 'admin')
                                 <div class="flex gap-2">
                                     <a href="{{ route('limap.edit', $item->id) }}" class="w-7 h-7 flex items-center justify-center bg-gray-50 text-amber-500 rounded-md border border-gray-200"><i class="fas fa-pen text-[10px]"></i></a>
@@ -122,8 +122,8 @@
                 <div class="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-[#e92027] shadow-sm animate-bounce">
                     <i class="fas fa-trash-alt text-3xl"></i>
                 </div>
-                <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Papan 5P?</h3>
-                <p class="text-gray-500 mb-8 text-sm md:text-base leading-relaxed">Semua data, foto galeri, dan PDF Kaizen di dalam papan ini akan dihapus secara permanen!</p>
+                <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Data 5P?</h3>
+                <p class="text-gray-500 mb-8 text-sm md:text-base leading-relaxed">Semua data, foto galeri, dan PDF Kaizen di data ini akan dihapus secara permanen!</p>
                 <div class="flex flex-col gap-3">
 
                     <!-- Form Delete (Terlindungi dari HTMX & Menjalankan Animasi) -->

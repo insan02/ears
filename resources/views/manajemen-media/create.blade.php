@@ -59,7 +59,7 @@
                         <!-- Judul -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-bold text-gray-800 mb-2">Judul Berita <span class="text-red-600">*</span></label>
-                            <input type="text" name="judul" value="{{ old('judul') }}" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027]/20 outline-none">
+                            <input type="text" name="judul" value="{{ old('judul') }}" maxlength="50" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027]/20 outline-none">
                         </div>
 
                         <!-- Tanggal -->
@@ -110,7 +110,7 @@
                         <!-- Deskripsi -->
                         <div class="md:col-span-2">
                             <label class="block text-sm font-bold text-gray-800 mb-2">Deskripsi Lengkap <span class="text-red-600">*</span></label>
-                            <textarea name="deskripsi" rows="6" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027]/20 outline-none">{{ old('deskripsi') }}</textarea>
+                            <textarea name="deskripsi" rows="6" maxlength="100" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027]/20 outline-none">{{ old('deskripsi') }}</textarea>
                         </div>
                     </div>
                 </div>

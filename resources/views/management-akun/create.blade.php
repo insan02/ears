@@ -37,7 +37,7 @@
                         {{-- Nama --}}
                         <div class="md:col-span-2">
                             <label class="block text-sm font-bold text-gray-800 mb-2">Nama Lengkap <span class="text-red-600">*</span></label>
-                            <input type="text" name="nama" value="{{ old('nama') }}" required
+                            <input type="text" name="nama" value="{{ old('nama') }}" maxlength="50" required
                                 class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] focus:ring-2 focus:ring-[#e92027]/20 transition duration-200 placeholder-gray-400"
                                 placeholder="Masukkan nama lengkap">
                         </div>
@@ -45,7 +45,7 @@
                         {{-- Email --}}
                         <div>
                             <label class="block text-sm font-bold text-gray-800 mb-2">Email<span class="text-red-600">*</span></label>
-                            <input type="email" name="email" value="{{ old('email') }}" required
+                            <input type="email" name="email" value="{{ old('email') }}" maxlength="50" required
                                 class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] focus:ring-2 focus:ring-[#e92027]/20 transition duration-200 placeholder-gray-400"
                                 placeholder="nama@mail.com">
                         </div>

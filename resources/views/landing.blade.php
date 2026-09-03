@@ -347,17 +347,18 @@
                         </p>
 
                         <!-- Google Maps Embed -->
-                        <div class="mt-4 rounded-xl overflow-hidden shadow-lg border border-gray-100 w-full max-w-xs h-48">
-                            <iframe
-                                width="100%"
-                                height="100%"
-                                frameborder="0"
-                                scrolling="no"
-                                marginheight="0"
-                                marginwidth="0"
-                                src="https://maps.google.com/maps?q=3F2F%2B6Q%20Indarung%2C%20Kota%20Padang%2C%20Sumatera%20Barat%2C%20Indonesia&t=&z=15&ie=UTF8&iwloc=&output=embed">
-                            </iframe>
-                        </div>
+                    <div class="mt-4 rounded-xl overflow-hidden shadow-lg border border-gray-100 w-full max-w-xs h-48">
+                        <iframe
+                            width="100%"
+                            height="100%"
+                            frameborder="0"
+                            style="border:0;"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"
+                            src="https://maps.google.com/maps?q=Arsip%20Central%20PT%20Semen%20Padang&t=&z=16&ie=UTF8&iwloc=&output=embed">
+                        </iframe>
+                    </div>
                     </div>
 
                     <!-- Column 3: Media Sosial & SIG Group -->

@@ -34,7 +34,7 @@
                     <div class="relative w-full md:w-96 group">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-gray-700 transition-colors pointer-events-none"><i class="fas fa-search"></i></span>
                         <form action="{{ route('arsip.musnah') }}" method="GET" class="w-full">
-                            <input type="text" name="search" placeholder="Cari nama berkas, kode, uraian..." value="{{ request('search') }}"
+                            <input type="text" name="search" placeholder="Cari nama berkas/Uraian" value="{{ request('search') }}"
                                 class="w-full py-3 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-800 text-sm font-medium transition-all shadow-sm">
                         </form>
                     </div>

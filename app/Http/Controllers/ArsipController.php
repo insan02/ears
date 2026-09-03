@@ -310,7 +310,7 @@ class ArsipController extends Controller
             });
         }
 
-        $arsips = $query->orderBy('deleted_at', 'desc')->paginate(25)->withQueryString();
+        $arsips = $query->orderBy('deleted_at', 'desc')->paginate(30)->withQueryString();
         return view('arsip.musnah', compact('arsips'));
     }
 

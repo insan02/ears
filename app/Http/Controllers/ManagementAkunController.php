@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str; // Tambahkan ini
-use App\Notifications\NewUserAccountNotification; // Tambahkan ini
-use App\Notifications\EmailUpdatedNotification; // Tambahkan ini
+use Illuminate\Support\Str;
+use App\Notifications\NewUserAccountNotification;
+use App\Notifications\EmailUpdatedNotification;
 
 class ManagementAkunController extends Controller
 {
@@ -41,15 +41,22 @@ class ManagementAkunController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'nama' => 'required|string|max:50',
+            'email' => 'required|email|max:50|unique:users,email',
             'role' => 'required|in:admin,karyawan',
         ], [
-            'email.unique' => 'Email ini sudah terdaftar.'
+            'nama.required' => 'Nama pengguna wajib diisi.',
+            'nama.max' => 'Nama maksimal berisi 50 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.max' => 'Email maksimal berisi 50 karakter.',
+            'email.unique' => 'Email ini sudah terdaftar.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Pilihan role tidak valid.'
         ]);
 
         // Generate password acak yang kuat (mengandung huruf besar, kecil, angka, dan simbol)
-        $rawPassword = Str::random(10) . 'Aa1@'; 
+        $rawPassword = Str::random(10) . 'Aa1@';
 
         DB::transaction(function () use ($request, $rawPassword) {
             DB::table('authorized_emails')->insertOrIgnore(['email' => $request->email]);
@@ -80,9 +87,18 @@ class ManagementAkunController extends Controller
         $oldEmail = $user->email; // Simpan email lama untuk pengecekan
 
         $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'nama' => 'required|string|max:50',
+            'email' => ['required', 'email', 'max:50', Rule::unique('users')->ignore($user->id)],
             'role' => 'required|in:admin,karyawan',
+        ], [
+            'nama.required' => 'Nama pengguna wajib diisi.',
+            'nama.max' => 'Nama maksimal berisi 50 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.max' => 'Email maksimal berisi 50 karakter.',
+            'email.unique' => 'Email ini sudah terdaftar.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Pilihan role tidak valid.'
         ]);
 
         if ($user->role === 'admin' && $request->role !== 'admin') {
@@ -120,7 +136,7 @@ class ManagementAkunController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // LOGIKA BARU: Mencegah penghapusan jika itu adalah admin terakhir di sistem
+        // Mencegah penghapusan jika itu adalah admin terakhir di sistem
         if ($user->role === 'admin') {
             $adminCount = User::where('role', 'admin')->count();
             if ($adminCount <= 1) {

@@ -31,16 +31,20 @@ class ManajemenMediaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'judul' => 'required|string|max:255',
+            'judul' => 'required|string|max:50',
             'tanggal' => 'required|date',
-            'deskripsi' => 'required|string',
+            'deskripsi' => 'required|string|max:100',
             'gambar' => 'required|array|max:5',
-            'gambar.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'gambar.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ], [
+            'judul.required' => 'Judul berita wajib diisi.',
+            'judul.max' => 'Judul maksimal berisi 50 karakter.',
+            'deskripsi.required' => 'Deskripsi berita wajib diisi.',
+            'deskripsi.max' => 'Deskripsi maksimal berisi 100 karakter.',
             'gambar.required' => 'Minimal harus mengupload 1 gambar.',
             'gambar.max' => 'Maksimal upload adalah 5 gambar.',
             'gambar.*.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
-            'gambar.*.max' => 'Ukuran gambar maksimal 5 MB.'
+            'gambar.*.max' => 'Ukuran gambar maksimal 2 MB.'
         ]);
 
         $imagePaths = [];
@@ -69,12 +73,19 @@ class ManajemenMediaController extends Controller
         $media = MediaInformasi::findOrFail($id);
 
         $request->validate([
-            'judul' => 'required|string|max:255',
+            'judul' => 'required|string|max:50',
             'tanggal' => 'required|date',
-            'deskripsi' => 'required|string',
+            'deskripsi' => 'required|string|max:100',
             'keep_gambar' => 'nullable|array',
             'gambar' => 'nullable|array',
-            'gambar.*' => 'image|mimes:jpeg,png,jpg|max:5120',
+            'gambar.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'judul.required' => 'Judul berita wajib diisi.',
+            'judul.max' => 'Judul maksimal berisi 50 karakter.',
+            'deskripsi.required' => 'Deskripsi berita wajib diisi.',
+            'deskripsi.max' => 'Deskripsi maksimal berisi 100 karakter.',
+            'gambar.*.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
+            'gambar.*.max' => 'Ukuran gambar maksimal 2 MB.'
         ]);
 
         $keepImages = $request->keep_gambar ?? [];

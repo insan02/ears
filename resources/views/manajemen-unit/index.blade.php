@@ -6,6 +6,7 @@
         isDeleting: false,
         showEditModal: false,
         isEdit: false,
+        isSaving: false,
         modalTitle: '',
         formAction: '',
         formData: {
@@ -84,7 +85,7 @@
                              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                           </span>
                           <form action="{{ route('manajemen-unit.index') }}" method="GET" class="w-full">
-                             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama unit kerja..." class="w-full py-3 pl-12 {{ request('search') ? 'pr-12' : 'pr-4' }} bg-gray-50 border border-gray-200 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#e92027] focus:bg-white focus:border-transparent text-sm font-medium transition-all shadow-sm">
+                             <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama unit kerja..." maxlength="50" class="w-full py-3 pl-12 {{ request('search') ? 'pr-12' : 'pr-4' }} bg-gray-50 border border-gray-200 rounded-xl md:rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#e92027] focus:bg-white focus:border-transparent text-sm font-medium transition-all shadow-sm">
                           </form>
                           <!-- Tombol Reset Pencarian -->
                           @if(request('search'))
@@ -128,14 +129,18 @@
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex justify-center items-center gap-2">
-                                            <button @click="
-                                                showEditModal = true;
-                                                isEdit = true;
-                                                modalTitle = 'Edit Unit';
-                                                formAction = '{{ route('manajemen-unit.update', $unit->id) }}';
-                                                formData.nama_unit = '{{ addslashes($unit->nama_unit) }}';
-                                                formData.keterangan = '{{ addslashes($unit->keterangan ?? '') }}';
-                                            "
+                                            <!-- Tombol Edit yang Diperbaiki -->
+                                            <button
+                                                data-nama="{{ $unit->nama_unit }}"
+                                                data-keterangan="{{ $unit->keterangan }}"
+                                                @click="
+                                                    showEditModal = true;
+                                                    isEdit = true;
+                                                    modalTitle = 'Edit Unit';
+                                                    formAction = '{{ route('manajemen-unit.update', $unit->id) }}';
+                                                    formData.nama_unit = $event.currentTarget.dataset.nama;
+                                                    formData.keterangan = $event.currentTarget.dataset.keterangan;
+                                                "
                                                 class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm border border-gray-200 hover:border-amber-300" title="Edit">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </button>
@@ -173,14 +178,19 @@
 
                             {{-- Action Buttons for Mobile --}}
                             <div class="flex gap-2 pt-3 border-t border-gray-50">
-                                <button @click="
-                                    showEditModal = true;
-                                    isEdit = true;
-                                    modalTitle = 'Edit Unit';
-                                    formAction = '{{ route('manajemen-unit.update', $unit->id) }}';
-                                    formData.nama_unit = '{{ addslashes($unit->nama_unit) }}';
-                                    formData.keterangan = '{{ addslashes($unit->keterangan ?? '') }}';
-                                " class="flex-1 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-100 hover:bg-amber-100 flex items-center justify-center gap-1.5 transition">
+                                <!-- Tombol Edit Mobile yang Diperbaiki -->
+                                <button
+                                    data-nama="{{ $unit->nama_unit }}"
+                                    data-keterangan="{{ $unit->keterangan }}"
+                                    @click="
+                                        showEditModal = true;
+                                        isEdit = true;
+                                        modalTitle = 'Edit Unit';
+                                        formAction = '{{ route('manajemen-unit.update', $unit->id) }}';
+                                        formData.nama_unit = $event.currentTarget.dataset.nama;
+                                        formData.keterangan = $event.currentTarget.dataset.keterangan;
+                                    "
+                                    class="flex-1 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-100 hover:bg-amber-100 flex items-center justify-center gap-1.5 transition">
                                     <i class="fas fa-pen"></i> Edit
                                 </button>
 
@@ -272,27 +282,40 @@
                     <button type="button" @click="showEditModal = false" class="text-gray-400 hover:text-red-500 transition"><i class="fas fa-times text-lg"></i></button>
                 </div>
 
-                <form :action="formAction" method="POST" class="flex flex-col gap-5">
+                <form :action="formAction" method="POST" class="flex flex-col gap-5" hx-disable @submit="isSaving = true">
                     @csrf
-                    <input type="hidden" name="_method" :value="isEdit ? 'PUT' : 'POST'">
+
+                    <input type="hidden" name="_method" value="PUT" x-bind:disabled="!isEdit">
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Nama Unit Kerja <span class="text-red-600">*</span></label>
-                        <input type="text" name="nama_unit" x-model="formData.nama_unit" required
+                        <input type="text" name="nama_unit" x-model="formData.nama_unit" required maxlength="50"
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
                     </div>
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Keterangan (Opsional)</label>
-                        <textarea name="keterangan" x-model="formData.keterangan" rows="3" placeholder="Tuliskan deskripsi unit kerja..."
+                        <textarea name="keterangan" x-model="formData.keterangan" rows="3" maxlength="50" placeholder="Tuliskan deskripsi unit kerja..."
                             class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm resize-none"></textarea>
                     </div>
 
                     <div class="flex flex-col-reverse md:flex-row gap-3 mt-4 pt-4 border-t border-gray-100">
-                        <button type="button" @click="showEditModal = false"
-                            class="w-full md:w-auto flex-1 py-3.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-bold hover:bg-gray-200 transition">Batal</button>
-                        <button type="submit"
-                            class="w-full md:w-auto flex-1 py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold hover:bg-[#c41820] shadow-md transform hover:-translate-y-0.5 transition">Simpan Data</button>
+                        <button type="button" @click="showEditModal = false" :disabled="isSaving"
+                            class="transition" :class="isSaving ? 'text-gray-300 cursor-not-allowed' : 'text-gray-400 hover:text-red-500'">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                                                <button type="submit" :disabled="isSaving"
+                            class="w-full md:w-auto flex-1 py-3.5 bg-[#e92027] text-white rounded-xl text-sm font-bold shadow-md transition flex justify-center items-center gap-2"
+                            :class="isSaving ? 'opacity-70 cursor-wait' : 'hover:bg-[#c41820] transform hover:-translate-y-0.5'">
+
+                            <!-- Teks saat kondisi normal -->
+                            <span x-show="!isSaving">Simpan Data</span>
+
+                            <!-- Teks & Animasi saat kondisi loading/menyimpan -->
+                            <span x-show="isSaving" style="display: none;">
+                                <i class="fas fa-circle-notch fa-spin"></i> Menyimpan...
+                            </span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -312,7 +335,6 @@
                 <p class="text-gray-500 mb-8 text-sm md:text-base leading-relaxed">Unit ini akan dihapus permanen dari sistem.</p>
                 <div class="flex flex-col gap-3">
 
-                    <!-- TAMBAHKAN hx-disable dan @submit="isDeleting = true" DI SINI -->
                     <form :action="deleteUrl" method="POST" class="w-full" hx-disable @submit="isDeleting = true">
                         @csrf @method('DELETE')
 
