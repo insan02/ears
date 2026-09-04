@@ -34,7 +34,24 @@ class LoginController extends Controller
 
         // 3. Proses Autentikasi
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Jika sukses, hapus catatan kegagalan login sebelumnya
+
+            // ==========================================================
+            // PENGECEKAN STATUS AKUN (AKTIF / NONAKTIF)
+            // ==========================================================
+            if (!Auth::user()->is_active) {
+                // Jika tidak aktif, paksa logout dan hapus sesi yang baru saja dibuat
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                // Kembalikan ke halaman login dengan pesan error spesifik
+                return back()->withErrors([
+                    'email' => 'Akun Anda telah dinonaktifkan. Silakan hubungi Administrator.',
+                ])->onlyInput('email');
+            }
+            // ==========================================================
+
+            // Jika sukses dan akun AKTIF, hapus catatan kegagalan login sebelumnya
             RateLimiter::clear($this->throttleKey($request));
 
             // Mencegah Session Fixation Attack
@@ -55,11 +72,10 @@ class LoginController extends Controller
             return redirect()->intended('/beranda');
         }
 
-        // 4. Jika gagal, catat kegagalan (Hit Rate Limiter)
+        // 4. Jika gagal (email/password salah), catat kegagalan (Hit Rate Limiter)
         RateLimiter::hit($this->throttleKey($request));
 
         // 5. Pesan error yang aman (Mencegah User Enumeration)
-        // Jangan beri tahu apakah 'email tidak ditemukan' atau 'password salah'
         return back()->withErrors([
             'email' => 'Kredensial yang Anda masukkan tidak cocok dengan data kami.',
         ])->onlyInput('email');

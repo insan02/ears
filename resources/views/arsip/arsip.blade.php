@@ -59,10 +59,12 @@
                      <p class="text-red-50 text-sm md:text-base font-light opacity-95 max-w-lg leading-relaxed drop-shadow-sm">Kelola dan monitor seluruh dokumen arsip perusahaan.</p>
                 </div>
                 <div>
+                    @if(auth()->user()->role === 'admin')
                     <a href="{{ route('arsip.create') }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-8 py-3 rounded-full font-bold shadow-2xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
                         <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors"><i class="fas fa-plus"></i></div>
                         <span>TAMBAH ARSIP</span>
                     </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -137,13 +139,7 @@
                             </div>
                         </div>
 
-                        <!-- PERBAIKAN TOMBOL RESPONSIF DI SINI -->
-                        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto mt-2 lg:mt-0">
-                            @if(request()->hasAny(['search', 'filter_status', 'filter_hak_akses', 'filter_tahun', 'filter_box']))
-                                <a href="/arsip" class="flex-grow md:flex-none flex items-center justify-center px-4 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm hover:bg-[#e92027] hover:text-white transition">Reset</a>
-                            @endif
-
-                            <div class="relative flex-grow md:flex-none" x-data="{ showSortDropdown: false }">
+                        <div class="relative flex-grow md:flex-none" x-data="{ showSortDropdown: false }">
                                 <button type="button" @click="showSortDropdown = !showSortDropdown" @click.away="showSortDropdown = false" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2"><i class="fas fa-sort-amount-down text-gray-400"></i> Urutkan</button>
                                 <div x-show="showSortDropdown" style="display: none;" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
                                     <ul class="text-xs font-medium text-gray-600">
@@ -154,7 +150,12 @@
                                 </div>
                             </div>
 
+                            @if(auth()->user()->role === 'admin')
                             <button type="button" @click="showImportModal = true" class="flex-grow md:flex-none px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
+
+                            <!-- TAMBAHKAN TOMBOL BULK DESTROY DI SINI -->
+                            <button type="button" onclick="bulkDestroyAction()" class="flex-grow md:flex-none px-4 py-3 bg-red-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-red-700 transition shadow-sm border border-red-600"><i class="fas fa-trash-alt"></i> Musnahkan Terpilih</button>
+                            @endif
 
                             <button type="button" onclick="submitExport('excel')" class="flex-grow md:flex-none px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
 
@@ -333,6 +334,95 @@
             for(var i=0, n=checkboxes.length;i<n;i++) {
                 checkboxes[i].checked = source.checked;
             }
+        }
+
+        function bulkDestroyAction() {
+            // Ambil semua checkbox yang sedang dicentang
+            const checkedBoxes = document.querySelectorAll('input[name="selected_arsip[]"]:checked');
+
+            // Validasi jika tidak ada yang dipilih
+            if (checkedBoxes.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: 'Silakan centang minimal satu arsip terlebih dahulu.'
+                });
+                return;
+            }
+
+            const ids = [];
+            let hasNonMusnah = false;
+
+            // Looping untuk mengecek status masing-masing checkbox
+            checkedBoxes.forEach(cb => {
+                ids.push(cb.value);
+                // Jika ada arsip yang statusnya TIDAK mengandung kata 'musnah'
+                if (!cb.dataset.status.includes('musnah')) {
+                    hasNonMusnah = true;
+                }
+            });
+
+            // Jika ditemukan dokumen yang bukan musnah, tampilkan error dan hentikan proses
+            if (hasNonMusnah) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Memproses',
+                    text: 'Beberapa dokumen yang dipilih TIDAK BERSTATUS MUSNAH. Hanya dokumen berstatus Musnah yang bisa dimusnahkan.'
+                });
+                return;
+            }
+
+            // Tampilkan konfirmasi jika semua status valid (musnah)
+            Swal.fire({
+                title: 'Musnahkan ' + ids.length + ' Arsip?',
+                text: "Arsip ini akan dipindahkan ke Data Musnah secara permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e92027',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Musnahkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Mohon tunggu sebentar',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    fetch('{{ route('arsip.bulk-destroy') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ ids: ids })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Gagal!', data.message, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire('Error!', 'Terjadi kesalahan pada sistem / server.', 'error');
+                        console.error('Error:', error);
+                    });
+                }
+            });
         }
     </script>
 </x-layout>

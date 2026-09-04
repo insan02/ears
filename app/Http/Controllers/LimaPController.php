@@ -42,24 +42,24 @@ class LimaPController extends Controller implements HasMiddleware
     {
         $request->validate([
             'pic' => 'required|string|max:50',
-            'kesepakatan' => 'nullable|array|max:3',
+            'kesepakatan' => 'nullable|array|max:1',
             'kesepakatan.*' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'visi_misi' => 'nullable|array|max:3',
+            'visi_misi' => 'nullable|array|max:1',
             'visi_misi.*' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'pembagian_area' => 'nullable|array|max:3',
+            'pembagian_area' => 'nullable|array|max:5',
             'pembagian_area.*' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'struktur' => 'nullable|array|max:3',
+            'struktur' => 'nullable|array|max:1',
             'struktur.*' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'jadwal_kegiatan' => 'nullable|array|max:3',
+            'jadwal_kegiatan' => 'nullable|array|max:2',
             'jadwal_kegiatan.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ], [
             'pic.required' => 'Nama PIC Area wajib diisi.',
             'pic.max' => 'Nama PIC Area maksimal 50 karakter.',
-            'kesepakatan.max' => 'Gambar Kesepakatan maksimal 3 foto.',
-            'visi_misi.max' => 'Gambar Visi & Misi maksimal 3 foto.',
-            'pembagian_area.max' => 'Gambar Pembagian Area maksimal 3 foto.',
-            'struktur.max' => 'Gambar Struktur Organisasi maksimal 3 foto.',
-            'jadwal_kegiatan.max' => 'Gambar Jadwal Kegiatan maksimal 3 foto.',
+            'kesepakatan.max' => 'Kesepakatan maksimal 1 foto.',
+            'visi_misi.max' => 'Visi & Misi maksimal 1 foto.',
+            'pembagian_area.max' => 'Pembagian Area maksimal 5 foto.',
+            'struktur.max' => 'Struktur Organisasi maksimal 1 foto.',
+            'jadwal_kegiatan.max' => 'Jadwal Kegiatan maksimal 2 foto.',
             '*.image' => 'File yang diunggah harus berupa gambar.',
             '*.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
             '*.max' => 'Ukuran setiap gambar maksimal 2 MB (2048 KB).'
@@ -116,16 +116,24 @@ class LimaPController extends Controller implements HasMiddleware
             'jadwal_kegiatan' => 'Jadwal Kegiatan'
         ];
 
-        // Validasi total gambar (gambar lama yang dipertahankan + gambar baru diunggah) maksimal 3
+        $limits = [
+            'kesepakatan' => 1,
+            'visi_misi' => 1,
+            'pembagian_area' => 5,
+            'struktur' => 1,
+            'jadwal_kegiatan' => 2
+        ];
+
+        // Validasi total gambar secara dinamis
         foreach ($fields as $field) {
             $existing = $item->$field ?? [];
             $deleted = $request->input("hapus_{$field}", []);
             $remainingOldCount = count(array_diff($existing, $deleted));
             $newFilesCount = $request->hasFile($field) ? count($request->file($field)) : 0;
 
-            if ($remainingOldCount + $newFilesCount > 3) {
+            if ($remainingOldCount + $newFilesCount > $limits[$field]) {
                 return back()->withErrors([
-                    $field => "Total gambar {$fieldLabels[$field]} (lama + baru) tidak boleh lebih dari 3 foto."
+                    $field => "Total foto {$fieldLabels[$field]} (lama + baru) tidak boleh lebih dari {$limits[$field]} foto."
                 ])->withInput();
             }
         }
@@ -135,7 +143,6 @@ class LimaPController extends Controller implements HasMiddleware
         foreach ($fields as $field) {
             $existingImages = $item->$field ?? [];
 
-            // 1. Hapus gambar yang ditandai hapus
             if ($request->has("hapus_{$field}")) {
                 foreach ($request->input("hapus_{$field}") as $path) {
                     Storage::disk('public')->delete($path);
@@ -143,7 +150,6 @@ class LimaPController extends Controller implements HasMiddleware
                 }
             }
 
-            // 2. Tambahkan gambar baru
             if ($request->hasFile($field)) {
                 foreach ($request->file($field) as $file) {
                     $existingImages[] = $file->store("limap/{$field}", 'public');
@@ -192,6 +198,19 @@ class LimaPController extends Controller implements HasMiddleware
             'kaizen_files.*.mimes' => 'Format file harus berupa dokumen PDF.',
             'kaizen_files.*.max' => 'Ukuran file PDF maksimal 10 MB (10240 KB) per file.'
         ]);
+
+        // Pengecekan limit 4 PDF per bulan
+        $existingCount = LimaPKaizen::where('lima_p_content_id', $id)
+                                    ->where('tahun', $request->tahun)
+                                    ->where('bulan', $request->bulan)
+                                    ->count();
+        $newFilesCount = count($request->file('kaizen_files'));
+
+        if (($existingCount + $newFilesCount) > 4) {
+            return back()->withErrors([
+                'kaizen_files' => "Maksimal hanya 4 file PDF per bulan. Saat ini sudah ada {$existingCount} file, Anda mencoba menambah {$newFilesCount} file."
+            ]);
+        }
 
         if ($request->hasFile('kaizen_files')) {
             foreach ($request->file('kaizen_files') as $file) {

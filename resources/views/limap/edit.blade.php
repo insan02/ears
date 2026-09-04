@@ -2,7 +2,7 @@
     <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative">
         <div class="max-w-7xl mx-auto relative z-10 text-center md:text-left">
             <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Edit Data 5P</h1>
-            <p class="text-red-50 text-base font-light">Perbarui informasi gambar 5P (Maks. 3 foto & 2 MB per foto).</p>
+            <p class="text-red-50 text-base font-light">Perbarui informasi gambar 5P.</p>
         </div>
     </div>
 
@@ -19,11 +19,11 @@
                 <div class="grid grid-cols-1 gap-8 border-t border-gray-100 pt-6">
                     @php
                         $fileInputs = [
-                            'kesepakatan' => ['icon' => 'fa-handshake', 'label' => 'Kesepakatan'],
-                            'visi_misi' => ['icon' => 'fa-bullseye', 'label' => 'Visi & Misi'],
-                            'pembagian_area' => ['icon' => 'fa-map-marked-alt', 'label' => 'Pembagian Area'],
-                            'struktur' => ['icon' => 'fa-sitemap', 'label' => 'Struktur'],
-                            'jadwal_kegiatan' => ['icon' => 'fa-calendar-alt', 'label' => 'Jadwal Kegiatan'],
+                            'kesepakatan' => ['icon' => 'fa-handshake', 'label' => 'Kesepakatan', 'limit' => 1],
+                            'visi_misi' => ['icon' => 'fa-bullseye', 'label' => 'Visi & Misi', 'limit' => 1],
+                            'pembagian_area' => ['icon' => 'fa-map-marked-alt', 'label' => 'Pembagian Area', 'limit' => 5],
+                            'struktur' => ['icon' => 'fa-sitemap', 'label' => 'Struktur Organisasi', 'limit' => 1],
+                            'jadwal_kegiatan' => ['icon' => 'fa-calendar-alt', 'label' => 'Jadwal Kegiatan', 'limit' => 2],
                         ];
                     @endphp
 
@@ -45,11 +45,11 @@
                             },
 
                             addInput() {
-                                if (this.totalCount >= 3) {
+                                if (this.totalCount >= {{ $info['limit'] }}) {
                                     Swal.fire({
                                         icon: 'warning',
                                         title: 'Batas Maksimal',
-                                        text: 'Total gambar untuk kategori ini maksimal 3 foto. Hapus beberapa gambar lama terlebih dahulu jika ingin menambahkan gambar baru.',
+                                        text: 'Total gambar untuk kategori ini maksimal {{ $info['limit'] }} foto. Hapus beberapa gambar lama terlebih dahulu jika ingin menambahkan gambar baru.',
                                         confirmButtonColor: '#e92027',
                                         confirmButtonText: 'Mengerti'
                                     });
@@ -94,8 +94,8 @@
                          }">
 
                         <div class="flex justify-between items-center mb-4">
-                            <label class="block text-sm font-bold text-gray-800"><i class="fas {{ $info['icon'] }} text-[#e92027] mr-2"></i> Gambar {{ $info['label'] }}</label>
-                            <span class="text-[11px] font-semibold text-gray-400" x-text="totalCount + '/3 Foto (Maks. 2MB)'"></span>
+                            <label class="block text-sm font-bold text-gray-800"><i class="fas {{ $info['icon'] }} text-[#e92027] mr-2"></i> {{ $info['label'] }}</label>
+                            <span class="text-[11px] font-semibold text-gray-400" x-text="totalCount + '/{{ $info['limit'] }} Foto'"></span>
                         </div>
 
                         <div class="flex flex-wrap gap-4 mb-4">
@@ -139,7 +139,7 @@
                         </template>
 
                         <!-- Tombol Tambah Gambar -->
-                        <div class="pt-4 border-t border-gray-200 border-dashed" x-show="totalCount < 3">
+                        <div class="pt-4 border-t border-gray-200 border-dashed" x-show="totalCount < {{ $info['limit'] }}">
                             <button type="button" @click="addInput()" class="text-xs font-bold text-[#e92027] bg-white border border-gray-300 hover:bg-gray-100 hover:border-gray-400 px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-2">
                                 <i class="fas fa-plus"></i> Tambah Gambar Baru
                             </button>

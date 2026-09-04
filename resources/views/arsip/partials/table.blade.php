@@ -15,7 +15,9 @@
             @if($isMerged)
                 <div class="bg-gray-100 p-4 rounded-xl text-center font-bold text-gray-800 uppercase tracking-widest border border-gray-200 shadow-sm relative">
                     {{ $mergedText }}
+                    @if(auth()->user()->role === 'admin')
                     <button type="button" @click="deleteUrl = '{{ route('arsip.destroy', $arsip->id) }}'; showDeleteModal = true; isDeleting = false" class="absolute top-2 right-2 p-1.5 bg-white text-[#e92027] rounded shadow-sm border border-gray-200 hover:bg-red-50"><i class="fas fa-trash-alt text-[10px]"></i></button>
+                    @endif
                 </div>
             @else
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 relative group">
@@ -34,7 +36,7 @@
                             @endif
                         </div>
                         <div class="absolute top-4 right-4">
-                            <input type="checkbox" name="selected_arsip[]" value="{{ $arsip->id }}" class="rounded border-gray-300 text-[#e92027] focus:ring-[#e92027] cursor-pointer w-4 h-4">
+<input type="checkbox" name="selected_arsip[]" value="{{ $arsip->id }}" data-status="{{ $tindakanLower }}" class="rounded border-gray-300 text-[#e92027] focus:ring-[#e92027] cursor-pointer w-4 h-4">
                         </div>
                     </div>
 
@@ -53,12 +55,14 @@
                         <span class="px-2 py-0.5 bg-purple-50 text-purple-700 text-[9px] font-bold uppercase rounded border border-purple-200 whitespace-normal text-center">{{ $arsip->tindakan_akhir ?? '-' }}</span>
                     </div>
 
+                    @if(auth()->user()->role === 'admin')
                     <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
                         <a href="{{ route('arsip.edit', $arsip->id) }}" class="p-2 bg-white text-amber-500 rounded-lg shadow-sm border border-gray-200 hover:bg-amber-50"><i class="fas fa-pen text-xs"></i></a>
                         @if(str_contains($tindakanLower, 'musnah'))
                             <button type="button" @click="deleteUrl = '{{ route('arsip.destroy', $arsip->id) }}'; showDeleteModal = true; isDeleting = false" class="p-2 bg-white text-[#e92027] rounded-lg shadow-sm border border-gray-200 hover:bg-red-50"><i class="fas fa-fire text-xs"></i></button>
                         @endif
                     </div>
+                    @endif
                 </div>
             @endif
         @empty
@@ -87,7 +91,9 @@
                     <th class="py-3 px-1 text-center font-bold border-r border-red-900/20 w-[4%]">Box</th>
                     <th class="py-3 px-2 font-bold border-r border-red-900/20 w-[10%]">Unit</th>
                     <th class="py-3 px-1 text-center font-bold border-r border-red-900/20 w-[5%]">Media</th>
+                    @if(auth()->user()->role === 'admin')
                     <th class="py-3 px-1 text-center font-bold w-[4%]">Aksi</th>
+                    @endif
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -102,21 +108,23 @@
                     @if($isMerged)
                         <tr class="group hover:bg-gray-100 transition-all duration-200 text-[10px] bg-gray-50/80">
                             <td class="py-2 px-1 text-center border-r border-gray-100 align-middle">
-                                <input type="checkbox" name="selected_arsip[]" value="{{ $arsip->id }}" class="rounded border-gray-300 text-[#e92027] focus:ring-[#e92027] cursor-pointer w-3 h-3">
+                                <input type="checkbox" name="selected_arsip[]" value="{{ $arsip->id }}" data-status="{{ $tindakanLower }}" class="rounded border-gray-300 text-[#e92027] focus:ring-[#e92027] cursor-pointer w-3 h-3">
                             </td>
                             <td colspan="13" class="py-3 px-4 text-center font-black text-gray-800 uppercase tracking-widest border-r border-gray-100 align-middle">
                                 {{ $mergedText }}
                             </td>
+                            @if(auth()->user()->role === 'admin')
                             <td class="py-2 px-1 text-center align-middle">
                                 <button type="button" @click="deleteUrl = '{{ route('arsip.destroy', $arsip->id) }}'; showDeleteModal = true; isDeleting = false" class="w-6 h-6 flex items-center justify-center bg-white text-[#e92027] rounded border border-gray-200 hover:bg-red-50 mx-auto" title="Hapus">
                                     <i class="fas fa-trash-alt text-[9px]"></i>
                                 </button>
                             </td>
+                            @endif
                         </tr>
                     @else
                         <tr class="group hover:bg-red-50/40 transition-all duration-200 text-[10px]">
                             <td class="py-2 px-1 text-center border-r border-gray-100 align-top">
-                                <input type="checkbox" name="selected_arsip[]" value="{{ $arsip->id }}" class="rounded border-gray-300 text-[#e92027] focus:ring-[#e92027] cursor-pointer w-3 h-3 mt-1">
+                            <input type="checkbox" name="selected_arsip[]" value="{{ $arsip->id }}" data-status="{{ $tindakanLower }}" class="rounded border-gray-300 text-[#e92027] focus:ring-[#e92027] cursor-pointer w-3 h-3 mt-1">
                             </td>
                             <td class="py-2 px-1 text-center font-bold text-gray-500 align-top border-r border-gray-100 whitespace-nowrap">
                                 {{ $arsip->no_berkas !== '-' ? $arsip->no_berkas : '' }}
@@ -171,6 +179,8 @@
                             <td class="py-2 px-1 text-center border-r border-gray-100 align-top">
                                 <span class="font-bold text-purple-700 uppercase block">{{ $arsip->jenis_media ?? '-' }}</span>
                             </td>
+
+                            @if(auth()->user()->role === 'admin')
                             <td class="py-2 px-1 text-center align-top">
                                 <div class="flex justify-center items-center gap-1 mt-1">
                                     <a href="{{ route('arsip.edit', $arsip->id) }}" class="w-6 h-6 flex items-center justify-center bg-white text-amber-500 rounded border border-gray-200 hover:bg-amber-50" title="Edit">
@@ -187,6 +197,7 @@
                                     @endif
                                 </div>
                             </td>
+                            @endif
                         </tr>
                     @endif
                 @empty
@@ -204,6 +215,7 @@
     </div>
 
     {{-- Delete Modal (Dilengkapi hx-disable) --}}
+    @if(auth()->user()->role === 'admin')
     <div x-show="showDeleteModal" style="display: none;" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="!isDeleting && (showDeleteModal = false)"></div>
         <div class="bg-white rounded-3xl w-full max-w-sm p-8 text-center relative z-10 shadow-2xl">
@@ -230,4 +242,5 @@
             </div>
         </div>
     </div>
+    @endif
 </div>

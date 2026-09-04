@@ -16,7 +16,7 @@
             </div>
         @endif
 
-        <form action="{{ route('monitoring.store') }}" method="POST" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <form action="{{ route('monitoring.store') }}" method="POST" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" hx-disable>
             @csrf
             <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 

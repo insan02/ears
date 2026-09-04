@@ -10,11 +10,28 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ArsipImport;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 
 class ArsipController extends Controller
 {
+    // Fungsi bantuan untuk mengecek apakah user admin
+    private function isAdmin()
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return Auth::check() && $user && $user->role === 'admin';
+    }
+
     public function import(Request $request)
     {
+        if (!$this->isAdmin()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Akses ditolak.']);
+            }
+            return back()->with('error', 'Akses ditolak.');
+        }
+
         $request->validate([
             'file' => 'required|file|max:10240'
         ]);
@@ -25,11 +42,9 @@ class ArsipController extends Controller
 
         if (!in_array($extension, ['xls', 'xlsx', 'csv'])) {
             $msg = 'Format file harus Excel (.xlsx) atau CSV.';
-            // Jika via Modal/AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => $msg]);
             }
-            // Jika via halaman biasa
             return back()->with('error', $msg);
         }
 
@@ -37,42 +52,35 @@ class ArsipController extends Controller
             ini_set('memory_limit', '-1');
             ini_set('max_execution_time', 0);
 
-            // Inisiasi progress 0
             if ($importId) {
                 Cache::put('import_arsip_progress_' . $importId, 1, 3600);
             }
 
             Excel::import(new ArsipImport($importId), $file);
 
-            // Hapus cache setelah selesai
             if ($importId) {
                 Cache::forget('import_arsip_progress_' . $importId);
             }
 
-            // Jika via Modal/AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 session()->flash('success', 'Data arsip berhasil diimport!');
                 return response()->json(['success' => true]);
             }
 
-            // Jika via halaman biasa
             return redirect()->route('arsip.index')->with('success', 'Data arsip berhasil diimport!');
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Import Exception: " . $e->getMessage());
             if ($importId) Cache::forget('import_arsip_progress_' . $importId);
 
-            // Jika via Modal/AJAX
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
             }
 
-            // Jika via halaman biasa
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
-    // FUNGSI BARU UNTUK MEMBACA PROGRES
     public function checkProgress(Request $request)
     {
         $id = $request->input('id');
@@ -82,11 +90,10 @@ class ArsipController extends Controller
 
     public function showImportForm()
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
         return view('arsip.import');
     }
 
-    // GANTI HANYA FUNGSI index() DI DALAM ArsipController.php
-    // GANTI HANYA FUNGSI index() DI DALAM ArsipController.php
     public function index(Request $request)
     {
         $query = Arsip::with(['klasifikasi']);
@@ -109,7 +116,6 @@ class ArsipController extends Controller
             });
         }
 
-        // PERBAIKAN: Menggunakan 'like' pada filter_status
         if ($request->filled('filter_status')) {
             $query->where('tindakan_akhir', 'like', '%' . $request->filter_status . '%');
         }
@@ -120,19 +126,11 @@ class ArsipController extends Controller
 
         $sort = $request->input('sort', 'newest');
         switch ($sort) {
-            case 'oldest':
-                $query->orderBy('id', 'asc');
-                break;
-            case 'year_desc':
-                $query->orderBy('tahun', 'desc')->orderBy('id', 'desc');
-                break;
-            case 'year_asc':
-                $query->orderBy('tahun', 'asc')->orderBy('id', 'desc');
-                break;
+            case 'oldest': $query->orderBy('id', 'asc'); break;
+            case 'year_desc': $query->orderBy('tahun', 'desc')->orderBy('id', 'desc'); break;
+            case 'year_asc': $query->orderBy('tahun', 'asc')->orderBy('id', 'desc'); break;
             case 'newest':
-            default:
-                $query->orderBy('id', 'desc');
-                break;
+            default: $query->orderBy('id', 'desc'); break;
         }
 
         $printMode = $request->get('print') === 'true';
@@ -155,6 +153,8 @@ class ArsipController extends Controller
 
     public function create()
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $klasifikasis = MasterKlasifikasi::all();
         $units = \App\Models\Unit::all();
         $nextNumber = Arsip::distinct('no_berkas')->count() + 1;
@@ -163,6 +163,8 @@ class ArsipController extends Controller
 
     public function store(Request $request)
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $validated = $request->validate([
             'nama_berkas' => 'required|string',
             'isi_berkas' => 'required|array|min:1',
@@ -182,7 +184,6 @@ class ArsipController extends Controller
         $currentCount = Arsip::distinct('no_berkas')->count();
         $nextNo = $currentCount + 1;
         $no_berkas = (string) $nextNo;
-
         $user = \App\Models\User::first();
 
         foreach ($validated['isi_berkas'] as $item) {
@@ -209,32 +210,27 @@ class ArsipController extends Controller
 
     public function edit($id)
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $arsip = Arsip::with('klasifikasi')->findOrFail($id);
         $nextNumber = $arsip->no_berkas;
 
         $initialData = [[
-            'isi' => $arsip->isi,
-            'tahun' => $arsip->tahun,
-            'tanggal' => $arsip->tanggal_masuk,
-            'jumlah' => $arsip->jumlah,
-            'no_box' => $arsip->no_box,
-            'hak_akses' => $arsip->hak_akses,
-            'jenis_media' => $arsip->jenis_media,
-            'masa_simpan' => $arsip->masa_simpan,
-            'tindakan_akhir' => $arsip->tindakan_akhir,
-            'unit_pengolah' => $arsip->unit_pengolah,
-            'kode_klasifikasi' => $arsip->klasifikasi->kode_klasifikasi ?? '',
-            'klasifikasi_id' => $arsip->klasifikasi_id,
+            'isi' => $arsip->isi, 'tahun' => $arsip->tahun, 'tanggal' => $arsip->tanggal_masuk,
+            'jumlah' => $arsip->jumlah, 'no_box' => $arsip->no_box, 'hak_akses' => $arsip->hak_akses,
+            'jenis_media' => $arsip->jenis_media, 'masa_simpan' => $arsip->masa_simpan,
+            'tindakan_akhir' => $arsip->tindakan_akhir, 'unit_pengolah' => $arsip->unit_pengolah,
+            'kode_klasifikasi' => $arsip->klasifikasi->kode_klasifikasi ?? '', 'klasifikasi_id' => $arsip->klasifikasi_id,
         ]];
 
         $units = \App\Models\Unit::all();
-
-        // ARAHKAN KE VIEW KHUSUS EDIT
         return view('arsip.edit-arsip', compact('arsip', 'nextNumber', 'initialData', 'units'));
     }
 
     public function update(Request $request, $id)
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $arsip = Arsip::findOrFail($id);
         $validated = $request->validate([
             'nama_berkas' => 'required|string',
@@ -274,10 +270,11 @@ class ArsipController extends Controller
 
     public function destroy($id)
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $arsip = Arsip::find($id);
         if (!$arsip) return redirect()->back()->with('error', 'Data tidak ditemukan');
 
-        // PERBAIKAN: Menggunakan str_contains agar bisa mendeteksi "Musnah kecuali bla bla"
         if (str_contains(strtolower($arsip->tindakan_akhir ?? ''), 'musnah')) {
             try {
                 DB::transaction(function () use ($arsip) {
@@ -296,9 +293,52 @@ class ArsipController extends Controller
         }
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        if (!$this->isAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.']);
+        }
+
+        $ids = $request->input('ids');
+        if (empty($ids) || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'Tidak ada data arsip yang dipilih.']);
+        }
+
+        DB::beginTransaction();
+        try {
+            $arsips = Arsip::whereIn('id', $ids)->get();
+            $count = 0;
+
+            foreach ($arsips as $arsip) {
+                // Pastikan hanya yang statusnya mengandung kata 'musnah'
+                if (str_contains(strtolower($arsip->tindakan_akhir ?? ''), 'musnah')) {
+                    $data = $arsip->toArray();
+                    unset($data['id']);
+                    $data['deleted_at'] = now();
+                    ArsipMusnah::create($data);
+                    $arsip->delete();
+                    $count++;
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => "$count arsip berhasil dimusnahkan dan dipindah ke Data Musnah."
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ]);
+        }
+    }
+
     public function musnah(Request $request)
     {
-        // PERBAIKAN: Tambahkan withTrashed() agar data dengan 'deleted_at' tetap ditampilkan
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $query = ArsipMusnah::withTrashed()->with('klasifikasi');
 
         if ($request->filled('search')) {
@@ -314,16 +354,16 @@ class ArsipController extends Controller
         return view('arsip.musnah', compact('arsips'));
     }
 
-    // Letakkan di bawah public function musnah()
     public function exportMusnah(Request $request)
     {
+        if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
+
         $search = $request->input('search');
-
         $filename = 'Daftar_Arsip_Musnah_' . date('Y-m-d') . '.xlsx';
-
         return Excel::download(new \App\Exports\ArsipMusnahExport($search), $filename);
     }
 
+    // Export & Print Data Arsip Normal diizinkan untuk semua
     public function export(Request $request)
     {
         $type = $request->input('type');
@@ -346,6 +386,8 @@ class ArsipController extends Controller
 
     public function getKlasifikasiOptions(Request $request)
     {
+        // Fungsi ini hanya fetch data untuk filter, bisa diakses oleh siapa saja
+        // ... (Biarkan isinya sama persis seperti sebelumnya) ...
         $level = $request->input('level', 0);
         $parent = $request->input('parent');
 

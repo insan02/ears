@@ -27,7 +27,7 @@ class MonitoringKaryawanController extends Controller
         $currentTotalTeam = LogAktivitas::where('arsip_masuk_id', $arsipMasukId)
                                         ->where('tahapan', $tahapan)
                                         ->sum('jumlah_box_selesai');
-                                        
+
         // Prediksi total jika penambahan ini diizinkan
         $grandTotalHarapan = $currentTotalTeam + $tambahan;
 
@@ -46,7 +46,7 @@ class MonitoringKaryawanController extends Controller
         if ($tahapan == 'Pelabelan') {
             $max = LogAktivitas::where('arsip_masuk_id', $arsipMasukId)->where('tahapan', 'Pendataan')->sum('jumlah_box_selesai');
             if ($max == 0) return "Belum ada progress box di tahap Pendataan.";
-            
+
             if ($grandTotalHarapan > $max) {
                 $sisa = max(0, $max - $currentTotalTeam);
                 return "Gagal! Maksimal Pelabelan menyesuaikan total Pendataan ({$max} Box). Sisa kuota: {$sisa} Box.";
@@ -59,7 +59,7 @@ class MonitoringKaryawanController extends Controller
         if ($tahapan == 'Input E-Arsip') {
             $max = LogAktivitas::where('arsip_masuk_id', $arsipMasukId)->where('tahapan', 'Pelabelan')->sum('jumlah_box_selesai');
             if ($max == 0) return "Belum ada progress box di tahap Pelabelan.";
-            
+
             if ($grandTotalHarapan > $max) {
                 $sisa = max(0, $max - $currentTotalTeam);
                 return "Gagal! Maksimal E-Arsip menyesuaikan total Pelabelan ({$max} Box). Sisa kuota: {$sisa} Box.";
@@ -89,24 +89,25 @@ class MonitoringKaryawanController extends Controller
         if ($request->filled('tahapan')) $query->where('tahapan', $request->tahapan);
 
         $monitoring = $query->paginate(20)->withQueryString();
-        $users = User::all(); 
-        
+        $users = User::all();
+
         $total = ArsipMasuk::count();
         $bulanIni = ArsipMasuk::whereMonth('tanggal_terima', now()->month)->whereYear('tanggal_terima', now()->year)->count();
-            
+
         $pemilahan = LogAktivitas::where('tahapan', 'Pemilahan')->count();
         $pendataan = LogAktivitas::where('tahapan', 'Pendataan')->count();
         $pelabelan = LogAktivitas::where('tahapan', 'Pelabelan')->count();
         $alihMedia = LogAktivitas::where('tahapan', 'Alih Media')->count();
         $inputEArsip = LogAktivitas::where('tahapan', 'Input E-Arsip')->count();
-        
+
         return view('monitoring.index', compact('monitoring', 'total', 'bulanIni', 'pemilahan', 'pendataan', 'pelabelan', 'alihMedia', 'inputEArsip', 'users'));
     }
 
     public function create()
     {
-        $users = User::all();
-        
+        // PERBAIKAN: Hanya ambil user yang statusnya AKTIF
+        $users = User::where('is_active', true)->get();
+
         // Hanya ambil Arsip yang BELUM selesai 100%
         $arsipMasuk = ArsipMasuk::with('logAktivitas')->whereDoesntHave('logAktivitas', function($q) {
             $q->where('tahapan', 'Input E-Arsip')->where('status_kerja', 'Selesai');
@@ -171,17 +172,22 @@ class MonitoringKaryawanController extends Controller
             'jumlah_tambahan' => $jumlahSelesai,
             'keterangan' => 'Memulai pekerjaan',
         ]);
-        
+
         return redirect()->route('monitoring.index')->with('success', 'Tugas berhasil ditambahkan!');
     }
 
     public function edit(string $id)
     {
         if (Auth::user()->role !== 'admin') abort(403, 'Hanya Admin yang dapat mengedit data ini.');
-        
+
         $monitoring = LogAktivitas::findOrFail($id);
-        $users = User::all();
-        
+
+        // PERBAIKAN: Ambil user yang aktif SAJA,
+        // DITAMBAH user yang saat ini sedang terpilih (meskipun dia sudah nonaktif) agar datanya tidak hilang.
+        $users = User::where('is_active', true)
+                     ->orWhere('id', $monitoring->user_id)
+                     ->get();
+
         // Ambil arsip yang belum selesai ATAU arsip tempat monitoring ini berada (untuk jaga-jaga edit data)
         $arsipMasuk = ArsipMasuk::with('logAktivitas')->whereDoesntHave('logAktivitas', function($q) {
             $q->where('tahapan', 'Input E-Arsip')->where('status_kerja', 'Selesai');
@@ -241,14 +247,14 @@ class MonitoringKaryawanController extends Controller
 
         RiwayatMonitoring::create([
             'log_aktivitas_id' => $logAktivitas->id,
-            'user_id' => Auth::id(), 
+            'user_id' => Auth::id(),
             'tahapan' => $request->tahapan,
             'tanggal_kerja' => $request->tanggal_kerja,
             'jumlah_box_selesai' => $jumlahSelesai,
             'jumlah_tambahan' => $tambahan,
             'keterangan' => 'Admin mengedit data',
         ]);
-    
+
         $logAktivitas->update([
             'user_id' => $request->user_id,
             'arsip_masuk_id' => $arsipMasuk->id,
@@ -272,7 +278,7 @@ class MonitoringKaryawanController extends Controller
         if ($logAktivitas->status_kerja == 'Selesai') {
             return redirect()->back()->with('error', 'Data yang sudah selesai tidak dapat dihapus!');
         }
-        
+
         $logAktivitas->delete();
         return redirect()->route('monitoring.index')->with('success', 'Data berhasil dihapus!');
     }
@@ -280,13 +286,31 @@ class MonitoringKaryawanController extends Controller
     public function advanceStage(string $id)
     {
         $monitoring = LogAktivitas::findOrFail($id);
-        
+
         if (Auth::user()->role !== 'admin' && Auth::id() != $monitoring->user_id) {
             return redirect()->back()->with('error', 'Anda tidak berhak memajukan tahapan tugas staf lain.');
         }
 
         $stages = ['Pemilahan' => 1, 'Pendataan' => 2, 'Pelabelan' => 3, 'Alih Media' => 4, 'Input E-Arsip' => 5];
         $currentWeight = $stages[$monitoring->tahapan] ?? 0;
+
+        // ====================================================================
+        // ATURAN BARU: Validasi Box Pemilahan harus rampung 100%
+        // ====================================================================
+        if ($monitoring->tahapan == 'Pemilahan') {
+            $arsip = ArsipMasuk::findOrFail($monitoring->arsip_masuk_id);
+
+            // Hitung total gabungan box selesai dari seluruh tim pada tahap Pemilahan
+            $totalPemilahanSelesai = LogAktivitas::where('arsip_masuk_id', $monitoring->arsip_masuk_id)
+                                        ->where('tahapan', 'Pemilahan')
+                                        ->sum('jumlah_box_selesai');
+
+            // Jika total tim masih kurang dari box BA awal, tolak!
+            if ($totalPemilahanSelesai < $arsip->jumlah_box_masuk) {
+                return redirect()->back()->with('error', "Gagal lanjut! Total progress Pemilahan gabungan tim saat ini baru ({$totalPemilahanSelesai} Box) dari total ({$arsip->jumlah_box_masuk} Box). Seluruh box harus selesai dipilah sebelum lanjut ke Pendataan.");
+            }
+        }
+        // ====================================================================
 
         // Pindah dari Pemilahan -> Pendataan, atau Pendataan -> Pelabelan
         if (in_array($monitoring->tahapan, ['Pemilahan', 'Pendataan'])) {
@@ -298,7 +322,7 @@ class MonitoringKaryawanController extends Controller
                 ->where('id', '!=', $monitoring->id)
                 ->get()
                 ->filter(function($peer) use ($stages, $currentWeight) {
-                    return ($stages[$peer->tahapan] ?? 0) < $currentWeight; 
+                    return ($stages[$peer->tahapan] ?? 0) < $currentWeight;
                 });
 
             if ($rekanTertinggal->count() > 0) {

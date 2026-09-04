@@ -101,12 +101,13 @@
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Nama Pengguna</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider">Email</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center">Role</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-32">Aksi</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center">Status</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-40">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @forelse($users as $index => $user)
-                                <tr class="hover:bg-red-50/30 transition duration-150">
+                                <tr class="hover:bg-red-50/30 transition duration-150 {{ !$user->is_active ? 'opacity-70 bg-gray-50' : '' }}">
                                     <td class="px-6 py-4 text-gray-500 text-center text-xs font-bold">
                                         {{ $users->firstItem() + $index }}
                                     </td>
@@ -117,6 +118,7 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 text-gray-600 text-sm">{{ $user->email }}</td>
+
                                     <td class="px-6 py-4 text-center">
                                         @if($user->role == 'admin')
                                             <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-red-50 text-[#e92027] border border-red-100">
@@ -128,20 +130,52 @@
                                             </span>
                                         @endif
                                     </td>
+
+                                    <!-- KOLOM STATUS BARU -->
+                                    <td class="px-6 py-4 text-center">
+                                        @if($user->is_active)
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-200">
+                                                Aktif
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-300">
+                                                Nonaktif
+                                            </span>
+                                        @endif
+                                    </td>
+
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex justify-center items-center gap-2">
+
+                                            <!-- Tombol Edit -->
                                             <a href="{{ route('management-akun.edit', $user->id) }}" class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm border border-gray-200 hover:border-amber-300" title="Edit">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </a>
+
                                             @if($user->id !== auth()->id())
-                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus">
-                                                <i class="fas fa-trash-alt text-xs"></i>
-                                            </button>
+
+                                                <!-- Tombol Nonaktifkan/Aktifkan -->
+                                                <form action="{{ route('management-akun.toggle-status', $user->id) }}" method="POST" class="inline" hx-disable>
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        class="w-8 h-8 flex items-center justify-center bg-white rounded-lg transition shadow-sm border border-gray-200
+                                                        {{ $user->is_active ? 'text-gray-500 hover:bg-gray-100 hover:border-gray-400' : 'text-green-600 hover:bg-green-50 hover:border-green-300' }}"
+                                                        title="{{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
+                                                        <i class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }} text-xs"></i>
+                                                    </button>
+                                                </form>
+
+                                                <!-- Tombol Hapus (Murni) -->
+                                                <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus Permanen">
+                                                    <i class="fas fa-trash-alt text-xs"></i>
+                                                </button>
                                             @endif
                                         </div>
                                     </td>
                                 </tr>
                             @empty
+                            <!-- ... baris empty tetap sama ... -->
                                 <tr>
                                     <td colspan="5" class="px-6 py-12 text-center text-gray-400 italic bg-gray-50/50 text-sm">
                                         <div class="flex flex-col items-center justify-center gap-2">

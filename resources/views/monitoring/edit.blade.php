@@ -10,15 +10,17 @@
             </div>
         @endif
 
-        <form action="{{ route('monitoring.update', $monitoring->id) }}" method="POST" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <form action="{{ route('monitoring.update', $monitoring->id) }}" method="POST" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" hx-disable>
             @csrf @method('PUT')
-            
+
             <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div>
                     <label class="block font-bold mb-2">PIC (Staf) <span class="text-red-600">*</span></label>
                     <select name="user_id" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
                         @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ old('user_id', $monitoring->user_id) == $user->id ? 'selected' : '' }}>{{ $user->nama }}</option>
+                            <option value="{{ $user->id }}" {{ old('user_id', $monitoring->user_id) == $user->id ? 'selected' : '' }}>
+                                {{ $user->nama }} {{ !$user->is_active ? '(Telah Dinonaktifkan)' : '' }}
+                            </option>
                         @endforeach
                     </select>
                 </div>

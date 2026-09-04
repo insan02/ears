@@ -84,7 +84,6 @@ class DashboardController extends Controller
                 ->orderByDesc('total_selesai')
                 ->get();
 
-            // Hitung lebar bar visualisasi berdasarkan nilai tertinggi di tahapan tersebut
             $max = $stats->max('total_selesai') ?: 1;
             $stats = $stats->map(function($item) use ($max) {
                 $item->persentase_visual = round(($item->total_selesai / $max) * 100);
@@ -115,11 +114,12 @@ class DashboardController extends Controller
         if ($request->filled('bulan')) $arsipUnitQuery->whereMonth('tanggal_terima', $request->bulan);
 
         $arsipUnitDataRaw = $arsipUnitQuery->selectRaw('unit_asal, COUNT(*) as total')
+            ->whereNotNull('unit_asal')->where('unit_asal', '!=', '') // Mencegah label kosong
             ->groupBy('unit_asal')->orderByDesc('total')->take(10)->get();
 
         $arsipUnitChart = [
-            'labels' => $arsipUnitDataRaw->pluck('unit_asal'),
-            'data' => $arsipUnitDataRaw->pluck('total')
+            'labels' => $arsipUnitDataRaw->pluck('unit_asal')->values()->toArray(),
+            'data' => $arsipUnitDataRaw->pluck('total')->values()->toArray()
         ];
 
         $klasifikasiStats = Arsip::with('klasifikasi')->get()->groupBy(function($item) {
@@ -127,18 +127,33 @@ class DashboardController extends Controller
         })->map->count()->sortDesc()->take(7);
 
         $arsipKlasifikasiChart = [
-            'labels' => $klasifikasiStats->keys()->toArray(),
+            'labels' => $klasifikasiStats->keys()->values()->toArray(),
             'data' => $klasifikasiStats->values()->toArray()
         ];
 
-        $arsipTahunStats = Arsip::select('tahun', DB::raw('count(*) as total'))->whereNotNull('tahun')->groupBy('tahun')->orderBy('tahun', 'asc')->get();
-        $arsipTahunChart = ['labels' => $arsipTahunStats->pluck('tahun')->toArray(), 'data' => $arsipTahunStats->pluck('total')->toArray()];
+        $arsipTahunStats = Arsip::select('tahun', DB::raw('count(*) as total'))
+            ->whereNotNull('tahun')->where('tahun', '!=', '')
+            ->groupBy('tahun')->orderBy('tahun', 'asc')->get();
+        $arsipTahunChart = [
+            'labels' => $arsipTahunStats->pluck('tahun')->values()->toArray(),
+            'data' => $arsipTahunStats->pluck('total')->values()->toArray()
+        ];
 
-        $arsipMediaStats = Arsip::select('jenis_media', DB::raw('count(*) as total'))->groupBy('jenis_media')->get();
-        $arsipMediaChart = ['labels' => $arsipMediaStats->pluck('jenis_media')->toArray(), 'data' => $arsipMediaStats->pluck('total')->toArray()];
+        $arsipMediaStats = Arsip::select('jenis_media', DB::raw('count(*) as total'))
+            ->whereNotNull('jenis_media')->where('jenis_media', '!=', '')
+            ->groupBy('jenis_media')->get();
+        $arsipMediaChart = [
+            'labels' => $arsipMediaStats->pluck('jenis_media')->values()->toArray(),
+            'data' => $arsipMediaStats->pluck('total')->values()->toArray()
+        ];
 
-        $arsipStatusStats = Arsip::select('tindakan_akhir', DB::raw('count(*) as total'))->whereNotNull('tindakan_akhir')->groupBy('tindakan_akhir')->get();
-        $arsipStatusChart = ['labels' => $arsipStatusStats->pluck('tindakan_akhir')->toArray(), 'data' => $arsipStatusStats->pluck('total')->toArray()];
+        $arsipStatusStats = Arsip::select('tindakan_akhir', DB::raw('count(*) as total'))
+            ->whereNotNull('tindakan_akhir')->where('tindakan_akhir', '!=', '')
+            ->groupBy('tindakan_akhir')->get();
+        $arsipStatusChart = [
+            'labels' => $arsipStatusStats->pluck('tindakan_akhir')->values()->toArray(),
+            'data' => $arsipStatusStats->pluck('total')->values()->toArray()
+        ];
 
         // VARIABEL UMUM
         $totalArsip = Arsip::count();
@@ -150,12 +165,12 @@ class DashboardController extends Controller
         return view('beranda', compact(
             'dipinjam', 'kembali', 'dataDipinjam', 'dataKembali',
             'totalArsip', 'totalBox', 'inputEArsip', 'bulanIniArsip',
-            'pemilahan', 'pendataan', 'pelabelan', 'alihMedia', 
+            'pemilahan', 'pendataan', 'pelabelan', 'alihMedia',
             'allPics', 'allUnits',
             'tahapanChartData', 'arsipBulananData', 'arsipUnitChart',
             'mediaHardfile', 'mediaSoftfile',
             'arsipKlasifikasiChart', 'arsipTahunChart', 'arsipMediaChart', 'arsipStatusChart',
-            'performancePerStage' // Data Leaderboard Baru
+            'performancePerStage'
         ));
     }
 }

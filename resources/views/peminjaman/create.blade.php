@@ -166,7 +166,8 @@
                             <div class="relative">
                                 <select name="jabatan_peminjam" x-model="jabatan" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#e92027] transition">
                                     <option value="" disabled selected>-- Pilih Jabatan --</option>
-                                    <option value="Direksi">Direksi</option><option value="Band I">Band I</option><option value="Band II">Band II</option><option value="Band III">Band III</option><option value="Band IV">Band IV</option><option value="Karyawan/Pelaksana">Karyawan/Pelaksana</option>
+                                    <option value="Direksi">Direksi</option><option value="Band I">Band I</option><option value="Band II">Band II</option><option value="Band III">Band III</option><option value="Band IV">Band IV</option>
+                                    {{-- <option value="Karyawan/Pelaksana">Karyawan/Pelaksana</option> --}}
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500"><i class="fas fa-chevron-down text-sm"></i></div>
                             </div>

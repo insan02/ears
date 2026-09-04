@@ -40,13 +40,12 @@
 
         <!-- TABS NAVIGASI -->
         <div class="container mx-auto relative z-20 -mt-12 md:-mt-10 px-4 md:px-0">
-            <div x-show="mounted"
+            <div x-show="mounted" x-cloak
                  x-transition:enter="transition ease-out duration-700 delay-300"
                  x-transition:enter-start="opacity-0 translate-y-4"
                  x-transition:enter-end="opacity-100 translate-y-0"
-                 class="flex flex-col sm:flex-row justify-center gap-2 md:gap-4 max-w-4xl mx-auto"
-                 style="display: none;"
-            >
+                 class="flex flex-col sm:flex-row justify-center gap-2 md:gap-4 max-w-4xl mx-auto">
+
                 <button @click="activeTab = 'arsip'; setTimeout(() => window.dispatchEvent(new Event('resize')), 350)"
                     :class="activeTab === 'arsip' ? 'bg-[#e92027] text-white ring-2 ring-[#e92027] shadow-lg md:scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm hover:shadow-md'"
                     class="flex-1 py-3 px-4 md:px-6 rounded-xl font-bold text-sm md:text-base transition-all duration-300 text-center border border-gray-100">
@@ -68,18 +67,16 @@
         </div>
 
         <!-- MAIN CONTENT WRAPPER -->
-        <div x-show="mounted"
+        <div x-show="mounted" x-cloak
              x-transition:enter="transition ease-out duration-700 delay-500"
              x-transition:enter-start="opacity-0 translate-y-8"
              x-transition:enter-end="opacity-100 translate-y-0"
-             class="mt-6 md:mt-8 container mx-auto px-4"
-             style="display: none;"
-        >
+             class="mt-6 md:mt-8 container mx-auto px-4">
 
             {{-- ========================================================== --}}
             {{-- 1. TAB PEMINJAMAN                                          --}}
             {{-- ========================================================== --}}
-            <div x-show="activeTab === 'peminjaman'" x-transition.opacity style="display: none;">
+            <div x-show="activeTab === 'peminjaman'" x-transition.opacity x-cloak>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
                     <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-gray-400 hover:-translate-y-1 transition duration-300">
                         <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Total Transaksi</p>
@@ -134,7 +131,20 @@
             {{-- ========================================================== --}}
             {{-- 2. TAB ARSIP                                               --}}
             {{-- ========================================================== --}}
-            <div x-show="activeTab === 'arsip'" x-transition.opacity style="display: none;">
+            <div x-show="activeTab === 'arsip'" x-transition.opacity x-cloak>
+
+                <!-- SUMMARY CARDS ARSIP -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-[#e92027] hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Total Arsip Keseluruhan</p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-gray-800">{{ number_format($totalArsip, 0, ',', '.') }}</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-blue-500 hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Arsip Masuk Bulan Ini</p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-gray-800">{{ number_format($bulanIniArsip, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
                     <div class="lg:col-span-2 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex justify-between items-center mb-6">
@@ -181,7 +191,7 @@
             {{-- ========================================================== --}}
             {{-- 3. TAB MONITORING KARYAWAN (LEADERBOARD PER TAHAPAN)       --}}
             {{-- ========================================================== --}}
-            <div x-show="activeTab === 'karyawan'" x-transition.opacity style="display: none;">
+            <div x-show="activeTab === 'karyawan'" x-transition.opacity x-cloak>
 
                 <!-- Filter Toolbar Responsif -->
                 <div class="mb-6 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 mx-4 md:mx-0">
@@ -199,7 +209,7 @@
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#e92027] transition-all truncate">
                                 <i class="fas fa-building text-gray-400 mr-1"></i> {{ $unitLabel }} {!! $chevron !!}
                             </button>
-                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                            <div x-show="open" x-cloak class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50"><input type="radio" name="unit_kerja" value="" onchange="this.form.submit()" class="hidden"> Semua Unit Kerja</label>
                                 @foreach($allUnits as $unit)
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors truncate hover:bg-gray-50"><input type="radio" name="unit_kerja" value="{{ $unit->nama_unit }}" onchange="this.form.submit()" class="hidden"> {{ $unit->nama_unit }}</label>
@@ -213,7 +223,7 @@
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#e92027] transition-all truncate">
                                 <i class="far fa-calendar-alt text-gray-400 mr-1"></i> {{ $bulanLabel }} {!! $chevron !!}
                             </button>
-                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                            <div x-show="open" x-cloak class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50"><input type="radio" name="bulan" value="" onchange="this.form.submit()" class="hidden"> Semua Bulan</label>
                                 @foreach(range(1,12) as $m)
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50"><input type="radio" name="bulan" value="{{ $m }}" onchange="this.form.submit()" class="hidden"> {{ DateTime::createFromFormat('!m', $m)->format('F') }}</label>
@@ -227,7 +237,7 @@
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#e92027] transition-all truncate">
                                 <i class="fas fa-calendar-week text-gray-400 mr-1"></i> {{ $mingguLabel }} {!! $chevron !!}
                             </button>
-                            <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
+                            <div x-show="open" x-cloak class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50"><input type="radio" name="minggu" value="" onchange="this.form.submit()" class="hidden"> Semua Minggu</label>
                                 @foreach(range(1, 5) as $w)
                                 <label class="block px-4 py-2.5 text-sm cursor-pointer transition-colors hover:bg-gray-50"><input type="radio" name="minggu" value="{{ $w }}" onchange="this.form.submit()" class="hidden"> Minggu Ke-{{ $w }}</label>
@@ -249,7 +259,7 @@
                 <!-- KPI CARDS SUMMARY -->
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6 md:mb-8 px-4 md:px-0">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col justify-center col-span-2 sm:col-span-1 lg:col-span-1">
-                        <div class="text-xs text-gray-500 font-semibold uppercase mb-1">Total Arsip</div>
+                        <div class="text-xs text-gray-500 font-semibold uppercase mb-1">Total Kinerja (Box)</div>
                         <div class="text-2xl font-black text-gray-800">{{ $totalBox }}</div>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center flex flex-col justify-center">
@@ -383,9 +393,14 @@
         </div>
     </div>
 
-    <!-- ApexCharts Script -->
+    <!-- ApexCharts & Chart.js Script -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        function renderDashboardCharts() {
+            // 1. HANCURKAN CHART LAMA (Wajib untuk HTMX/SPA)
+            // Mencegah error "Canvas is already in use" saat kembali dari menu lain
+            for (let id in Chart.instances) {
+                Chart.instances[id].destroy();
+            }
 
             // GLOBAL CONFIG CHART.JS
             Chart.defaults.font.family = "'Montserrat', sans-serif";
@@ -495,6 +510,29 @@
                     options: { responsive: true, maintainAspectRatio: false, cutout: '55%', plugins: { legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { size: 9 } } } } }
                 });
             }
-        });
+
+            // Pancing resize agar grafik fit dengan layout tab Alpine
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 200);
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 600);
+        }
+
+        // ==========================================
+        // 2. TRIGGER RENDER CHART DI SEMUA KONDISI
+        // ==========================================
+
+        // A. Jika halaman di-refresh / load normal
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderDashboardCharts);
+        } else {
+            renderDashboardCharts();
+        }
+
+        // B. Jika navigasi menggunakan HTMX
+        document.addEventListener('htmx:afterSettle', renderDashboardCharts);
+        document.addEventListener('htmx:load', renderDashboardCharts);
+
+        // C. Jika navigasi menggunakan Livewire / Turbo (Sebagai cadangan)
+        document.addEventListener('livewire:navigated', renderDashboardCharts);
+        document.addEventListener('turbo:load', renderDashboardCharts);
     </script>
 </x-layout>

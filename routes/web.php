@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/arsip/import/progress', [ArsipController::class, 'checkProgress'])->name('arsip.import.progress');
 
+    Route::post('/arsip/bulk-destroy', [ArsipController::class, 'bulkDestroy'])->name('arsip.bulk-destroy');
+
     Route::get('/api/klasifikasi-options', [ArsipController::class, 'getKlasifikasiOptions']);
 
     // Core Resource Arsip
@@ -102,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
     // FITUR MANAGEMENT AKUN & MEDIA (Admin)
     // ==========================================
     Route::resource('management-akun', ManagementAkunController::class);
+    Route::patch('/management-akun/{id}/toggle-status', [ManagementAkunController::class, 'toggleStatus'])->name('management-akun.toggle-status');
     Route::resource('manajemen-media', ManajemenMediaController::class);
     Route::resource('manajemen-unit', \App\Http\Controllers\ManajemenUnitController::class);
 

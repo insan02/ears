@@ -245,7 +245,7 @@
                                             </div>
 
                                             <div class="flex items-center gap-2 mt-2 w-full">
-                                                <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="flex-grow">
+                                                <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="flex-grow" hx-disable>
                                                     @csrf @method('PATCH')
                                                     @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                         <button type="button" disabled class="w-full px-3 py-2 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200"><i class="fas fa-clock mr-1"></i> TERTUNGGU</button>
@@ -290,7 +290,7 @@
                                             @foreach($prosesItems as $item)
                                             <tr class="hover:bg-red-50/20 transition duration-200 group text-sm">
                                                 <td class="py-4 px-6 text-center">
-                                                    <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-[180px]">
+                                                    <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-[180px]" hx-disable>
                                                         @csrf @method('PATCH')
                                                         @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                             <button type="button" disabled class="w-full px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 shadow-sm"><i class="fas fa-clock mr-1"></i> {{ strtoupper($item->status_kerja) }}</button>
@@ -469,7 +469,7 @@
                     <button onclick="closeProgressModal()" class="text-gray-400 hover:text-red-500 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
                 <div class="px-6 py-6">
-                    <form id="progressForm" onsubmit="submitProgress(event)">
+                    <form id="progressForm" onsubmit="submitProgress(event)" hx-disable>
                         <input type="hidden" id="progressId">
                         <div class="space-y-4">
                             <div>

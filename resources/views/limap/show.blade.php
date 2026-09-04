@@ -31,7 +31,7 @@
         @php
             $categories = [
                 'kesepakatan' => 'Kesepakatan', 'visi_misi' => 'Visi & Misi',
-                'pembagian_area' => 'Pembagian Area', 'struktur' => 'Struktur',
+                'pembagian_area' => 'Pembagian Area', 'struktur' => 'Struktur Organisasi',
                 'jadwal_kegiatan' => 'Jadwal Kegiatan'
             ];
         @endphp
@@ -73,7 +73,7 @@
                         @endphp
 
                         @foreach($months as $num => $monthName)
-                            <div class="border border-gray-200 rounded-xl overflow-hidden" x-data="{ openUpload: false }">
+                            <div class="border border-gray-200 rounded-xl overflow-hidden" x-data="{ openUpload: false, isUploading: false }">
                                 <button @click="expandedMonth = expandedMonth === '{{$year}}-{{$num}}' ? null : '{{$year}}-{{$num}}'" class="w-full bg-red-50 px-4 py-3 flex justify-between items-center hover:bg-red-100 transition">
                                     <span class="font-bold text-sm text-[#e92027]">{{ $monthName }}</span>
                                     <i class="fas fa-chevron-down text-[#e92027] text-xs transition-transform" :class="expandedMonth === '{{$year}}-{{$num}}' ? 'rotate-180' : ''"></i>
@@ -102,18 +102,31 @@
 
                                     @if(Auth::check() && Auth::user()->role == 'admin')
                                         <div class="pt-3 border-t border-gray-100 mt-3">
-                                            <button @click="openUpload = !openUpload" x-show="!openUpload" class="text-[10px] font-bold bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg w-full hover:bg-gray-50 shadow-sm">+ Upload PDF</button>
+                                            <!-- Pengecekan Limit PDF (Maksimal 4) -->
+                                            @if($kaizens->count() < 4)
+                                                <button @click="openUpload = !openUpload" x-show="!openUpload" class="text-[10px] font-bold bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg w-full hover:bg-gray-50 shadow-sm">+ Upload PDF</button>
 
-                                            <form x-show="openUpload" x-collapse action="{{ route('limap.kaizen.store', $data->id) }}" method="POST" enctype="multipart/form-data" hx-disable class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
-                                                @csrf
-                                                <input type="hidden" name="tahun" value="{{ $year }}">
-                                                <input type="hidden" name="bulan" value="{{ $num }}">
-                                                <input type="file" name="kaizen_files[]" multiple required accept="application/pdf" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-[#e92027] file:text-white mb-2">
-                                                <div class="flex gap-2">
-                                                    <button type="submit" class="flex-1 bg-[#e92027] text-white text-[10px] font-bold py-1.5 rounded hover:bg-red-700">Simpan</button>
-                                                    <button type="button" @click="openUpload = false" class="flex-1 bg-white border border-gray-300 text-gray-600 text-[10px] font-bold py-1.5 rounded hover:bg-gray-100">Batal</button>
-                                                </div>
-                                            </form>
+                                                <form x-show="openUpload" x-collapse @submit="isUploading = true" action="{{ route('limap.kaizen.store', $data->id) }}" method="POST" enctype="multipart/form-data" hx-disable class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+    @csrf
+    <input type="hidden" name="tahun" value="{{ $year }}">
+    <input type="hidden" name="bulan" value="{{ $num }}">
+    <input type="file" name="kaizen_files[]" multiple required accept="application/pdf" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-[#e92027] file:text-white mb-2">
+
+    <div class="flex gap-2">
+        <button type="submit" :disabled="isUploading" class="flex-1 bg-[#e92027] text-white text-[10px] font-bold py-1.5 rounded transition flex items-center justify-center gap-1" :class="isUploading ? 'opacity-70 cursor-wait' : 'hover:bg-red-700'">
+            <span x-show="!isUploading">Simpan</span>
+            <span x-show="isUploading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Menyimpan...
+            </span>
+        </button>
+        <button type="button" @click="openUpload = false" :disabled="isUploading" class="flex-1 bg-white border border-gray-300 text-gray-600 text-[10px] font-bold py-1.5 rounded transition" :class="isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'">
+            Batal
+        </button>
+    </div>
+</form>
+                                            @else
+                                                <div class="text-[10px] text-red-500 font-bold bg-red-50 p-2 rounded-lg text-center border border-red-100">Batas maksimal upload tercapai (4 PDF)</div>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -147,4 +160,20 @@
             });
         }
     </script>
+
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                html: `<div class="text-left text-sm space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <div class="text-gray-700">• {{ $error }}</div>
+                        @endforeach
+                       </div>`,
+                confirmButtonColor: '#e92027',
+                confirmButtonText: 'Tutup'
+            });
+        </script>
+    @endif
 </x-layout>

@@ -132,21 +132,57 @@ class ManagementAkunController extends Controller
         return redirect()->route('management-akun.index')->with('success', 'Data pengguna berhasil diperbarui!');
     }
 
+    /**
+     * MENGUBAH STATUS AKTIF/NONAKTIF
+     */
+    public function toggleStatus(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        // Cegah menonaktifkan admin terakhir
+        if ($user->role === 'admin' && $user->is_active) {
+            $activeAdminCount = User::where('role', 'admin')->where('is_active', true)->count();
+            if ($activeAdminCount <= 1) {
+                return back()->withErrors(['error' => 'Tindakan Ditolak: Harus ada minimal 1 Admin aktif di sistem.']);
+            }
+        }
+
+        // Toggle status boolean (true jadi false, false jadi true)
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->route('management-akun.index')->with('success', "Akun {$user->nama} berhasil $status.");
+    }
+
+    /**
+     * MENGHAPUS PENGGUNA (DENGAN VALIDASI RELASI)
+     */
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
 
-        // Mencegah penghapusan jika itu adalah admin terakhir di sistem
+        // 1. CEK RELASI DATA KE ARSIP MASUK & MONITORING KINERJA
+        $isLinkedToArsipMasuk = DB::table('arsip_masuk')->where('user_penerima', $user->id)->exists();
+        $isLinkedToLogAktivitas = DB::table('log_aktivitas')->where('user_id', $user->id)->exists();
+        $isLinkedToRiwayat = DB::table('riwayat_monitoring')->where('user_id', $user->id)->exists();
+
+        // Jika terhubung ke salah satu tabel di atas, tolak penghapusan!
+        if ($isLinkedToArsipMasuk || $isLinkedToLogAktivitas || $isLinkedToRiwayat) {
+            return back()->withErrors(['error' => 'Tindakan Ditolak: Akun ini tidak bisa dihapus karena sudah memiliki riwayat pekerjaan (Arsip/Monitoring). Silakan gunakan fitur Nonaktifkan akun.']);
+        }
+
+        // 2. CEK ADMIN TERAKHIR
         if ($user->role === 'admin') {
             $adminCount = User::where('role', 'admin')->count();
             if ($adminCount <= 1) {
-                return back()->withErrors(['error' => 'Tindakan Ditolak: Harus ada minimal 1 Admin di dalam sistem. Anda tidak bisa menghapus satu-satunya Admin.']);
+                return back()->withErrors(['error' => 'Tindakan Ditolak: Harus ada minimal 1 Admin di dalam sistem.']);
             }
         }
 
         $user->delete();
 
-        // Jika admin menghapus akunnya sendiri, otomatis logout sistem agar tidak error
+        // 3. JIKA HAPUS AKUN SENDIRI
         if ($id == Auth::id()) {
             Auth::logout();
             request()->session()->invalidate();
@@ -154,6 +190,6 @@ class ManagementAkunController extends Controller
             return redirect()->route('login')->with('success', 'Akun Anda berhasil dihapus.');
         }
 
-        return redirect()->route('management-akun.index')->with('success', 'Pengguna berhasil dihapus!');
+        return redirect()->route('management-akun.index')->with('success', 'Pengguna berhasil dihapus permanen!');
     }
 }
