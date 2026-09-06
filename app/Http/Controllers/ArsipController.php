@@ -101,10 +101,14 @@ class ArsipController extends Controller
         // Search logic
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nama_berkas', 'like', "%{$search}%")
+            $searchTerm = '*' . $search . '*';
+
+            $query->where(function($q) use ($searchTerm, $search) {
+                // MATCH AGAINST khusus untuk kolom teks panjang
+                $q->whereRaw("MATCH(nama_berkas, isi) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
+                  // Gunakan LIKE untuk no_berkas
                   ->orWhere('no_berkas', 'like', "%{$search}%")
-                  ->orWhere('isi', 'like', "%{$search}%")
+                  // Sisa pencarian lainnya
                   ->orWhere('unit_pengolah', 'like', "%{$search}%")
                   ->orWhere('tahun', 'like', "%{$search}%")
                   ->orWhere('jumlah', 'like', "%{$search}%")
@@ -343,10 +347,11 @@ class ArsipController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nama_berkas', 'like', "%{$search}%")
-                  ->orWhere('no_berkas', 'like', "%{$search}%")
-                  ->orWhere('isi', 'like', "%{$search}%");
+            $searchTerm = '*' . $search . '*';
+
+            $query->where(function($q) use ($searchTerm, $search) {
+                $q->whereRaw("MATCH(nama_berkas, isi) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
+                  ->orWhere('no_berkas', 'like', "%{$search}%"); // <-- Tambahkan baris ini
             });
         }
 

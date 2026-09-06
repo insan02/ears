@@ -119,7 +119,7 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 group-focus-within:text-[#e92027]">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </span>
-                        <input type="text" name="search" value="{{ request('search') }}" onchange="this.form.submit()" placeholder="Cari peminjam, berkas, box, atau isi..."
+                        <input type="text" name="search" value="{{ request('search') }}" onchange="this.form.submit()" placeholder="Cari peminjam, berkas, atau isi..."
                                class="w-full py-3 pl-12 pr-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027] text-sm font-medium shadow-sm transition">
                     </div>
 

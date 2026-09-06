@@ -50,10 +50,12 @@ class ArsipExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             // Apply Filters (Search, Status, Hak Akses, Tahun)
             if ($this->search) {
                 $search = $this->search;
-                $query->where(function($q) use ($search) {
-                    $q->where('nama_berkas', 'like', "%{$search}%")
-                      ->orWhere('no_berkas', 'like', "%{$search}%")
-                      ->orWhere('isi', 'like', "%{$search}%")
+                $searchTerm = '*' . $search . '*';
+                $query->where(function($q) use ($searchTerm, $search) {
+                    $q->whereRaw("MATCH(nama_berkas, isi) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
+                      ->orWhere('no_berkas', 'like', "%{$search}%") // <-- Kembalikan no_berkas pakai LIKE
+                      ->orWhere('unit_pengolah', 'like', "%{$search}%")
+                      ->orWhere('no_box', 'like', "%{$search}%")
                       ->orWhereHas('klasifikasi', function($q2) use ($search) {
                           $q2->where('kode_klasifikasi', 'like', "%{$search}%");
                       });

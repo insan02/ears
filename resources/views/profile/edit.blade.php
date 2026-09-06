@@ -1,7 +1,7 @@
 <x-layout>
     {{-- Inisialisasi state isSubmitting --}}
     <div x-data="{ isSubmitting: false }" class="relative">
-        
+
         <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
             <h2 class="text-2xl font-bold text-[#8B1A1A] mb-8 border-b pb-4">Edit Profile</h2>
 
@@ -27,28 +27,31 @@
                 @method('PUT')
 
                 {{-- 1. FOTO PROFIL --}}
-                <div class="flex items-center gap-8">
-                    <div class="shrink-0 relative group">
-                        @if($user->photo)
-                            <img id="preview-photo" src="{{ asset($user->photo) }}" alt="Foto Profil"
-                                class="w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-md">
-                        @else
-                            <div class="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center text-[#e92027] border-4 border-gray-100 shadow-md">
-                                <span class="text-4xl font-bold">{{ substr($user->nama, 0, 1) }}</span>
-                            </div>
-                            <img id="preview-photo" src="" class="hidden w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-md absolute top-0 left-0">
-                        @endif
+        <div class="flex items-center gap-8">
+            <div class="shrink-0 relative group">
+                @if($user->photo)
+                    {{-- PERBAIKAN: Membaca gambar dari Storage, tapi tetap aman untuk foto lama (backward compatibility) --}}
+                    <img id="preview-photo"
+                        src="{{ str_starts_with($user->photo, 'images/') ? asset($user->photo) : asset('storage/' . $user->photo) }}"
+                        alt="Foto Profil"
+                        class="w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-md">
+                @else
+                    <div class="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center text-[#e92027] border-4 border-gray-100 shadow-md">
+                        <span class="text-4xl font-bold">{{ substr($user->nama, 0, 1) }}</span>
+                    </div>
+                    <img id="preview-photo" src="" class="hidden w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-md absolute top-0 left-0">
+                @endif
 
-                        <label for="photo" class="absolute bottom-0 right-0 bg-white border border-gray-200 p-2 rounded-full shadow-lg cursor-pointer hover:bg-gray-50 transition">
-                            <i class="fas fa-camera text-gray-600"></i>
-                            <input type="file" id="photo" name="photo" class="hidden" accept="image/*" onchange="previewImage(this)">
-                        </label>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-gray-800 text-lg">Foto Profil</h3>
-                        <p class="text-gray-500 text-sm">Format JPG, JPEG, PNG. Maksimal 2MB.</p>
-                    </div>
-                </div>
+                <label for="photo" class="absolute bottom-0 right-0 bg-white border border-gray-200 p-2 rounded-full shadow-lg cursor-pointer hover:bg-gray-50 transition">
+                    <i class="fas fa-camera text-gray-600"></i>
+                    <input type="file" id="photo" name="photo" class="hidden" accept="image/*" onchange="previewImage(this)">
+                </label>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-800 text-lg">Foto Profil</h3>
+                <p class="text-gray-500 text-sm">Format JPG, JPEG, PNG. Maksimal 2MB.</p>
+            </div>
+        </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {{-- 2. INFORMASI DASAR --}}
@@ -91,7 +94,7 @@
         </div>
 
         {{-- ANIMASI LOADING OVERLAY --}}
-        <div x-show="isSubmitting" style="display: none;" 
+        <div x-show="isSubmitting" style="display: none;"
             class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
             <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4 animate-bounce">
                 <!-- Spinner Tailwind -->

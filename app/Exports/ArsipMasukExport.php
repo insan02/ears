@@ -6,7 +6,7 @@ use App\Models\ArsipMasuk;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnWidths; // <-- Gunakan ini sebagai ganti ShouldAutoSize
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -15,13 +15,10 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class ArsipMasukExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles, WithDrawings, WithCustomStartCell, WithEvents
+// HAPUS ShouldAutoSize, GANTI JADI WithColumnWidths
+class ArsipMasukExport implements FromQuery, WithHeadings, WithMapping, WithColumnWidths, WithStyles, WithDrawings, WithCustomStartCell, WithEvents
 {
-    protected $ids;
-    protected $search;
-    protected $unit_asal;
-    protected $year;
-    protected $penerima;
+    protected $ids, $search, $unit_asal, $year, $penerima;
 
     public function __construct($ids = null, $search = null, $unit_asal = null, $year = null, $penerima = null)
     {
@@ -39,6 +36,7 @@ class ArsipMasukExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
         if (!empty($this->ids)) {
             $query->whereIn('id', $this->ids);
         } else {
+            // PERBAIKAN: Gunakan LIKE
             if ($this->search) {
                 $search = $this->search;
                 $query->where(function($q) use ($search) {
@@ -50,17 +48,9 @@ class ArsipMasukExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
                 });
             }
 
-            if ($this->unit_asal) {
-                $query->where('unit_asal', $this->unit_asal);
-            }
-
-            if ($this->year) {
-                $query->whereYear('tanggal_terima', $this->year);
-            }
-
-            if ($this->penerima) {
-                $query->where('user_penerima', $this->penerima);
-            }
+            if ($this->unit_asal) $query->where('unit_asal', $this->unit_asal);
+            if ($this->year) $query->whereYear('tanggal_terima', $this->year);
+            if ($this->penerima) $query->where('user_penerima', $this->penerima);
         }
 
         $query->orderBy('id', 'desc');
@@ -90,16 +80,28 @@ class ArsipMasukExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
         ];
     }
 
+    // PERBAIKAN: Tentukan lebar kolom secara manual agar Excel tidak lemot
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 25, // No Berita Acara
+            'B' => 30, // Unit Asal
+            'C' => 18, // Tanggal Terima
+            'D' => 15, // Jumlah Box
+            'E' => 30, // Penerima
+        ];
+    }
+
     public function styles(Worksheet $sheet)
     {
         return [
-            5 => ['font' => ['bold' => true]], // Header row is now at row 5
+            5 => ['font' => ['bold' => true]],
         ];
     }
 
     public function startCell(): string
     {
-        return 'A5'; // Start data at A5 to make room for header
+        return 'A5';
     }
 
     public function drawings()
@@ -119,30 +121,23 @@ class ArsipMasukExport implements FromQuery, WithHeadings, WithMapping, ShouldAu
         return [
             AfterSheet::class => function(AfterSheet $event) {
                 $sheet = $event->sheet;
-
-                // Merge cells for Title
                 $sheet->mergeCells('B1:E1');
                 $sheet->mergeCells('B2:E2');
                 $sheet->mergeCells('B3:E3');
 
-                // Set Title Text
                 $sheet->setCellValue('B1', 'PT SEMEN PADANG');
                 $sheet->setCellValue('B2', 'DAFTAR ARSIP MASUK');
                 $sheet->setCellValue('B3', 'Indarung, Padang 25237, Sumatera Barat');
 
-                // Style Title
                 $sheet->getStyle('B1')->getFont()->setBold(true)->setSize(16)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_DARKRED));
                 $sheet->getStyle('B2')->getFont()->setBold(true)->setSize(14);
                 $sheet->getStyle('B3')->getFont()->setSize(10);
-
-                // Align Center
                 $sheet->getStyle('B1:B3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
-                // Style Table Header (Row 5)
                 $sheet->getStyle('A5:E5')->getFill()
                       ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                      ->getStartColor()->setARGB('FFFCE4E4'); // Light red
-                
+                      ->getStartColor()->setARGB('FFFCE4E4');
+
                 $sheet->getStyle('A5:E5')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
             },
         ];

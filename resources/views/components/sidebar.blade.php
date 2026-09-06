@@ -33,7 +33,7 @@
             <div class="mx-auto bg-red-50 rounded-full flex items-center justify-center text-[#e92027] border-2 border-[#e92027] overflow-hidden group-hover:border-[#c41820] shadow-sm transition-all duration-300 shrink-0"
                  :class="sidebarOpen ? 'w-10 h-10 mb-1' : 'w-8 h-8 mb-0'">
                 @if(Auth::user()->photo)
-                    <img src="{{ asset(Auth::user()->photo) }}" alt="Profile" class="w-full h-full object-cover">
+                    <img src="{{ str_starts_with(Auth::user()->photo, 'images/') ? asset(Auth::user()->photo) : asset('storage/' . Auth::user()->photo) }}" alt="Profile" class="w-full h-full object-cover">
                 @else
                     <span class="font-bold" :class="sidebarOpen ? 'text-sm' : 'text-xs'">{{ substr(Auth::user()->nama, 0, 1) }}</span>
                 @endif
@@ -204,7 +204,7 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <a href="{{ route('profile.edit') }}" class="flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 border-b border-gray-50">
                             @if(Auth::user()->photo)
-                                <img src="{{ asset(Auth::user()->photo) }}" class="w-9 h-9 rounded-full object-cover shadow-sm">
+                                <img src="{{ str_starts_with(Auth::user()->photo, 'images/') ? asset(Auth::user()->photo) : asset('storage/' . Auth::user()->photo) }}" class="w-9 h-9 rounded-full object-cover shadow-sm">
                             @else
                                 <div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center text-gray-500"><i class="fas fa-user"></i></div>
                             @endif

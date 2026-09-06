@@ -95,9 +95,6 @@
                         <button onclick="submitExport('excel')" class="flex items-center justify-center gap-1.5 w-full md:w-auto px-3 md:px-4 py-2.5 bg-green-50 text-green-700 border border-green-200 rounded-xl text-sm font-bold hover:bg-green-100 hover:shadow-md transition-all active:scale-95">
                             <i class="fas fa-file-excel"></i> <span class="hidden sm:inline">Excel</span>
                         </button>
-                        <button onclick="submitExport('pdf')" class="flex items-center justify-center gap-1.5 w-full md:w-auto px-3 md:px-4 py-2.5 bg-red-50 text-[#c41820] border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 hover:shadow-md transition-all active:scale-95">
-                            <i class="fas fa-file-pdf"></i> <span class="hidden sm:inline">PDF</span>
-                        </button>
                         <button onclick="submitExport('print')" class="flex items-center justify-center gap-1.5 w-full md:w-auto px-3 md:px-4 py-2.5 bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-sm font-bold hover:bg-gray-100 hover:shadow-md transition-all active:scale-95">
                             <i class="fas fa-print"></i> <span class="hidden sm:inline">Print</span>
                         </button>

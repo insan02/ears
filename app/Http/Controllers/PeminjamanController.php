@@ -28,21 +28,26 @@ class PeminjamanController extends Controller
 
         $query = DetailPeminjaman::with(['peminjaman', 'arsip']);
 
+        // OPTIMASI: PENGGUNAAN FULLTEXT SEARCH UNTUK PEMINJAMAN
+        // OPTIMASI: PENGGUNAAN FULLTEXT SEARCH UNTUK PEMINJAMAN
         if ($request->filled('search')) {
             $keyword = $request->search;
-            $query->where(function ($q) use ($keyword) {
-                $q->whereHas('peminjaman', function ($qP) use ($keyword) {
-                    $qP->where('nama_peminjam', 'LIKE', "%$keyword%")
-                        ->orWhere('nip', 'LIKE', "%$keyword%")
-                        ->orWhere('unit_peminjam', 'LIKE', "%$keyword%");
+            $searchTerm = '*' . $keyword . '*';
+
+            $query->where(function ($q) use ($searchTerm, $keyword) {
+                // 1. Cari di tabel Peminjaman
+                $q->whereHas('peminjaman', function ($qP) use ($searchTerm) {
+                    $qP->whereRaw("MATCH(nama_peminjam, nip, unit_peminjam, jabatan_peminjam, keperluan) AGAINST(? IN BOOLEAN MODE)", [$searchTerm]);
                 })
-                    ->orWhere('nama_arsip', 'LIKE', "%$keyword%")
-                    ->orWhere('no_box', 'LIKE', "%$keyword%")
-                    ->orWhereHas('arsip', function ($qArsip) use ($keyword) {
-                        $qArsip->where('nama_berkas', 'LIKE', "%$keyword%")
-                            ->orWhere('no_berkas', 'LIKE', "%$keyword%")
-                            ->orWhere('isi', 'LIKE', "%$keyword%");
-                    });
+                // 2. Cari di tabel Detail Peminjaman (Manual Input)
+                ->orWhereRaw("MATCH(nama_arsip, no_box) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
+
+                // 3. Cari di tabel Master Arsip (Relasi)
+                // PERBAIKAN: Tambahkan $keyword di dalam kurung use() di bawah ini
+                ->orWhereHas('arsip', function ($qArsip) use ($searchTerm, $keyword) {
+                    $qArsip->whereRaw("MATCH(nama_berkas, isi) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
+                           ->orWhere('no_berkas', 'like', "%{$keyword}%");
+                });
             });
         }
 

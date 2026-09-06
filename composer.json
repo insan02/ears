@@ -13,6 +13,7 @@
         "barryvdh/laravel-dompdf": "*",
         "doctrine/dbal": "*",
         "laravel/framework": "^12.0",
+        "laravel/scout": "^11.6",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "*"
     },

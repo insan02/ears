@@ -55,26 +55,22 @@ class MonitoringKaryawanController extends Controller
 
     public function index(Request $request)
     {
-        // =========================================================================================
-        // PERBAIKAN: AUTO-SELESAI JIKA USER NONAKTIF
-        // Mengecek semua tugas yang masih "Proses" milik user yang sudah nonaktif (is_active = 0)
-        // lalu memindahkannya secara otomatis ke status "Selesai".
-        // =========================================================================================
         LogAktivitas::whereHas('user', function($query) {
             $query->where('is_active', false);
         })->where('status_kerja', '!=', 'Selesai')->update(['status_kerja' => 'Selesai']);
 
         $query = LogAktivitas::with('user')->orderBy('arsip_masuk_id', 'desc')->orderBy('tahapan', 'asc');
 
+        // PERBAIKAN: KEMBALI MENGGUNAKAN 'LIKE' UNTUK KODE BERSIMBOL
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->whereHas('user', function($userQuery) use ($search) {
-                    $userQuery->where('nama', 'like', "%{$search}%");
-                })
-                ->orWhere('tahapan', 'like', "%{$search}%")
-                ->orWhere('unit_kerja', 'like', "%{$search}%")
-                ->orWhere('nba', 'like', "%{$search}%");
+                $q->where('nba', 'like', "%{$search}%")
+                  ->orWhere('unit_kerja', 'like', "%{$search}%")
+                  ->orWhere('tahapan', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('nama', 'like', "%{$search}%");
+                  });
             });
         }
 

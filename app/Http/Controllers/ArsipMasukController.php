@@ -7,12 +7,12 @@ use App\Models\User;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ArsipMasukController extends Controller
 {
     public function index(Request $request)
     {
-        // TAMBAHKAN withCount() dan withExists()
         $query = ArsipMasuk::with('penerima')
             ->withCount('logAktivitas')
             ->withExists(['logAktivitas as is_completed' => function ($query) {
@@ -20,6 +20,7 @@ class ArsipMasukController extends Controller
             }])
             ->orderBy('id', 'desc');
 
+        // PERBAIKAN: KEMBALI MENGGUNAKAN 'LIKE' UNTUK KODE BERSIMBOL
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -31,17 +32,9 @@ class ArsipMasukController extends Controller
             });
         }
 
-        if ($request->filled('unit_asal')) {
-            $query->where('unit_asal', $request->unit_asal);
-        }
-
-        if ($request->filled('penerima')) {
-            $query->where('user_penerima', $request->penerima);
-        }
-
-        if ($request->filled('year')) {
-            $query->whereYear('tanggal_terima', $request->year);
-        }
+        if ($request->filled('unit_asal')) $query->where('unit_asal', $request->unit_asal);
+        if ($request->filled('penerima')) $query->where('user_penerima', $request->penerima);
+        if ($request->filled('year')) $query->whereYear('tanggal_terima', $request->year);
 
         $arsipMasuk = $query->paginate(20)->withQueryString();
 
@@ -66,16 +59,6 @@ class ArsipMasukController extends Controller
 
         if ($type === 'excel') {
             return \Maatwebsite\Excel\Facades\Excel::download($export, $filename);
-        }
-
-        if ($type === 'pdf') {
-            $query = $export->query();
-            $data = $query->get();
-            $isPdf = true;
-
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('arsip-masuk.pdf', compact('data', 'isPdf'));
-            $pdf->setPaper('a4', 'landscape');
-            return $pdf->download($filename);
         }
 
         if ($type === 'print') {
@@ -148,13 +131,18 @@ class ArsipMasukController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // CEK SEKALI LAGI SEBELUM UPDATE
         $isCompleted = LogAktivitas::where('arsip_masuk_id', $id)->where('tahapan', 'Input E-Arsip')->exists();
         if ($isCompleted) {
             return redirect()->back()->with('error', 'Gagal! Data ini sudah mencapai tahapan E-Arsip di menu Monitoring sehingga tidak dapat diedit lagi.');
         }
 
         $arsipMasuk->update($request->all());
+
+        // PERBAIKAN: SINKRONISASI PERUBAHAN KE TABEL MONITORING (LOG AKTIVITAS)
+        LogAktivitas::where('arsip_masuk_id', $arsipMasuk->id)->update([
+            'nba' => $request->nomor_berita_acara,
+            'unit_kerja' => $request->unit_asal
+        ]);
 
         return redirect()->route('arsip-masuk.index')->with('success', 'Data Arsip Masuk berhasil diperbarui.');
     }

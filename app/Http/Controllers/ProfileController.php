@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage; // <-- PERBAIKAN: Import Facade Storage
 use App\Notifications\EmailUpdatedNotification;
 
 class ProfileController extends Controller
@@ -20,18 +21,25 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
-        $oldEmail = $user->email; 
+        $oldEmail = $user->email;
 
+        // PERBAIKAN: Pesan error disamakan dan diperjelas seperti di ResetPasswordController
         $messages = [
-            'required' => 'Isi kolom :attribute',
-            'email' => 'Format email tidak valid',
-            'max' => 'Maksimal :max karakter',
-            'min' => 'Password minimal :min karakter',
-            'unique' => ':attribute sudah terdaftar',
-            'confirmed' => 'Konfirmasi password tidak cocok',
-            'image' => 'File harus berupa gambar',
-            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, dan minimal satu simbol yang diizinkan (@, #, $, %, ^, &, *, !, ?).',
+            'required' => 'Isi kolom :attribute.',
+            'email' => 'Format email tidak valid.',
+            'max' => 'Maksimal :max karakter.',
+            'nama.max' => 'Nama maksimal 255 karakter.',
+            'email.max' => 'Email maksimal 255 karakter.',
+            'password.min' => 'Password baru minimal harus 8 karakter.',
+            'password.max' => 'Password baru tidak boleh lebih dari 16 karakter.',
+            'unique' => ':attribute sudah terdaftar di sistem.',
+            'confirmed' => 'Konfirmasi password tidak cocok dengan password baru.',
+            'image' => 'File harus berupa gambar.',
+            'photo.max' => 'Ukuran foto profil tidak boleh lebih dari 2MB.',
+            // Pesan Regex diperjelas
+            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan minimal satu simbol (@, #, $, %, ^, &, *, !, ?). Spasi dilarang.',
         ];
 
         $validated = $request->validate([
@@ -43,17 +51,16 @@ class ProfileController extends Controller
                 'confirmed',
                 'min:8',
                 'max:16',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&*!?])[A-Za-z\d@#$%^&*!?]+$/'
+                // PERBAIKAN: Menambahkan (?=.*\d) agar password wajib mengandung minimal 1 angka
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&*!?])[A-Za-z\d@#$%^&*!?]+$/'
             ],
         ], $messages);
 
-        // Buat flag/penanda apakah kredensial penting berubah
         $isEmailChanged = $oldEmail !== $validated['email'];
         $isPasswordChanged = !empty($validated['password']);
 
-        // Tambahkan $isPasswordChanged di dalam array use()
         DB::transaction(function () use ($validated, $request, $user, $isEmailChanged, $isPasswordChanged) {
-            
+
             if ($isEmailChanged) {
                 DB::table('authorized_emails')->insertOrIgnore(['email' => $validated['email']]);
             }
@@ -61,15 +68,23 @@ class ProfileController extends Controller
             $user->nama = $validated['nama'];
             $user->email = $validated['email'];
 
-            // Handle Photo Upload
+            // ==========================================
+            // PERBAIKAN: HANDLE UPLOAD FOTO KE STORAGE
+            // ==========================================
             if ($request->hasFile('photo')) {
                 $file = $request->file('photo');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('images/profiles'), $filename);
-                $user->photo = 'images/profiles/' . $filename;
+                $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+
+                // Hapus foto lama dari storage public (jika ada dan bukan gambar bawaan sistem)
+                if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+                    Storage::disk('public')->delete($user->photo);
+                }
+
+                // Simpan foto baru ke folder storage/app/public/profiles
+                $path = $file->storeAs('profiles', $filename, 'public');
+                $user->photo = $path; // Menyimpan teks 'profiles/filename.jpg' ke DB
             }
 
-            // Handle Password Update
             if ($isPasswordChanged) {
                 $user->password = Hash::make($validated['password']);
             }
@@ -77,12 +92,10 @@ class ProfileController extends Controller
             $user->save();
         });
 
-        // Kirim notifikasi jika email berubah
         if ($isEmailChanged) {
             $user->notify(new EmailUpdatedNotification());
         }
 
-        // LOGIKA BARU: Tentukan pesan spesifik berdasarkan apa yang diubah
         $logoutMessage = '';
         if ($isEmailChanged && $isPasswordChanged) {
             $logoutMessage = 'Email dan Password berhasil diubah. Silakan login kembali demi keamanan.';
@@ -92,18 +105,15 @@ class ProfileController extends Controller
             $logoutMessage = 'Password berhasil diubah. Silakan login kembali demi keamanan.';
         }
 
-        // Jika email atau password berubah, paksa logout
         if ($isEmailChanged || $isPasswordChanged) {
             Auth::logout();
-            
+
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            // Kirim pesan spesifik menggunakan session 'success'
             return redirect()->route('login')->with('success', $logoutMessage);
         }
 
-        // Jika hanya ganti nama atau foto profil, tetap di halaman edit
         return back()->with('success', 'Profil berhasil diperbarui!');
     }
 }
