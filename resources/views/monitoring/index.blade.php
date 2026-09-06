@@ -26,12 +26,17 @@
                      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 drop-shadow-md">Monitoring Kinerja</h2>
                      <p class="text-red-50 text-sm md:text-base font-light opacity-95 max-w-lg leading-relaxed drop-shadow-sm">Pantau progres dan aktivitas tim per Berita Acara secara real-time.</p>
                 </div>
-                <a href="{{ route('monitoring.create') }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-full font-bold shadow-xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
-                    <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors">
-                        <svg class="w-5 h-5 text-[#e92027]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                    </div>
-                    <span class="text-sm md:text-base">TAMBAH DATA</span>
-                </a>
+                <div class="flex gap-2">
+                    <a href="{{ route('monitoring.export', request()->all()) }}" target="_blank" hx-disable data-turbo="false" class="group bg-green-600 text-white hover:bg-green-700 px-5 py-3 rounded-full font-bold shadow-xl flex items-center gap-2 transition-all duration-300 transform hover:-translate-y-1">
+    <i class="fas fa-file-excel"></i> <span class="hidden md:inline text-sm md:text-base">EXPORT</span>
+</a>
+                    <a href="{{ route('monitoring.create') }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-full font-bold shadow-xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
+                        <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors">
+                            <svg class="w-5 h-5 text-[#e92027]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        </div>
+                        <span class="text-sm md:text-base">TAMBAH DATA</span>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -157,7 +162,7 @@
                 </form>
             </div>
 
-            <!-- TAMPILAN BERDASARKAN BERITA ACARA (GROUPING DENGAN TABS) -->
+           <!-- TAMPILAN BERDASARKAN BERITA ACARA (GROUPING DENGAN TABS) -->
             @php
                 $groupedMonitoring = $monitoring->groupBy('arsip_masuk_id');
             @endphp
@@ -166,258 +171,273 @@
                 @php
                     $prosesItems = $items->filter(fn($i) => $i->status_kerja !== 'Selesai');
                     $selesaiItems = $items->filter(fn($i) => $i->status_kerja === 'Selesai');
+
+                    // Cek apakah BA ini sudah selesai 100% (tidak ada lagi yang diproses)
+                    $isFullyCompleted = $prosesItems->isEmpty();
                 @endphp
 
-                <div x-data="{ tab: 'proses' }" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 mb-10">
+                <!-- Wrapper dengan Alpine JS (Expanded bernilai false jika sudah selesai semua) -->
+                <div x-data="{
+                        tab: '{{ $isFullyCompleted ? 'selesai' : 'proses' }}',
+                        expanded: {{ $isFullyCompleted ? 'false' : 'true' }}
+                     }"
+                     class="bg-white rounded-3xl shadow-xl border border-gray-200 mb-6 transition-all duration-300">
 
-                    <!-- Judul Group NBA -->
-                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                    <!-- Judul Group NBA (Bisa Diklik untuk Buka/Tutup) -->
+                    <div @click="expanded = !expanded" class="bg-gray-50 px-6 py-4 rounded-t-3xl flex flex-col md:flex-row md:justify-between md:items-center gap-4 cursor-pointer hover:bg-gray-100 transition-colors" :class="expanded ? '' : 'rounded-b-3xl'">
                         <div class="flex items-center gap-4">
-                            <div class="p-3 bg-[#e92027] rounded-xl shadow-md text-white">
-                                <i class="fas fa-folder-open text-xl"></i>
+                            <div class="p-3 rounded-xl shadow-sm text-white transition-colors" :class="expanded ? 'bg-[#e92027]' : 'bg-gray-400'">
+                                <i class="fas" :class="expanded ? 'fa-folder-open' : 'fa-folder'"></i>
                             </div>
                             <div>
-                                <h3 class="font-extrabold text-gray-800 text-lg md:text-xl">
+                                <h3 class="font-extrabold text-gray-800 text-lg md:text-xl flex flex-wrap items-center gap-2">
                                     BA: {{ $items->first()->nba ?: 'Tanpa Berita Acara' }}
+                                    @if($isFullyCompleted)
+                                        <span class="bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider shadow-sm">
+                                            <i class="fas fa-check-double mr-1"></i> Tuntas
+                                        </span>
+                                    @endif
                                 </h3>
-                                <p class="text-xs text-gray-500 font-bold uppercase">{{ $items->first()->unit_kerja }}</p>
+                                <p class="text-xs text-gray-500 font-bold uppercase mt-1">{{ $items->first()->unit_kerja }}</p>
                             </div>
                         </div>
-                        <div class="bg-white text-gray-800 px-5 py-2 rounded-xl text-sm font-bold border border-gray-200 shadow-sm self-start md:self-auto flex items-center gap-2">
-                            <i class="fas fa-box text-gray-400"></i> BA Awal: {{ $items->first()->jumlah_box }} Box
+                        <div class="flex items-center justify-between w-full md:w-auto gap-6">
+                            <div class="bg-white text-gray-800 px-5 py-2 rounded-xl text-sm font-bold border border-gray-200 shadow-sm flex items-center gap-2">
+                                <i class="fas fa-box text-gray-400"></i> BA Awal: {{ $items->first()->jumlah_box }} Box
+                            </div>
+                            <div class="text-gray-400 transform transition-transform duration-300" :class="expanded ? 'rotate-180' : ''">
+                                <i class="fas fa-chevron-down text-xl"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Alpine TABS Header -->
-                    <div class="flex border-b border-gray-200 bg-white">
-                        <button @click="tab = 'proses'"
-                                :class="tab === 'proses' ? 'border-[#e92027] text-[#e92027] bg-red-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
-                                class="flex-1 md:flex-none px-6 py-3.5 border-b-2 font-bold text-sm transition-all flex items-center justify-center gap-2 outline-none">
-                            <i class="fas fa-spinner fa-spin" x-show="tab === 'proses'"></i>
-                            Sedang Proses <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{{ $prosesItems->count() }}</span>
-                        </button>
-                        <button @click="tab = 'selesai'"
-                                :class="tab === 'selesai' ? 'border-emerald-500 text-emerald-600 bg-emerald-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
-                                class="flex-1 md:flex-none px-6 py-3.5 border-b-2 font-bold text-sm transition-all flex items-center justify-center gap-2 outline-none">
-                            <i class="fas fa-check-circle" x-show="tab === 'selesai'"></i>
-                            Riwayat Selesai <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{{ $selesaiItems->count() }}</span>
-                        </button>
-                    </div>
+                    <!-- Area Konten yang Bisa Dilipat -->
+                    <div x-show="expanded" x-transition.opacity style="display: none;">
 
-                    <!-- KONTEN TAB: SEDANG PROSES -->
-                    <div x-show="tab === 'proses'" x-transition.opacity>
-                        @if($prosesItems->isEmpty())
-                            <div class="p-8 text-center text-gray-400">
-                                <i class="fas fa-clipboard-check text-4xl mb-3 text-gray-200"></i>
-                                <p class="text-sm font-medium">Tidak ada tugas yang sedang dikerjakan pada BA ini.</p>
-                            </div>
-                        @else
-                            <!-- MOBILE VIEW (CARD) -->
-                            <div class="md:hidden p-4 bg-gray-50/50 space-y-4">
-                                @foreach($prosesItems as $item)
-                                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm relative">
-                                        <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
-                                            <div>
-                                                <div class="font-extrabold text-gray-900 text-lg">{{ $item->user->nama ?? '-' }}</div>
-                                                <div class="text-[11px] text-gray-500">{{ \Carbon\Carbon::parse($item->tanggal_kerja)->format('d M Y') }}</div>
-                                            </div>
-                                        </div>
+                        <!-- Alpine TABS Header -->
+                        <div class="flex border-y border-gray-200 bg-white">
+                            <button @click="tab = 'proses'"
+                                    :class="tab === 'proses' ? 'border-[#e92027] text-[#e92027] bg-red-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                                    class="flex-1 md:flex-none px-6 py-3.5 border-b-2 font-bold text-sm transition-all flex items-center justify-center gap-2 outline-none">
+                                <i class="fas fa-spinner fa-spin" x-show="tab === 'proses'"></i>
+                                Sedang Proses <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{{ $prosesItems->count() }}</span>
+                            </button>
+                            <button @click="tab = 'selesai'"
+                                    :class="tab === 'selesai' ? 'border-emerald-500 text-emerald-600 bg-emerald-50/50' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                                    class="flex-1 md:flex-none px-6 py-3.5 border-b-2 font-bold text-sm transition-all flex items-center justify-center gap-2 outline-none">
+                                <i class="fas fa-check-circle" x-show="tab === 'selesai'"></i>
+                                Riwayat Selesai <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{{ $selesaiItems->count() }}</span>
+                            </button>
+                        </div>
 
-                                        <div class="grid grid-cols-2 gap-3 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                                            <div>
-                                                <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Tahapan</span>
-                                                <div class="text-xs font-bold text-[#e92027]">{{ $item->tahapan }}</div>
-                                            </div>
-                                            <div>
-                                                <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Progress Terkini</span>
-                                                <div class="text-xs font-bold text-gray-800">{{ $item->jumlah_box_selesai }} {{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</div>
-                                            </div>
-                                        </div>
-
-                                        <div class="pt-3 flex flex-wrap gap-2 justify-between items-center border-t border-gray-100">
-                                            <div class="flex items-center gap-2">
-                                                <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 rounded-lg text-xs font-bold border border-purple-100"><i class="fas fa-history"></i> Log</button>
-                                                @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
-                                                    @if(!in_array($item->status_kerja, ['Selesai', 'Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
-                                                        <button type="button" onclick="openProgressModal({{ $item->id }}, '{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}')" class="p-2 text-blue-600 bg-blue-50 rounded-lg text-xs font-bold border border-blue-100"><i class="fas fa-plus"></i></button>
-                                                    @endif
-                                                @endif
+                        <!-- KONTEN TAB: SEDANG PROSES -->
+                        <div x-show="tab === 'proses'" x-transition.opacity>
+                            @if($prosesItems->isEmpty())
+                                <div class="p-8 text-center text-gray-400">
+                                    <i class="fas fa-clipboard-check text-4xl mb-3 text-gray-200"></i>
+                                    <p class="text-sm font-medium">Tidak ada tugas yang sedang dikerjakan pada BA ini.</p>
+                                </div>
+                            @else
+                                <!-- MOBILE VIEW (CARD) -->
+                                <div class="md:hidden p-4 bg-gray-50/50 space-y-4">
+                                    @foreach($prosesItems as $item)
+                                        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm relative">
+                                            <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
+                                                <div>
+                                                    <div class="font-extrabold text-gray-900 text-lg">{{ $item->user->nama ?? '-' }}</div>
+                                                    <div class="text-[11px] text-gray-500">{{ \Carbon\Carbon::parse($item->tanggal_kerja)->format('d M Y') }}</div>
+                                                </div>
                                             </div>
 
-                                            <div class="flex items-center gap-2 mt-2 w-full">
-                                                <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="flex-grow" hx-disable>
-                                                    @csrf @method('PATCH')
-                                                    @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
-                                                        <button type="button" disabled class="w-full px-3 py-2 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200"><i class="fas fa-clock mr-1"></i> TERTUNGGU</button>
-                                                    @else
-                                                        @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
-                                                            <button type="button" onclick="confirmAdvance('advance-form-m-{{ $item->id }}', '{{ $item->tahapan }}')" class="w-full px-3 py-2 bg-[#e92027] text-white text-[10px] font-bold rounded-lg hover:bg-[#c41820]">LANJUT TAHAP <i class="fas fa-arrow-right ml-1"></i></button>
-                                                        @else
-                                                            <button type="button" disabled class="w-full px-3 py-2 bg-gray-50 text-gray-400 text-[10px] font-bold rounded-lg border border-gray-200">KUNCI STAF LAIN</button>
+                                            <div class="grid grid-cols-2 gap-3 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                                <div>
+                                                    <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Tahapan</span>
+                                                    <div class="text-xs font-bold text-[#e92027]">{{ $item->tahapan }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Progress Terkini</span>
+                                                    <div class="text-xs font-bold text-gray-800">{{ $item->jumlah_box_selesai }} {{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</div>
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-3 flex flex-wrap gap-2 justify-between items-center border-t border-gray-100">
+                                                <div class="flex items-center gap-2">
+                                                    <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 rounded-lg text-xs font-bold border border-purple-100"><i class="fas fa-history"></i> Log</button>
+                                                    @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
+                                                        @if(!in_array($item->status_kerja, ['Selesai', 'Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
+                                                            <button type="button" onclick="openProgressModal({{ $item->id }}, '{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}')" class="p-2 text-blue-600 bg-blue-50 rounded-lg text-xs font-bold border border-blue-100"><i class="fas fa-plus"></i></button>
                                                         @endif
                                                     @endif
-                                                </form>
+                                                </div>
 
-                                                @if(Auth::user()->role === 'admin')
-                                                    <div class="flex border-l border-gray-200 pl-2">
-                                                        <a href="{{ route('monitoring.edit', $item->id) }}" class="p-2.5 text-amber-500 hover:bg-amber-50 rounded-lg"><i class="fas fa-pen text-xs"></i></a>
-                                                        <form action="{{ route('monitoring.destroy', $item->id) }}" method="POST" class="inline">
-                                                            @csrf @method('DELETE')
-                                                            <button type="button" onclick="confirmDelete('delete-m-{{ $item->id }}')" id="delete-m-{{ $item->id }}" class="p-2.5 text-[#e92027] hover:bg-red-50 rounded-lg"><i class="fas fa-trash-alt text-xs"></i></button>
-                                                        </form>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <!-- DESKTOP VIEW (TABLE) -->
-                            <div class="hidden md:block overflow-x-auto w-full p-6">
-                                <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-                                    <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
-                                        <thead>
-                                            <tr class="bg-gray-50 text-gray-600 text-xs border-b border-gray-200">
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Status / Aksi</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider">PIC (Staf)</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Tahapan Saat Ini</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Progress Selesai</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center w-32">Opsi Lanjutan</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-50">
-                                            @foreach($prosesItems as $item)
-                                            <tr class="hover:bg-red-50/20 transition duration-200 group text-sm">
-                                                <td class="py-4 px-6 text-center">
-                                                    <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-[180px]" hx-disable>
+                                                <div class="flex items-center gap-2 mt-2 w-full">
+                                                    <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="flex-grow" hx-disable>
                                                         @csrf @method('PATCH')
                                                         @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
-                                                            <button type="button" disabled class="w-full px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 shadow-sm"><i class="fas fa-clock mr-1"></i> {{ strtoupper($item->status_kerja) }}</button>
+                                                            <button type="button" disabled class="w-full px-3 py-2 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200"><i class="fas fa-clock mr-1"></i> TERTUNGGU</button>
                                                         @else
                                                             @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
-                                                                <button type="button" onclick="confirmAdvance('advance-form-d-{{ $item->id }}', '{{ $item->tahapan }}')" class="w-full px-3 py-1.5 rounded-full text-[10px] font-extrabold shadow-sm transition-all border transform hover:scale-105 {{ $item->tahapan == 'Pemilahan' ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' : '' }} {{ $item->tahapan == 'Pendataan' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : '' }} {{ $item->tahapan == 'Pelabelan' ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100' : '' }} {{ $item->tahapan == 'Alih Media' ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100' : '' }} {{ $item->tahapan == 'Input E-Arsip' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : '' }}">
-                                                                    {{ $item->tahapan == 'Input E-Arsip' ? 'SELESAIKAN E-ARSIP' : 'LANJUT ' . strtoupper($item->tahapan) }} <i class="fas fa-arrow-right ml-1"></i>
-                                                                </button>
+                                                                <button type="button" onclick="confirmAdvance('advance-form-m-{{ $item->id }}', '{{ $item->tahapan }}')" class="w-full px-3 py-2 bg-[#e92027] text-white text-[10px] font-bold rounded-lg hover:bg-[#c41820]">LANJUT TAHAP <i class="fas fa-arrow-right ml-1"></i></button>
                                                             @else
-                                                                <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200"><i class="fas fa-lock"></i> KUNCI STAF LAIN</span>
+                                                                <button type="button" disabled class="w-full px-3 py-2 bg-gray-50 text-gray-400 text-[10px] font-bold rounded-lg border border-gray-200">KUNCI STAF LAIN</button>
                                                             @endif
                                                         @endif
                                                     </form>
-                                                </td>
-                                                <td class="py-4 px-6 font-bold text-gray-800">{{ $item->user->nama ?? '-' }}</td>
-                                                <td class="py-4 px-6 text-center font-medium"><span class="bg-gray-100 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-700">{{ $item->tahapan }}</span></td>
-                                                <td class="py-4 px-6 text-center">
-                                                    <div class="font-bold text-[#e92027] text-lg">{{ $item->jumlah_box_selesai }} <span class="text-xs text-gray-500 font-bold ml-1">{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</span></div>
-                                                </td>
-                                                <td class="py-4 px-4 text-center">
-                                                    <div class="flex items-center justify-center gap-1">
-                                                        @if(!in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']) && (Auth::user()->role === 'admin' || Auth::id() == $item->user_id))
-                                                            <button type="button" onclick="openProgressModal({{ $item->id }}, '{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}')" class="p-2 text-white bg-[#e92027] hover:bg-[#c41820] shadow-sm rounded-lg transition" title="Tambah Progress"><i class="fas fa-plus"></i></button>
-                                                        @endif
-                                                        <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-lg transition" title="Riwayat"><i class="fas fa-history"></i></button>
-                                                        @if(Auth::user()->role === 'admin')
-                                                            <div class="border-l border-gray-200 ml-1 pl-1 flex gap-1">
-                                                                <a href="{{ route('monitoring.edit', $item->id) }}" class="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition"><i class="fas fa-pen"></i></a>
-                                                                <form action="{{ route('monitoring.destroy', $item->id) }}" method="POST" class="inline">
-                                                                    @csrf @method('DELETE')
-                                                                    <button type="button" onclick="confirmDelete('delete-d-{{ $item->id }}')" id="delete-d-{{ $item->id }}" class="p-2 text-[#e92027] hover:bg-red-50 rounded-lg transition"><i class="fas fa-trash-alt"></i></button>
-                                                                </form>
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
 
-                    <!-- KONTEN TAB: RIWAYAT SELESAI -->
-                    <div x-show="tab === 'selesai'" x-cloak x-transition.opacity>
-                        @if($selesaiItems->isEmpty())
-                            <div class="p-8 text-center text-gray-400">
-                                <i class="fas fa-check-double text-4xl mb-3 text-gray-200"></i>
-                                <p class="text-sm font-medium">Belum ada tugas yang selesai (menjadi riwayat) pada BA ini.</p>
-                            </div>
-                        @else
-                            <!-- MOBILE VIEW (CARD) -->
-                            <div class="md:hidden p-4 bg-gray-50/50 space-y-4">
-                                @foreach($selesaiItems as $item)
-                                    <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm relative opacity-80">
-                                        <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
-                                            <div>
-                                                <div class="font-extrabold text-gray-900 text-lg">{{ $item->user->nama ?? '-' }}</div>
-                                                <div class="text-[11px] text-gray-500">{{ \Carbon\Carbon::parse($item->tanggal_kerja)->format('d M Y') }}</div>
-                                            </div>
-                                            <div class="text-right">
-                                                <span class="inline-flex px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="fas fa-check mr-1"></i> SELESAI</span>
-                                            </div>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
-                                            <div>
-                                                <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Tahapan Selesai</span>
-                                                <div class="text-xs font-bold text-gray-700">{{ $item->tahapan }}</div>
-                                            </div>
-                                            <div>
-                                                <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Total Final</span>
-                                                <div class="text-xs font-bold text-gray-800">{{ $item->jumlah_box_selesai }} {{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</div>
-                                            </div>
-                                        </div>
-                                        <div class="pt-3 flex justify-between items-center mt-2">
-                                            <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 rounded-lg text-xs font-bold border border-purple-100"><i class="fas fa-history mr-1"></i> Lihat Log Perubahan</button>
-                                            @if(Auth::user()->role === 'admin')
-                                                <form action="{{ route('monitoring.destroy', $item->id) }}" method="POST" class="inline">
-                                                    @csrf @method('DELETE')
-                                                    <button type="button" onclick="confirmDelete('delete-ms-{{ $item->id }}')" id="delete-ms-{{ $item->id }}" class="p-2 text-[#e92027] hover:bg-red-50 rounded-lg text-xs font-bold border border-red-100"><i class="fas fa-trash-alt"></i></button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            <!-- DESKTOP VIEW (TABLE) -->
-                            <div class="hidden md:block overflow-x-auto w-full p-6">
-                                <div class="overflow-hidden rounded-xl border border-emerald-200 shadow-sm opacity-90">
-                                    <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
-                                        <thead>
-                                            <tr class="bg-emerald-50 text-emerald-800 text-xs border-b border-emerald-200">
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Status</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider">PIC (Staf)</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Tahapan Selesai</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Total Final</th>
-                                                <th class="py-3 px-6 font-bold uppercase tracking-wider text-center w-32">Log Riwayat</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-100">
-                                            @foreach($selesaiItems as $item)
-                                            <tr class="hover:bg-emerald-50/30 transition duration-200 text-sm">
-                                                <td class="py-4 px-6 text-center"><span class="px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm"><i class="fas fa-check"></i> SELESAI</span></td>
-                                                <td class="py-4 px-6 font-bold text-gray-700">{{ $item->user->nama ?? '-' }}</td>
-                                                <td class="py-4 px-6 text-center font-medium"><span class="bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-500">{{ $item->tahapan }}</span></td>
-                                                <td class="py-4 px-6 text-center"><div class="font-bold text-gray-800 text-lg">{{ $item->jumlah_box_selesai }} <span class="text-xs text-gray-500 font-bold ml-1">{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</span></div></td>
-                                                <td class="py-4 px-4 text-center">
-                                                    <div class="flex items-center justify-center gap-2">
-                                                        <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-lg transition font-bold text-xs"><i class="fas fa-history mr-1"></i> Log Perubahan</button>
-                                                        @if(Auth::user()->role === 'admin')
+                                                    @if(Auth::user()->role === 'admin')
+                                                        <div class="flex border-l border-gray-200 pl-2">
+                                                            <a href="{{ route('monitoring.edit', $item->id) }}" class="p-2.5 text-amber-500 hover:bg-amber-50 rounded-lg"><i class="fas fa-pen text-xs"></i></a>
+                                                            @if($item->jumlah_box_selesai == 0)
                                                             <form action="{{ route('monitoring.destroy', $item->id) }}" method="POST" class="inline">
                                                                 @csrf @method('DELETE')
-                                                                <button type="button" onclick="confirmDelete('delete-ds-{{ $item->id }}')" id="delete-ds-{{ $item->id }}" class="p-2 text-[#e92027] hover:bg-red-50 rounded-lg transition"><i class="fas fa-trash-alt"></i></button>
+                                                                <button type="button" onclick="confirmDelete('delete-m-{{ $item->id }}')" id="delete-m-{{ $item->id }}" class="p-2.5 text-[#e92027] hover:bg-red-50 rounded-lg"><i class="fas fa-trash-alt text-xs"></i></button>
                                                             </form>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
-                            </div>
-                        @endif
+
+                                <!-- DESKTOP VIEW (TABLE) -->
+                                <div class="hidden md:block overflow-x-auto w-full p-6 bg-gray-50/30 rounded-b-3xl">
+                                    <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+                                        <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
+                                            <thead>
+                                                <tr class="bg-gray-100 text-gray-600 text-xs border-b border-gray-200">
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Status / Aksi</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider">PIC (Staf)</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Tahapan Saat Ini</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Progress Selesai</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center w-32">Opsi Lanjutan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-50">
+                                                @foreach($prosesItems as $item)
+                                                <tr class="hover:bg-red-50/20 transition duration-200 group text-sm">
+                                                    <td class="py-4 px-6 text-center">
+                                                        <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-[180px]" hx-disable>
+                                                            @csrf @method('PATCH')
+                                                            @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
+                                                                <button type="button" disabled class="w-full px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 shadow-sm"><i class="fas fa-clock mr-1"></i> {{ strtoupper($item->status_kerja) }}</button>
+                                                            @else
+                                                                @if(Auth::user()->role === 'admin' || Auth::id() == $item->user_id)
+                                                                    <button type="button" onclick="confirmAdvance('advance-form-d-{{ $item->id }}', '{{ $item->tahapan }}')" class="w-full px-3 py-1.5 rounded-full text-[10px] font-extrabold shadow-sm transition-all border transform hover:scale-105 {{ $item->tahapan == 'Pemilahan' ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' : '' }} {{ $item->tahapan == 'Pendataan' ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' : '' }} {{ $item->tahapan == 'Pelabelan' ? 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100' : '' }} {{ $item->tahapan == 'Alih Media' ? 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100' : '' }} {{ $item->tahapan == 'Input E-Arsip' ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : '' }}">
+                                                                        {{ $item->tahapan == 'Input E-Arsip' ? 'SELESAIKAN E-ARSIP' : 'LANJUT ' . strtoupper($item->tahapan) }} <i class="fas fa-arrow-right ml-1"></i>
+                                                                    </button>
+                                                                @else
+                                                                    <span class="text-[10px] font-bold text-gray-400 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200"><i class="fas fa-lock"></i> KUNCI STAF LAIN</span>
+                                                                @endif
+                                                            @endif
+                                                        </form>
+                                                    </td>
+                                                    <td class="py-4 px-6 font-bold text-gray-800">{{ $item->user->nama ?? '-' }}</td>
+                                                    <td class="py-4 px-6 text-center font-medium"><span class="bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-700">{{ $item->tahapan }}</span></td>
+                                                    <td class="py-4 px-6 text-center">
+                                                        <div class="font-bold text-[#e92027] text-lg">{{ $item->jumlah_box_selesai }} <span class="text-xs text-gray-500 font-bold ml-1">{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</span></div>
+                                                    </td>
+                                                    <td class="py-4 px-4 text-center">
+                                                        <div class="flex items-center justify-center gap-1">
+                                                            @if(!in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']) && (Auth::user()->role === 'admin' || Auth::id() == $item->user_id))
+                                                                <button type="button" onclick="openProgressModal({{ $item->id }}, '{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}')" class="p-2 text-white bg-[#e92027] hover:bg-[#c41820] shadow-sm rounded-lg transition" title="Tambah Progress"><i class="fas fa-plus"></i></button>
+                                                            @endif
+                                                            <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-lg transition" title="Riwayat"><i class="fas fa-history"></i></button>
+                                                            @if(Auth::user()->role === 'admin')
+                                                                <div class="border-l border-gray-200 ml-1 pl-1 flex gap-1">
+                                                                    <a href="{{ route('monitoring.edit', $item->id) }}" class="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition"><i class="fas fa-pen"></i></a>
+                                                                    @if($item->jumlah_box_selesai == 0)
+                                                                    <form action="{{ route('monitoring.destroy', $item->id) }}" method="POST" class="inline">
+                                                                        @csrf @method('DELETE')
+                                                                        <button type="button" onclick="confirmDelete('delete-d-{{ $item->id }}')" id="delete-d-{{ $item->id }}" class="p-2 text-[#e92027] hover:bg-red-50 rounded-lg transition"><i class="fas fa-trash-alt"></i></button>
+                                                                    </form>
+                                                                    @endif
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- KONTEN TAB: RIWAYAT SELESAI -->
+                        <div x-show="tab === 'selesai'" x-transition.opacity>
+                            @if($selesaiItems->isEmpty())
+                                <div class="p-8 text-center text-gray-400">
+                                    <i class="fas fa-check-double text-4xl mb-3 text-gray-200"></i>
+                                    <p class="text-sm font-medium">Belum ada tugas yang selesai (menjadi riwayat) pada BA ini.</p>
+                                </div>
+                            @else
+                                <!-- MOBILE VIEW (CARD) -->
+                                <div class="md:hidden p-4 bg-emerald-50/30 space-y-4 rounded-b-3xl">
+                                    @foreach($selesaiItems as $item)
+                                        <div class="bg-white p-5 rounded-2xl border border-emerald-100 shadow-sm relative opacity-90">
+                                            <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
+                                                <div>
+                                                    <div class="font-extrabold text-gray-900 text-lg">{{ $item->user->nama ?? '-' }}</div>
+                                                    <div class="text-[11px] text-gray-500">{{ \Carbon\Carbon::parse($item->tanggal_kerja)->format('d M Y') }}</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span class="inline-flex px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="fas fa-check mr-1"></i> SELESAI</span>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                                <div>
+                                                    <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Tahapan Selesai</span>
+                                                    <div class="text-xs font-bold text-gray-700">{{ $item->tahapan }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-[10px] text-gray-500 font-bold block uppercase mb-1">Total Final</span>
+                                                    <div class="text-xs font-bold text-gray-800">{{ $item->jumlah_box_selesai }} {{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="pt-3 flex justify-between items-center mt-2">
+                                                <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 rounded-lg text-xs font-bold border border-purple-100"><i class="fas fa-history mr-1"></i> Lihat Log Perubahan</button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- DESKTOP VIEW (TABLE) -->
+                                <div class="hidden md:block overflow-x-auto w-full p-6 bg-emerald-50/10 rounded-b-3xl">
+                                    <div class="overflow-hidden rounded-xl border border-emerald-200 shadow-sm opacity-95">
+                                        <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
+                                            <thead>
+                                                <tr class="bg-emerald-50 text-emerald-800 text-xs border-b border-emerald-200">
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Status</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider">PIC (Staf)</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Tahapan Selesai</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center">Total Final</th>
+                                                    <th class="py-3 px-6 font-bold uppercase tracking-wider text-center w-32">Log Riwayat</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-100">
+                                                @foreach($selesaiItems as $item)
+                                                <tr class="hover:bg-emerald-50/40 transition duration-200 text-sm">
+                                                    <td class="py-4 px-6 text-center"><span class="px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm"><i class="fas fa-check"></i> SELESAI</span></td>
+                                                    <td class="py-4 px-6 font-bold text-gray-700">{{ $item->user->nama ?? '-' }}</td>
+                                                    <td class="py-4 px-6 text-center font-medium"><span class="bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-500">{{ $item->tahapan }}</span></td>
+                                                    <td class="py-4 px-6 text-center"><div class="font-bold text-gray-800 text-lg">{{ $item->jumlah_box_selesai }} <span class="text-xs text-gray-500 font-bold ml-1">{{ $item->tahapan == 'Alih Media' ? 'Lembar' : 'Box' }}</span></div></td>
+                                                    <td class="py-4 px-4 text-center">
+                                                        <div class="flex items-center justify-center gap-2">
+                                                            <button type="button" onclick="openHistory({{ $item->id }})" class="p-2 text-purple-600 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-lg transition font-bold text-xs"><i class="fas fa-history mr-1"></i> Log Perubahan</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
                     </div>
                 </div>
             @empty
@@ -497,7 +517,7 @@
         function confirmDelete(btnId) {
             const form = document.getElementById(btnId).closest('form');
             Swal.fire({
-                title: 'Hapus Data?', text: "Data tidak dapat dikembalikan!", icon: 'warning',
+                title: 'Hapus Data?', text: "Hanya data yang progressnya masih 0 (baru) yang bisa dihapus.", icon: 'warning',
                 showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
                 confirmButtonText: 'Ya, Hapus', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
             }).then((result) => { if (result.isConfirmed) form.submit(); });

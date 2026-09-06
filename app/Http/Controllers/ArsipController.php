@@ -156,7 +156,7 @@ class ArsipController extends Controller
         if (!$this->isAdmin()) return redirect()->route('arsip.index')->with('error', 'Akses ditolak.');
 
         $klasifikasis = MasterKlasifikasi::all();
-        $units = \App\Models\Unit::all();
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
         $nextNumber = Arsip::distinct('no_berkas')->count() + 1;
         return view('arsip.input-arsip', compact('klasifikasis', 'nextNumber', 'units'));
     }
@@ -223,7 +223,7 @@ class ArsipController extends Controller
             'kode_klasifikasi' => $arsip->klasifikasi->kode_klasifikasi ?? '', 'klasifikasi_id' => $arsip->klasifikasi_id,
         ]];
 
-        $units = \App\Models\Unit::all();
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
         return view('arsip.edit-arsip', compact('arsip', 'nextNumber', 'initialData', 'units'));
     }
 

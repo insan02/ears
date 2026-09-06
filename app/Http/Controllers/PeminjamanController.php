@@ -112,7 +112,7 @@ class PeminjamanController extends Controller
                 return $item;
             });
 
-        $units = \App\Models\Unit::orderBy('nama_unit')->get();
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
 
         return view('peminjaman.create', compact('daftarArsip', 'units'));
     }
@@ -259,7 +259,7 @@ class PeminjamanController extends Controller
                 return $item;
             });
 
-        $units = \App\Models\Unit::orderBy('nama_unit')->get();
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
 
         $currentItems = $editData->details->map(function ($detail) {
             return [

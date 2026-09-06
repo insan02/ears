@@ -2,7 +2,6 @@
     <div class="bg-gray-50 min-h-screen pb-20">
         <!-- Background Header -->
         <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
-            <!-- Polygon Pattern Overlay -->
             <div class="absolute inset-0 z-0 opacity-40">
                  <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                     <defs>
@@ -16,7 +15,6 @@
                 </svg>
             </div>
 
-             <!-- Ornamental Icon -->
              <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4 z-0 pointer-events-none mix-blend-overlay">
                  <svg width="400" height="400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0L24 12L12 24L0 12L12 0Z" /></svg>
              </div>
@@ -37,6 +35,19 @@
 
         <!-- Floating Card Container -->
         <div class="max-w-7xl mx-auto px-4 -mt-12 md:-mt-20 relative z-20 mb-12">
+
+            <!-- BLOK PESAN ALERT -->
+            @if(session('error'))
+                <div class="mb-6 bg-red-100 border-l-4 border-[#e92027] p-4 rounded-r-lg shadow-sm font-bold text-[#c41820] flex items-center animate-pulse">
+                    <i class="fas fa-exclamation-triangle mr-3 text-xl"></i> {{ session('error') }}
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm font-bold text-green-800 flex items-center">
+                    <i class="fas fa-check-circle mr-3 text-xl"></i> {{ session('success') }}
+                </div>
+            @endif
+
             <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-[400px] flex flex-col">
 
                 <!-- Filters & Toolbar -->
@@ -138,15 +149,33 @@
                                 <!-- Aksi -->
                                 <div class="pt-3 border-t border-gray-100 flex gap-2 justify-end">
                                     @if(auth()->user()->role === 'admin' || auth()->id() == $item->user_penerima)
-                                        <a href="{{ route('arsip-masuk.edit', $item->id) }}" class="flex-1 text-center py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg border border-amber-100 hover:bg-amber-100 transition">
-                                            Edit
-                                        </a>
-                                        <form action="{{ route('arsip-masuk.destroy', $item->id) }}" method="POST" class="flex-1 flex">
-                                            @csrf @method('DELETE')
-                                            <button type="button" class="delete-btn w-full py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-lg border border-red-100 hover:bg-red-100 transition">
-                                                Hapus
+
+                                        {{-- Cek Edit Terkunci --}}
+                                        @if(!$item->is_completed)
+                                            <a href="{{ route('arsip-masuk.edit', $item->id) }}" class="flex-1 text-center py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg border border-amber-100 hover:bg-amber-100 transition">
+                                                Edit
+                                            </a>
+                                        @else
+                                            <button type="button" disabled class="flex-1 w-full py-2 bg-gray-50 text-gray-400 text-xs font-bold rounded-lg border border-gray-200 cursor-not-allowed" title="Terkunci (Sudah di E-Arsip)">
+                                                Edit Terkunci
                                             </button>
-                                        </form>
+                                        @endif
+
+                                        {{-- Cek Hapus Terkunci --}}
+                                        @if($item->log_aktivitas_count == 0)
+                                        <form action="{{ route('arsip-masuk.destroy', $item->id) }}" method="POST" class="flex-1 flex">
+    @csrf @method('DELETE')
+    <!-- Tambahkan onclick="confirmDelete(this)" dan hapus class="delete-btn" -->
+    <button type="button" onclick="confirmDelete(this)" class="w-full py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-lg border border-red-100 hover:bg-red-100 transition">
+        Hapus
+    </button>
+</form>
+                                        @else
+                                        <button type="button" disabled class="flex-1 w-full py-2 bg-gray-50 text-gray-400 text-xs font-bold rounded-lg border border-gray-200 cursor-not-allowed" title="Terkunci (Sedang Dikerjakan)">
+                                            Hapus Terkunci
+                                        </button>
+                                        @endif
+
                                     @endif
                                 </div>
                             </div>
@@ -197,18 +226,35 @@
                                     </td>
                                     <td class="py-4 px-6 text-center">
                                         <div class="flex items-center justify-center gap-2">
-
                                             @if(auth()->user()->role === 'admin' || auth()->id() == $item->user_penerima)
-                                                <a href="{{ route('arsip-masuk.edit', $item->id) }}" class="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 border border-transparent hover:border-amber-200 rounded-lg transition-colors" title="Edit">
-                                                    <i class="fas fa-pen text-xs"></i>
-                                                </a>
-                                                <form action="{{ route('arsip-masuk.destroy', $item->id) }}" method="POST" class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="button" class="delete-btn p-2 text-[#e92027] hover:text-[#a0131a] hover:bg-red-50 border border-transparent hover:border-red-200 rounded-lg transition-colors" title="Hapus">
-                                                        <i class="fas fa-trash-alt text-xs"></i>
+
+                                                {{-- Tombol Edit --}}
+                                                @if(!$item->is_completed)
+                                                    <a href="{{ route('arsip-masuk.edit', $item->id) }}" class="p-2 text-amber-500 hover:text-amber-700 hover:bg-amber-50 border border-transparent hover:border-amber-200 rounded-lg transition-colors" title="Edit">
+                                                        <i class="fas fa-pen text-xs"></i>
+                                                    </a>
+                                                @else
+                                                    <button type="button" disabled class="p-2 text-gray-400 bg-gray-50 border border-transparent rounded-lg cursor-not-allowed" title="Edit Terkunci (Sudah di E-Arsip)">
+                                                        <i class="fas fa-lock text-xs"></i>
                                                     </button>
-                                                </form>
+                                                @endif
+
+                                                {{-- Tombol Hapus --}}
+                                                @if($item->log_aktivitas_count == 0)
+                                                    <form action="{{ route('arsip-masuk.destroy', $item->id) }}" method="POST" class="inline">
+    @csrf
+    @method('DELETE')
+    <!-- Tambahkan onclick="confirmDelete(this)" dan hapus class="delete-btn" -->
+    <button type="button" onclick="confirmDelete(this)" class="p-2 text-[#e92027] hover:text-[#a0131a] hover:bg-red-50 border border-transparent hover:border-red-200 rounded-lg transition-colors" title="Hapus">
+        <i class="fas fa-trash-alt text-xs"></i>
+    </button>
+</form>
+                                                @else
+                                                    <button type="button" disabled class="p-2 text-gray-400 bg-gray-50 border border-transparent rounded-lg cursor-not-allowed" title="Hapus Terkunci (Sedang Dikerjakan)">
+                                                        <i class="fas fa-lock text-xs"></i>
+                                                    </button>
+                                                @endif
+
                                             @endif
                                         </div>
                                     </td>
@@ -250,31 +296,30 @@
     </form>
 
     <!-- Scripts -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const form = this.closest('form');
-                    Swal.fire({
-                        title: 'Hapus Arsip?',
-                        text: "Data yang dihapus tidak dapat dikembalikan!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#e92027',
-                        cancelButtonColor: '#E5E7EB',
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal',
-                        customClass: { cancelButton: 'text-gray-700 font-bold' }
-                    }).then((result) => {
-                        if (result.isConfirmed) form.submit();
-                    });
-                });
+        // Fungsi Hapus yang kebal terhadap AJAX / Refresh Parsial
+        function confirmDelete(buttonElement) {
+            const form = buttonElement.closest('form');
+            Swal.fire({
+                title: 'Hapus Arsip Masuk?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e92027',
+                cancelButtonColor: '#E5E7EB',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                customClass: { cancelButton: 'text-gray-700 font-bold' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
             });
-        });
+        }
 
+        // Fungsi Export Excel / PDF / Print
         function submitExport(type) {
             document.getElementById('export-type').value = type;
             document.getElementById('export-ids').value = JSON.stringify([]);

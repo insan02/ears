@@ -9,7 +9,13 @@
     </style>
 
     <div x-data="{ activeTab: '{{ request()->query('active_tab', 'arsip') }}', mounted: false }"
-         x-init="setTimeout(() => mounted = true, 100)"
+         x-init="
+            setTimeout(() => mounted = true, 100);
+            $watch('activeTab', () => {
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 300);
+            });
+         "
          class="pb-20 bg-gray-50 min-h-screen">
 
         <!-- Background Header -->
@@ -46,19 +52,19 @@
                  x-transition:enter-end="opacity-100 translate-y-0"
                  class="flex flex-col sm:flex-row justify-center gap-2 md:gap-4 max-w-4xl mx-auto">
 
-                <button @click="activeTab = 'arsip'; setTimeout(() => window.dispatchEvent(new Event('resize')), 350)"
+                <button @click="activeTab = 'arsip'"
                     :class="activeTab === 'arsip' ? 'bg-[#e92027] text-white ring-2 ring-[#e92027] shadow-lg md:scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm hover:shadow-md'"
                     class="flex-1 py-3 px-4 md:px-6 rounded-xl font-bold text-sm md:text-base transition-all duration-300 text-center border border-gray-100">
                     Arsip
                 </button>
 
-                <button @click="activeTab = 'peminjaman'; setTimeout(() => window.dispatchEvent(new Event('resize')), 350)"
+                <button @click="activeTab = 'peminjaman'"
                     :class="activeTab === 'peminjaman' ? 'bg-[#e92027] text-white ring-2 ring-[#e92027] shadow-lg md:scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm hover:shadow-md'"
                     class="flex-1 py-3 px-4 md:px-6 rounded-xl font-bold text-sm md:text-base transition-all duration-300 text-center border border-gray-100">
                     Peminjaman
                 </button>
 
-                <button @click="activeTab = 'karyawan'; setTimeout(() => window.dispatchEvent(new Event('resize')), 350)"
+                <button @click="activeTab = 'karyawan'"
                     :class="activeTab === 'karyawan' ? 'bg-[#e92027] text-white ring-2 ring-[#e92027] shadow-lg md:scale-105' : 'bg-white text-gray-600 hover:bg-gray-50 shadow-sm hover:shadow-md'"
                     class="flex-1 py-3 px-4 md:px-6 rounded-xl font-bold text-sm md:text-base transition-all duration-300 text-center border border-gray-100">
                     Monitoring Karyawan
@@ -396,11 +402,20 @@
     <!-- ApexCharts & Chart.js Script -->
     <script>
         function renderDashboardCharts() {
-            // 1. HANCURKAN CHART LAMA (Wajib untuk HTMX/SPA)
-            // Mencegah error "Canvas is already in use" saat kembali dari menu lain
-            for (let id in Chart.instances) {
-                Chart.instances[id].destroy();
-            }
+            // 1. HANCURKAN CHART LAMA MENGGUNAKAN METODE CHART.JS V4
+            // Ini mencegah error blank canvas saat pindah menu via HTMX/Livewire
+            const chartIds = [
+                'statusChart', 'mediaChart', 'trenChart',
+                'arsipKlasifikasiChart', 'arsipMediaChart', 'arsipTahunChart', 'arsipStatusChart',
+                'tahapanChart', 'arsipBulananChart', 'arsipUnitChart'
+            ];
+
+            chartIds.forEach(id => {
+                let existingChart = Chart.getChart(id);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+            });
 
             // GLOBAL CONFIG CHART.JS
             Chart.defaults.font.family = "'Montserrat', sans-serif";
@@ -511,28 +526,37 @@
                 });
             }
 
-            // Pancing resize agar grafik fit dengan layout tab Alpine
-            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 200);
-            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 600);
+            // Trigger Pancingan Khusus untuk Tab Awal
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
+        }
+
+        // =========================================================================
+        // KUNCI PERBAIKAN: Fungsi penengah (Wrapper) untuk memastikan DOM siap
+        // =========================================================================
+        function initChartsSafely() {
+            // Tahan Eksekusi Chart.js selama 300ms agar AlpineJS selesai merender (mounted = true)
+            setTimeout(() => {
+                renderDashboardCharts();
+            }, 300);
         }
 
         // ==========================================
-        // 2. TRIGGER RENDER CHART DI SEMUA KONDISI
+        // TRIGGER RENDER CHART DI SEMUA KONDISI
         // ==========================================
 
         // A. Jika halaman di-refresh / load normal
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', renderDashboardCharts);
+            document.addEventListener('DOMContentLoaded', initChartsSafely);
         } else {
-            renderDashboardCharts();
+            initChartsSafely();
         }
 
-        // B. Jika navigasi menggunakan HTMX
-        document.addEventListener('htmx:afterSettle', renderDashboardCharts);
-        document.addEventListener('htmx:load', renderDashboardCharts);
+        // B. Jika navigasi menggunakan HTMX (Pindah menu tanpa reload)
+        document.addEventListener('htmx:afterSettle', initChartsSafely);
+        document.addEventListener('htmx:load', initChartsSafely);
 
         // C. Jika navigasi menggunakan Livewire / Turbo (Sebagai cadangan)
-        document.addEventListener('livewire:navigated', renderDashboardCharts);
-        document.addEventListener('turbo:load', renderDashboardCharts);
+        document.addEventListener('livewire:navigated', initChartsSafely);
+        document.addEventListener('turbo:load', initChartsSafely);
     </script>
 </x-layout>

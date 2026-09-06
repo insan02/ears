@@ -91,6 +91,7 @@ Route::middleware(['auth'])->group(function () {
     // FITUR MONITORING KARYAWAN
     // ==========================================
     Route::get('/monitoring', [MonitoringKaryawanController::class, 'index'])->name('monitoring.index');
+    Route::get('/monitoring/export', [MonitoringKaryawanController::class, 'export'])->name('monitoring.export');
     Route::get('/monitoring/create', [MonitoringKaryawanController::class, 'create'])->name('monitoring.create');
     Route::post('/monitoring', [MonitoringKaryawanController::class, 'store'])->name('monitoring.store');
     Route::get('/monitoring/{id}/edit', [MonitoringKaryawanController::class, 'edit'])->name('monitoring.edit');
@@ -106,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('management-akun', ManagementAkunController::class);
     Route::patch('/management-akun/{id}/toggle-status', [ManagementAkunController::class, 'toggleStatus'])->name('management-akun.toggle-status');
     Route::resource('manajemen-media', ManajemenMediaController::class);
+    Route::patch('/manajemen-unit/{id}/toggle-status', [\App\Http\Controllers\ManajemenUnitController::class, 'toggleStatus'])->name('manajemen-unit.toggle-status');
     Route::resource('manajemen-unit', \App\Http\Controllers\ManajemenUnitController::class);
 
     // ==========================================

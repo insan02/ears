@@ -38,7 +38,9 @@
                         <label class="block text-sm font-bold text-gray-800 mb-2">Penerima <span class="text-red-600">*</span></label>
                         <select name="user_penerima" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#e92027]/20 focus:border-[#e92027] transition text-sm">
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ $arsipMasuk->user_penerima == $user->id ? 'selected' : '' }}>{{ $user->nama }}</option>
+                                <option value="{{ $user->id }}" {{ $arsipMasuk->user_penerima == $user->id ? 'selected' : '' }}>
+                                    {{ $user->nama }} {{ !$user->is_active ? '(Telah Dinonaktifkan)' : '' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>

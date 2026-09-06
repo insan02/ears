@@ -4,14 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\ArsipMasuk;
 use App\Models\User;
+use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // <-- Tambahan untuk mengatasi error "Undefined method"
+use Illuminate\Support\Facades\Auth;
 
 class ArsipMasukController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ArsipMasuk::with('penerima')->orderBy('id', 'desc');
+        // TAMBAHKAN withCount() dan withExists()
+        $query = ArsipMasuk::with('penerima')
+            ->withCount('logAktivitas')
+            ->withExists(['logAktivitas as is_completed' => function ($query) {
+                $query->where('tahapan', 'Input E-Arsip');
+            }])
+            ->orderBy('id', 'desc');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -84,8 +91,8 @@ class ArsipMasukController extends Controller
 
     public function create()
     {
-        $users = User::all();
-        $units = \App\Models\Unit::all();
+        $users = User::where('is_active', true)->get();
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
         return view('arsip-masuk.create', compact('users', 'units'));
     }
 
@@ -108,13 +115,20 @@ class ArsipMasukController extends Controller
     {
         $arsipMasuk = ArsipMasuk::findOrFail($id);
 
-        // Menggunakan Facade Auth untuk menghindari peringatan editor
         if (Auth::user()->role !== 'admin' && Auth::id() != $arsipMasuk->user_penerima) {
             abort(403, 'Unauthorized action.');
         }
 
-        $users = User::all();
-        $units = \App\Models\Unit::all();
+        // CEK APAKAH SUDAH MENCAPAI E-ARSIP
+        $isCompleted = LogAktivitas::where('arsip_masuk_id', $id)->where('tahapan', 'Input E-Arsip')->exists();
+        if ($isCompleted) {
+            return redirect()->back()->with('error', 'Gagal! Data ini sudah mencapai tahapan E-Arsip di menu Monitoring sehingga tidak dapat diedit lagi.');
+        }
+
+        $users = User::where('is_active', true)
+                     ->orWhere('id', $arsipMasuk->user_penerima)
+                     ->get();
+        $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
         return view('arsip-masuk.edit', compact('arsipMasuk', 'users', 'units'));
     }
 
@@ -130,9 +144,14 @@ class ArsipMasukController extends Controller
 
         $arsipMasuk = ArsipMasuk::findOrFail($id);
 
-        // Menggunakan Facade Auth
         if (Auth::user()->role !== 'admin' && Auth::id() != $arsipMasuk->user_penerima) {
             abort(403, 'Unauthorized action.');
+        }
+
+        // CEK SEKALI LAGI SEBELUM UPDATE
+        $isCompleted = LogAktivitas::where('arsip_masuk_id', $id)->where('tahapan', 'Input E-Arsip')->exists();
+        if ($isCompleted) {
+            return redirect()->back()->with('error', 'Gagal! Data ini sudah mencapai tahapan E-Arsip di menu Monitoring sehingga tidak dapat diedit lagi.');
         }
 
         $arsipMasuk->update($request->all());
@@ -144,14 +163,17 @@ class ArsipMasukController extends Controller
     {
         $arsipMasuk = ArsipMasuk::findOrFail($id);
 
-        // Menggunakan Facade Auth
         if (Auth::user()->role !== 'admin' && Auth::id() != $arsipMasuk->user_penerima) {
             abort(403, 'Unauthorized action.');
+        }
+
+        $isUsedInMonitoring = LogAktivitas::where('arsip_masuk_id', $id)->exists();
+        if ($isUsedInMonitoring) {
+            return redirect()->back()->with('error', 'Gagal dihapus! Data Arsip Masuk ini sudah terhubung dan sedang dikerjakan pada menu Monitoring Kinerja.');
         }
 
         $arsipMasuk->delete();
 
         return redirect()->route('arsip-masuk.index')->with('success', 'Data Arsip Masuk berhasil dihapus.');
     }
-
 }
