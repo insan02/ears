@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // PERBAIKAN UNTUK GOOGLE CLOUD LOAD BALANCER
+        $middleware->trustProxies(at: '*');
+
         $middleware->redirectUsersTo('/beranda');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -28,7 +28,7 @@ class ForgotPasswordController extends Controller
                         : back()->withErrors(['email' => __($status)]);
         } catch (\Exception $e) {
             Log::error('Mail sending error: ' . $e->getMessage());
-            return back()->withErrors(['email' => 'Gagal mengirim email: Cek konfigurasi SMTP atau koneksi internet. Error: ' . $e->getMessage()]);
+            return back()->withErrors(['email' => 'Terjadi kesalahan sistem. Silakan coba lagi nanti.']);
         }
     }
 }

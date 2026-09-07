@@ -28,9 +28,18 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Password Reset Routes
 Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+// Throttle (Maksimal 5 request per 1 menit per IP) untuk mencegah Email Bombing
+Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email')
+    ->middleware('throttle:5,1');
+
 Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+
+// Throttle (Maksimal 5 request per 1 menit per IP) untuk mencegah peretas melakukan Brute-force pada Token Reset
+Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])
+    ->name('password.update')
+    ->middleware('throttle:5,1');
 
 Route::get('/', [LandingController::class, 'index'])->name('landing');
 Route::get('/visi-misi', [LandingController::class, 'visiMisi'])->name('visi-misi');
