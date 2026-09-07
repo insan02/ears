@@ -37,7 +37,7 @@
         <!-- ========================================== -->
         <!-- KOLOM KIRI: BRANDING (Hanya Tampil di PC)  -->
         <!-- ========================================== -->
-        <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-[#c41820] to-[#7f090b] relative flex-col justify-between p-16 overflow-hidden shadow-2xl z-10">
+        <div class="hidden lg:flex w-1/2 bg-linear-to-br from-[#c41820] to-[#7f090b] relative flex-col justify-between p-16 overflow-hidden shadow-2xl z-10">
 
             <!-- Pattern Geometris -->
             <div class="absolute inset-0 opacity-10 pointer-events-none">
@@ -84,7 +84,7 @@
         <div class="w-full lg:w-1/2 flex items-center justify-center p-5 sm:p-12 relative min-h-screen bg-gray-50 lg:bg-transparent">
 
             <!-- DEKORASI BACKGROUND KHUSUS HP (Merah Melengkung di Atas) -->
-            <div class="absolute top-0 left-0 w-full h-[40vh] min-h-[300px] bg-gradient-to-br from-[#c41820] to-[#8a1216] lg:hidden z-0 rounded-b-[3rem] shadow-lg flex flex-col items-center pt-10 overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-[40vh] min-h-75 bg-linear-to-br from-[#c41820] to-[#8a1216] lg:hidden z-0 rounded-b-[3rem] shadow-lg flex flex-col items-center pt-10 overflow-hidden">
                 <!-- Pattern Geometris untuk HP -->
                 <div class="absolute inset-0 opacity-10 pointer-events-none">
                     <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -98,7 +98,7 @@
             </div>
 
             <!-- CONTAINER KARTU LOGIN -->
-            <div class="w-full max-w-md bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-[2rem] shadow-2xl lg:shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white lg:border-gray-100 relative z-10 mt-10 lg:mt-0">
+            <div class="w-full max-w-md bg-white/95 backdrop-blur-xl p-8 sm:p-10 rounded-4xl shadow-2xl lg:shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white lg:border-gray-100 relative z-10 mt-10 lg:mt-0">
 
                 <!-- Tombol Kembali ke Landing -->
                 <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 text-gray-400 hover:text-[#e92027] transition-all text-xs font-bold mb-8 group bg-gray-50 hover:bg-red-50 pr-4 py-1.5 rounded-full w-fit border border-gray-100">

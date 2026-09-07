@@ -1,5 +1,5 @@
 <section id="informasi" class="py-20 bg-white">
-    <div class="container mx-auto px-6 max-w-[1400px]">
+    <div class="container mx-auto px-6 max-w-350">
 
         {{-- Section Header --}}
         <div class="text-center mb-12">
@@ -80,7 +80,7 @@
                     </div>
 
                     {{-- Modal Detail Berita --}}
-                    <div id="modal-berita-{{ $item->id }}" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+                    <div id="modal-berita-{{ $item->id }}" class="fixed inset-0 z-200 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
                         <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative transform scale-95 transition-transform duration-300" id="modal-content-{{ $item->id }}">
                             <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-white z-10 sticky top-0">
                                 <h3 class="font-bold text-gray-800 line-clamp-1 pr-4">{{ $item->judul }}</h3>
