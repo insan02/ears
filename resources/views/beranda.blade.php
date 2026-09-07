@@ -19,7 +19,7 @@
          class="pb-20 bg-gray-50 min-h-screen">
 
         <!-- Background Header -->
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-28 pt-12 md:pb-32 md:pt-16 px-6 md:px-8 -mt-4 -mx-4 md:-mt-6 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-28 pt-12 md:pb-32 md:pt-16 px-6 md:px-8 -mt-4 -mx-4 md:-mt-6 md:-mx-6 mb-8 rounded-b-4xl md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
             <div class="absolute inset-0 z-0 opacity-40">
                  <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                     <defs>
@@ -83,20 +83,41 @@
             {{-- 1. TAB PEMINJAMAN                                          --}}
             {{-- ========================================================== --}}
             <div x-show="activeTab === 'peminjaman'" x-transition.opacity x-cloak>
+
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-8">
-                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-gray-400 hover:-translate-y-1 transition duration-300">
-                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Total Transaksi</p>
-                        <p class="text-3xl md:text-4xl font-extrabold text-gray-600">{{ $dipinjam + $kembali }}</p>
+
+                    <!-- Total Transaksi -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-b-[#99a1af] hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">
+                            Total Transaksi
+                        </p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-gray-600">
+                            {{ $dipinjam + $kembali }}
+                        </p>
                     </div>
-                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-[#e92027] hover:-translate-y-1 transition duration-300">
-                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Sedang Dipinjam</p>
-                        <p class="text-3xl md:text-4xl font-extrabold text-[#e92027]">{{ $dipinjam }}</p>
+
+                    <!-- Sedang Dipinjam -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-b-[#e92027] hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">
+                            Sedang Dipinjam
+                        </p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-[#e92027]">
+                            {{ $dipinjam }}
+                        </p>
                     </div>
-                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-red-300 hover:-translate-y-1 transition duration-300">
-                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Sudah Kembali</p>
-                        <p class="text-3xl md:text-4xl font-extrabold text-red-300">{{ $kembali }}</p>
+
+                    <!-- Sudah Kembali -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-b-[#fca5a5] hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">
+                            Sudah Kembali
+                        </p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-red-300">
+                            {{ $kembali }}
+                        </p>
                     </div>
+
                 </div>
+
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
                     <div class="bg-white p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 flex flex-col relative overflow-hidden">
@@ -140,16 +161,31 @@
             <div x-show="activeTab === 'arsip'" x-transition.opacity x-cloak>
 
                 <!-- SUMMARY CARDS ARSIP -->
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-[#e92027] hover:-translate-y-1 transition duration-300">
-                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Total Arsip Keseluruhan</p>
-                        <p class="text-3xl md:text-4xl font-extrabold text-gray-800">{{ number_format($totalArsip, 0, ',', '.') }}</p>
+
+                    <!-- Total Arsip Keseluruhan -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-b-[#e92027] hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">
+                            Total Arsip Keseluruhan
+                        </p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-gray-800">
+                            {{ number_format($totalArsip, 0, ',', '.') }}
+                        </p>
                     </div>
-                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-blue-500 hover:-translate-y-1 transition duration-300">
-                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">Arsip Masuk Bulan Ini</p>
-                        <p class="text-3xl md:text-4xl font-extrabold text-gray-800">{{ number_format($bulanIniArsip, 0, ',', '.') }}</p>
+
+                    <!-- Arsip Masuk Bulan Ini -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center h-28 border-b-4 border-b-[#3b82f6] hover:-translate-y-1 transition duration-300">
+                        <p class="text-gray-500 font-bold text-[10px] md:text-xs uppercase tracking-widest mb-1">
+                            Arsip Masuk Bulan Ini
+                        </p>
+                        <p class="text-3xl md:text-4xl font-extrabold text-gray-800">
+                            {{ number_format($bulanIniArsip, 0, ',', '.') }}
+                        </p>
                     </div>
+
                 </div>
+
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
                     <div class="lg:col-span-2 bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -327,7 +363,7 @@
                         @foreach(['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'] as $stage)
                         <button @click="stageTab = '{{ $stage }}'"
                                 :class="stageTab === '{{ $stage }}' ? 'border-[#e92027] text-[#e92027] bg-red-50/50' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'"
-                                class="flex-1 min-w-[120px] py-4 px-4 font-bold text-xs md:text-sm border-b-[3px] transition-colors whitespace-nowrap focus:outline-none flex flex-col items-center justify-center gap-1">
+                                class="flex-1 min-w-30 py-4 px-4 font-bold text-xs md:text-sm border-b-[3px] transition-colors whitespace-nowrap focus:outline-none flex flex-col items-center justify-center gap-1">
                             <span>{{ $stage }}</span>
                         </button>
                         @endforeach
@@ -337,7 +373,7 @@
                     <div class="p-0">
                         @foreach(['Pemilahan', 'Pendataan', 'Pelabelan', 'Alih Media', 'Input E-Arsip'] as $stage)
                         <div x-show="stageTab === '{{ $stage }}'" x-cloak class="w-full overflow-x-auto">
-                            <table class="w-full text-xs md:text-sm text-left min-w-[500px]">
+                            <table class="w-full text-xs md:text-sm text-left min-w-125">
                                 <thead class="bg-gray-50 text-gray-500 text-[10px] md:text-xs uppercase">
                                     <tr>
                                         <th class="px-6 py-3 font-bold w-12 text-center">No</th>
@@ -362,7 +398,7 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="flex-grow bg-gray-100 rounded-full h-2 md:h-2.5 overflow-hidden">
+                                                <div class="grow bg-gray-100 rounded-full h-2 md:h-2.5 overflow-hidden">
                                                     <div class="bg-[#e92027] h-full rounded-full transition-all duration-1000" style="width: {{ $stat->persentase_visual }}%"></div>
                                                 </div>
                                             </div>

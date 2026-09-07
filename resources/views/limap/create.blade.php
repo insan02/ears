@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative">
+    <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative">
         <div class="max-w-7xl mx-auto relative z-10 text-center md:text-left">
             <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Tambah 5P</h1>
             <p class="text-red-50 text-base font-light">Unggah gambar dokumentasi 5P untuk area yang ditentukan.</p>

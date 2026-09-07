@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative">
+    <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
            <div class="text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start gap-3 mb-2">
@@ -39,11 +39,13 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             @foreach($categories as $key => $label)
             <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6">
-                <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4 text-[#e92027] uppercase tracking-wide">{{ $label }}</h3>
+                <h3 class="text-lg font-bold text-[#e92027] border-b border-gray-100 pb-3 mb-4 uppercase tracking-wide">
+                    {{ $label }}
+                </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @if(!empty($data->$key))
                         @foreach($data->$key as $img)
-                            <a href="{{ asset('storage/'.$img) }}" target="_blank" class="block h-52 sm:h-56 md:h-60 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white border border-gray-200 hover:border-[#e92027] group flex items-center justify-center p-2" title="Klik untuk membuka ukuran asli">
+                            <a href="{{ asset('storage/'.$img) }}" target="_blank" class="h-52 sm:h-56 md:h-60 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white border border-gray-200 hover:border-[#e92027] group flex items-center justify-center p-2" title="Klik untuk membuka ukuran asli">
                                 <img src="{{ asset('storage/'.$img) }}" class="max-w-full max-h-full w-auto h-auto object-contain group-hover:scale-105 transition duration-300 select-none">
                             </a>
                         @endforeach
@@ -107,23 +109,23 @@
                                                 <button @click="openUpload = !openUpload" x-show="!openUpload" class="text-[10px] font-bold bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg w-full hover:bg-gray-50 shadow-sm">+ Upload PDF</button>
 
                                                 <form x-show="openUpload" x-collapse @submit="isUploading = true" action="{{ route('limap.kaizen.store', $data->id) }}" method="POST" enctype="multipart/form-data" hx-disable class="bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
-    @csrf
-    <input type="hidden" name="tahun" value="{{ $year }}">
-    <input type="hidden" name="bulan" value="{{ $num }}">
-    <input type="file" name="kaizen_files[]" multiple required accept="application/pdf" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-[#e92027] file:text-white mb-2">
+                                                    @csrf
+                                                    <input type="hidden" name="tahun" value="{{ $year }}">
+                                                    <input type="hidden" name="bulan" value="{{ $num }}">
+                                                    <input type="file" name="kaizen_files[]" multiple required accept="application/pdf" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-[#e92027] file:text-white mb-2">
 
-    <div class="flex gap-2">
-        <button type="submit" :disabled="isUploading" class="flex-1 bg-[#e92027] text-white text-[10px] font-bold py-1.5 rounded transition flex items-center justify-center gap-1" :class="isUploading ? 'opacity-70 cursor-wait' : 'hover:bg-red-700'">
-            <span x-show="!isUploading">Simpan</span>
-            <span x-show="isUploading" style="display: none;">
-                <i class="fas fa-spinner fa-spin"></i> Menyimpan...
-            </span>
-        </button>
-        <button type="button" @click="openUpload = false" :disabled="isUploading" class="flex-1 bg-white border border-gray-300 text-gray-600 text-[10px] font-bold py-1.5 rounded transition" :class="isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'">
-            Batal
-        </button>
-    </div>
-</form>
+                                                    <div class="flex gap-2">
+                                                        <button type="submit" :disabled="isUploading" class="flex-1 bg-[#e92027] text-white text-[10px] font-bold py-1.5 rounded transition flex items-center justify-center gap-1" :class="isUploading ? 'opacity-70 cursor-wait' : 'hover:bg-red-700'">
+                                                            <span x-show="!isUploading">Simpan</span>
+                                                            <span x-show="isUploading" style="display: none;">
+                                                                <i class="fas fa-spinner fa-spin"></i> Menyimpan...
+                                                            </span>
+                                                        </button>
+                                                        <button type="button" @click="openUpload = false" :disabled="isUploading" class="flex-1 bg-white border border-gray-300 text-gray-600 text-[10px] font-bold py-1.5 rounded transition" :class="isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'">
+                                                            Batal
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             @else
                                                 <div class="text-[10px] text-red-500 font-bold bg-red-50 p-2 rounded-lg text-center border border-red-100">Batas maksimal upload tercapai (4 PDF)</div>
                                             @endif

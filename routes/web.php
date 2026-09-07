@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PengunjungController;
 use App\Http\Controllers\MonitoringKaryawanController;
 use App\Http\Controllers\ArsipMasukController;
 use App\Http\Controllers\ArsipController;
@@ -15,6 +14,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ManajemenMediaController;
 use App\Http\Controllers\LimaPController;
+
+Route::get('/health', function () {
+    return response('OK', 200);
+});
 
 // ==========================================
 // 1. AUTHENTICATION & LANDING

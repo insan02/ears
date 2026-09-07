@@ -85,13 +85,13 @@
         </div>
         @endif
 
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex flex-col min-h-[600px]">
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex flex-col min-h-150">
 
             <form id="formInputArsip" action="{{ route('arsip.store') }}" method="POST" @submit.prevent="validateFinalSubmit($event)" class="flex flex-col flex-1 h-full" hx-disable>
                 @csrf
 
                 {{-- Header --}}
-                <div class="px-8 py-6 border-b border-gray-50 bg-gradient-to-r from-red-600 to-red-800 flex justify-between items-center shrink-0">
+                <div class="px-8 py-6 border-b border-gray-50 bg-linear-to-r from-red-600 to-red-800 flex justify-between items-center shrink-0">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm text-white shadow-inner">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -130,7 +130,7 @@
                                 <p class="text-gray-500 text-lg">Mulai dengan mengisi identitas dasar dokumen.</p>
                             </div>
 
-                            <div class="space-y-8 bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100/50">
+                            <div class="space-y-8 bg-white p-8 rounded-4xl shadow-xl border border-gray-100/50">
                                 {{-- No Berkas --}}
                                 <div class="group relative">
                                     <label class="block font-bold text-gray-700 mb-3 pl-2 text-sm uppercase tracking-wide">No Berkas</label>
@@ -159,7 +159,7 @@
                             </div>
 
                             <div class="pt-4">
-                                <button type="button" @click="validateStep1()" class="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-red-800 to-red-600 p-0.5 shadow-xl transition-all duration-300 hover:shadow-red-900/40 hover:-translate-y-1 active:scale-95 active:translate-y-0">
+                                <button type="button" @click="validateStep1()" class="group relative w-full overflow-hidden rounded-2xl bg-linear-to-r from-red-800 to-red-600 p-0.5 shadow-xl transition-all duration-300 hover:shadow-red-900/40 hover:-translate-y-1 active:scale-95 active:translate-y-0">
                                     <div class="relative flex items-center justify-center gap-3 bg-transparent px-8 py-5 font-bold text-white text-xl uppercase tracking-widest transition-all group-hover:bg-opacity-0">
                                         Selanjutnya
                                         <svg class="h-6 w-6 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
@@ -282,7 +282,7 @@
                             </div>
 
                             {{-- SECTION 2: INPUT FORM --}}
-                            <div class="bg-gradient-to-br from-red-50 to-white p-6 rounded-3xl border border-red-100 shadow-sm space-y-4">
+                            <div class="bg-linear-to-br from-red-50 to-white p-6 rounded-3xl border border-red-100 shadow-sm space-y-4">
                                 <h3 class="text-sm font-black text-red-900 uppercase tracking-wide flex items-center gap-2">
                                     <span class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs">02</span>
                                     Input Isi Berkas
@@ -308,7 +308,7 @@
                                 </div>
 
                                 <div class="pt-2">
-                                    <button type="button" @click="addIsi()" class="w-full bg-gradient-to-r from-red-600 to-red-800 text-white p-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:shadow-red-300 hover:scale-[1.01] active:scale-95 transition flex justify-center items-center gap-2 group-btn">
+                                    <button type="button" @click="addIsi()" class="w-full bg-linear-to-r from-red-600 to-red-800 text-white p-3 rounded-xl font-bold shadow-lg shadow-red-200 hover:shadow-red-300 hover:scale-[1.01] active:scale-95 transition flex justify-center items-center gap-2 group-btn">
                                         <svg class="w-5 h-5 transition-transform group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> TAMBAH KE DAFTAR
                                     </button>
                                 </div>
@@ -318,12 +318,12 @@
                             <div class="w-full">
                                 <div class="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden flex flex-col">
                                     <div class="p-6 border-b border-gray-50 bg-gray-50/30 flex justify-between items-center">
-                                        <div><h3 class="text-lg font-black text-gray-800 text-transparent bg-clip-text bg-gradient-to-r from-red-900 to-red-600">Preview Berkas</h3><p class="text-xs text-gray-400 font-medium">Pastikan data sudah benar sebelum disimpan.</p></div>
+                                        <div><h3 class="text-lg font-black text-transparent bg-clip-text bg-linear-to-r from-red-900 to-red-600">Preview Berkas</h3><p class="text-xs text-gray-400 font-medium">Pastikan data sudah benar sebelum disimpan.</p></div>
                                         <div class="text-right"><span class="text-3xl font-black text-gray-800" x-text="isiBerkas.length">0</span><span class="text-xs text-gray-400 font-bold uppercase block">Items</span></div>
                                     </div>
 
                                     <!-- Mobile View -->
-                                    <div class="block md:hidden p-4 bg-gray-50/30 space-y-4 max-h-[500px] overflow-y-auto">
+                                    <div class="block md:hidden p-4 bg-gray-50/30 space-y-4 max-h-125 overflow-y-auto">
                                         <template x-for="(item, index) in isiBerkas" :key="index">
                                             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 relative">
                                                 <button type="button" @click="removeIsi(index)" class="absolute top-4 right-4 text-red-500 bg-red-50 p-1.5 rounded-lg"><i class="fas fa-trash-alt"></i></button>
@@ -343,7 +343,7 @@
                                     </div>
 
                                     <!-- Desktop View -->
-                                    <div class="hidden md:block overflow-x-auto custom-scrollbar max-h-[500px]">
+                                    <div class="hidden md:block overflow-x-auto custom-scrollbar max-h-125">
                                         <table class="w-full text-xs text-left relative table-fixed">
                                             <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-wider sticky top-0 z-10 shadow-sm border-b border-gray-200">
                                                 <tr>
@@ -420,7 +420,7 @@
                                 <button type="button" @click="formStep = 1" class="text-gray-500 font-bold px-4 py-2 text-sm hover:text-red-800 transition">
                                     Kembali
                                 </button>
-                                <button type="submit" class="flex-1 bg-gradient-to-r from-red-700 to-red-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
+                                <button type="submit" class="flex-1 bg-linear-to-r from-red-700 to-red-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
                                     <span>SIMPAN SEMUA</span><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </button>
                             </div>

@@ -7,7 +7,7 @@
     <script type="application/json" id="data-items-edit">{!! json_encode($currentItems ?? []) !!}</script>
     <script type="application/json" id="data-errors-edit">{!! json_encode($errors->all()) !!}</script>
 
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+    <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-40">
             <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                 <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#580000;stop-opacity:0.3" /><stop offset="100%" style="stop-color:#000000;stop-opacity:0.4" /></linearGradient></defs>
@@ -304,7 +304,7 @@
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($existingFiles as $file)
-                                    <a href="{{ asset('storage/' . $file) }}" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-[#c41820] hover:border-[#e92027] transition"><div class="bg-red-50 p-1 rounded text-[#e92027]"><i class="fas fa-file-pdf"></i></div><span class="truncate max-w-[150px]">{{ basename($file) }}</span></a>
+                                    <a href="{{ asset('storage/' . $file) }}" target="_blank" class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-[#c41820] hover:border-[#e92027] transition"><div class="bg-red-50 p-1 rounded text-[#e92027]"><i class="fas fa-file-pdf"></i></div><span class="truncate max-w-37.5">{{ basename($file) }}</span></a>
                                 @endforeach
                             </div>
                         </div>
@@ -319,7 +319,7 @@
                             <div class="flex items-center gap-3">
                                 <label class="flex-1 flex items-center justify-between px-4 py-3 bg-white border border-gray-300 rounded-xl cursor-pointer hover:border-[#e92027] hover:bg-red-50/30 transition group">
                                     <div class="flex items-center gap-4 overflow-hidden">
-                                        <div class="bg-red-100 text-[#a0131a] w-10 h-10 rounded-lg flex items-center justify-center border border-red-200 flex-shrink-0"><i class="fas fa-file-pdf text-lg"></i></div>
+                                        <div class="bg-red-100 text-[#a0131a] w-10 h-10 rounded-lg flex items-center justify-center border border-red-200 shrink-0"><i class="fas fa-file-pdf text-lg"></i></div>
                                         <div class="flex flex-col overflow-hidden">
                                             <span class="text-sm font-bold text-gray-800 truncate" x-text="file.name ? file.name : 'Pilih File PDF Tambahan'"></span>
                                             <span class="text-[10px] text-gray-500" x-text="file.name ? 'Siap diupload' : 'Format PDF Maksimal 2 MB'"></span>
@@ -328,7 +328,7 @@
                                     <span class="text-xs font-bold text-[#e92027] bg-white border border-red-200 px-3 py-1.5 rounded-lg group-hover:bg-[#e92027] group-hover:text-white transition">Browse</span>
                                     <input type="file" name="bukti_pinjam[]" class="hidden" accept=".pdf" @change="handleFileChange($event, index)">
                                 </label>
-                                <button type="button" @click="removeFile(index)" class="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl border border-red-200 text-[#e92027] bg-white hover:bg-red-100 shadow-sm transition" x-show="files.length > 1 || file.name"><i class="fas fa-trash-alt text-lg"></i></button>
+                                <button type="button" @click="removeFile(index)" class="w-12 h-12 shrink-0 flex items-center justify-center rounded-xl border border-red-200 text-[#e92027] bg-white hover:bg-red-100 shadow-sm transition" x-show="files.length > 1 || file.name"><i class="fas fa-trash-alt text-lg"></i></button>
                             </div>
                         </template>
                     </div>
@@ -344,7 +344,7 @@
 
         {{-- Modal Input Arsip --}}
         <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-visible border-t-8 border-[#e92027] relative" @click.away="closeModal()">
+            <div class="bg-white rounded-4xl shadow-2xl w-full max-w-2xl overflow-visible border-t-8 border-[#e92027] relative" @click.away="closeModal()">
                 <div class="p-6 md:p-8 space-y-6">
                     <div class="flex justify-between items-center mb-2">
                         <h3 class="text-xl font-extrabold text-gray-800" x-text="editingIndex !== null ? 'Edit Pilihan Arsip' : 'Pilih Arsip Baru'"></h3>
@@ -362,7 +362,7 @@
                             <input type="text" x-model="searchQuery" @focus="openDropdown = true" @click="openDropdown = true" @click.away="openDropdown = false" placeholder="Ketik kata kunci..." class="w-full border border-gray-300 rounded-xl pl-4 pr-4 py-3 text-sm focus:ring-2 focus:ring-red-100 focus:border-[#e92027] outline-none transition bg-gray-50 focus:bg-white" autocomplete="off">
 
                             <!-- DROPDOWN PENCARIAN -->
-                            <div x-show="openDropdown" class="absolute z-[999] w-full bg-white border border-gray-200 mt-2 rounded-xl shadow-xl max-h-72 overflow-y-auto" style="display: none;">
+                            <div x-show="openDropdown" class="absolute z-999 w-full bg-white border border-gray-200 mt-2 rounded-xl shadow-xl max-h-72 overflow-y-auto" style="display: none;">
                                 <ul x-show="filteredArsip.length > 0" class="divide-y divide-gray-100">
                                     <template x-for="opt in filteredArsip" :key="opt.id">
                                         <li @click="selectArsip(opt); openDropdown = false" class="px-4 py-3 hover:bg-red-50 cursor-pointer flex justify-between items-center transition group">
@@ -428,8 +428,8 @@
         </div>
 
         <!-- Validation Modal -->
-        <div x-show="showValidationModal" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div @click.away="showValidationModal = false" class="bg-white rounded-[2rem] w-full max-w-sm p-8 text-center relative overflow-hidden shadow-2xl border-t-8 border-[#e92027]">
+        <div x-show="showValidationModal" style="display: none;" class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div @click.away="showValidationModal = false" class="bg-white rounded-4xl w-full max-w-sm p-8 text-center relative overflow-hidden shadow-2xl border-t-8 border-[#e92027]">
                 <div class="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-[#e92027] shadow-sm animate-bounce"><i class="fas fa-exclamation-triangle text-3xl"></i></div>
                 <h3 class="text-xl font-extrabold text-gray-800 mb-2">Perhatian!</h3>
                 <template x-if="serverErrors.length > 0">

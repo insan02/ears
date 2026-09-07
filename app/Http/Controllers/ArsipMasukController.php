@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class ArsipMasukController extends Controller
 {
@@ -83,7 +82,7 @@ class ArsipMasukController extends Controller
     {
         $request->validate([
             'unit_asal' => 'required|string|max:255',
-            'nomor_berita_acara' => 'required|string|max:100',
+            'nomor_berita_acara' => 'required|string|max:255',
             'tanggal_terima' => 'required|date',
             'jumlah_box_masuk' => 'required|integer',
             'user_penerima' => 'required|exists:users,id',
@@ -119,7 +118,7 @@ class ArsipMasukController extends Controller
     {
         $request->validate([
             'unit_asal' => 'required|string|max:255',
-            'nomor_berita_acara' => 'required|string|max:100',
+            'nomor_berita_acara' => 'required|string|max:255',
             'tanggal_terima' => 'required|date',
             'jumlah_box_masuk' => 'required|integer',
             'user_penerima' => 'required|exists:users,id',

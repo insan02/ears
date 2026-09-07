@@ -1,7 +1,7 @@
 <x-layout>
     <div class="bg-gray-50 min-h-screen pb-20">
         <!-- Background Header -->
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-4xl md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
             <div class="absolute inset-0 z-0 opacity-40">
                  <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                     <defs>
@@ -48,7 +48,7 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-[400px] flex flex-col">
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-100 flex flex-col">
 
                 <!-- Filters & Toolbar -->
                 <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex flex-col xl:flex-row gap-4 justify-between items-center relative z-30">
@@ -67,14 +67,14 @@
 
                         <!-- Dropdowns -->
                         <div class="flex gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-                            <select name="unit_asal" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-[#e92027] outline-none block px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-all shadow-sm min-w-[140px]">
+                            <select name="unit_asal" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-[#e92027] outline-none block px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-all shadow-sm min-w-35">
                                 <option value="">Semua Unit</option>
                                 @foreach($unitAsalOptions as $unit)
                                     <option value="{{ $unit }}" {{ request('unit_asal') == $unit ? 'selected' : '' }}>{{ $unit }}</option>
                                 @endforeach
                             </select>
 
-                            <select name="year" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-[#e92027] outline-none block px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-all shadow-sm min-w-[120px]">
+                            <select name="year" onchange="this.form.submit()" class="bg-white border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-2 focus:ring-[#e92027] outline-none block px-4 py-2.5 cursor-pointer hover:bg-gray-50 transition-all shadow-sm min-w-30">
                                 <option value="">Semua Tahun</option>
                                  @foreach($yearOptions as $year)
                                      <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -101,7 +101,7 @@
                    </div>
                 </div>
 
-                <div class="p-6 flex-grow bg-gray-50/30">
+                <div class="p-6 grow bg-gray-50/30">
 
                     <!-- ============================================== -->
                     <!-- TAMPILAN MOBILE: KARTU (Tampil hanya di layar HP) -->
@@ -161,12 +161,12 @@
                                         {{-- Cek Hapus Terkunci --}}
                                         @if($item->log_aktivitas_count == 0)
                                         <form action="{{ route('arsip-masuk.destroy', $item->id) }}" method="POST" class="flex-1 flex">
-    @csrf @method('DELETE')
-    <!-- Tambahkan onclick="confirmDelete(this)" dan hapus class="delete-btn" -->
-    <button type="button" onclick="confirmDelete(this)" class="w-full py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-lg border border-red-100 hover:bg-red-100 transition">
-        Hapus
-    </button>
-</form>
+                                            @csrf @method('DELETE')
+                                            <!-- Tambahkan onclick="confirmDelete(this)" dan hapus class="delete-btn" -->
+                                            <button type="button" onclick="confirmDelete(this)" class="w-full py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-lg border border-red-100 hover:bg-red-100 transition">
+                                                Hapus
+                                            </button>
+                                        </form>
                                         @else
                                         <button type="button" disabled class="flex-1 w-full py-2 bg-gray-50 text-gray-400 text-xs font-bold rounded-lg border border-gray-200 cursor-not-allowed" title="Terkunci (Sedang Dikerjakan)">
                                             Hapus Terkunci
@@ -239,13 +239,13 @@
                                                 {{-- Tombol Hapus --}}
                                                 @if($item->log_aktivitas_count == 0)
                                                     <form action="{{ route('arsip-masuk.destroy', $item->id) }}" method="POST" class="inline">
-    @csrf
-    @method('DELETE')
-    <!-- Tambahkan onclick="confirmDelete(this)" dan hapus class="delete-btn" -->
-    <button type="button" onclick="confirmDelete(this)" class="p-2 text-[#e92027] hover:text-[#a0131a] hover:bg-red-50 border border-transparent hover:border-red-200 rounded-lg transition-colors" title="Hapus">
-        <i class="fas fa-trash-alt text-xs"></i>
-    </button>
-</form>
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <!-- Tambahkan onclick="confirmDelete(this)" dan hapus class="delete-btn" -->
+                                                    <button type="button" onclick="confirmDelete(this)" class="p-2 text-[#e92027] hover:text-[#a0131a] hover:bg-red-50 border border-transparent hover:border-red-200 rounded-lg transition-colors" title="Hapus">
+                                                        <i class="fas fa-trash-alt text-xs"></i>
+                                                    </button>
+                                                </form>
                                                 @else
                                                     <button type="button" disabled class="p-2 text-gray-400 bg-gray-50 border border-transparent rounded-lg cursor-not-allowed" title="Hapus Terkunci (Sedang Dikerjakan)">
                                                         <i class="fas fa-lock text-xs"></i>
@@ -293,10 +293,8 @@
     </form>
 
     <!-- Scripts -->
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Fungsi Hapus yang kebal terhadap AJAX / Refresh Parsial
         function confirmDelete(buttonElement) {
             const form = buttonElement.closest('form');
             Swal.fire({

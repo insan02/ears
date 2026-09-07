@@ -46,7 +46,7 @@
     </style>
 
     <div class="bg-gray-50 min-h-screen pb-20">
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
              <div class="absolute inset-0 z-0 opacity-40">
                   <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                      <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#580000;stop-opacity:0.3" /><stop offset="100%" style="stop-color:#000000;stop-opacity:0.4" /></linearGradient></defs>
@@ -85,7 +85,7 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-4 md:p-6 mb-8">
+            <div class="bg-white rounded-4xl shadow-xl border border-gray-100 p-4 md:p-6 mb-8">
                 <form id="filterForm" action="/arsip" method="GET" class="flex flex-col xl:flex-row gap-4 justify-between items-center">
 
                     <div class="relative w-full xl:w-96 group">
@@ -97,7 +97,7 @@
                     <div class="flex flex-wrap gap-3 w-full xl:w-auto items-center">
                         @php $chevron = '<i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>'; @endphp
 
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[150px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-37.5">
                             @php $tndLabel = request('filter_status') ? request('filter_status') : 'Semua Status'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $tndLabel }} {!! $chevron !!}</button>
                             <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
@@ -107,7 +107,7 @@
                             </div>
                         </div>
 
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[140px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-37.5">
                             @php $aksLabel = request('filter_hak_akses') ? request('filter_hak_akses') : 'Semua Akses'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $aksLabel }} {!! $chevron !!}</button>
                             <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
@@ -117,7 +117,7 @@
                             </div>
                         </div>
 
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[130px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-37.5">
                             @php $thnLabel = request('filter_tahun') ? request('filter_tahun') : 'Semua Tahun'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $thnLabel }} {!! $chevron !!}</button>
                             <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
@@ -128,7 +128,7 @@
                             </div>
                         </div>
 
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[130px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-37.5">
                             @php $boxLabel = request('filter_box') ? request('filter_box') : 'Semua Box'; @endphp
                             <button type="button" @click="open = !open" @click.outside="open = false" class="w-full bg-gray-50 hover:bg-red-50 border border-gray-200 text-left pl-4 pr-10 py-3 rounded-xl text-sm font-semibold truncate transition-all">{{ $boxLabel }} {!! $chevron !!}</button>
                             <div x-show="open" style="display: none;" class="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl py-1 max-h-60 overflow-y-auto top-full left-0">
@@ -139,7 +139,7 @@
                             </div>
                         </div>
 
-                        <div class="relative flex-grow md:flex-none" x-data="{ showSortDropdown: false }">
+                        <div class="relative grow md:flex-none" x-data="{ showSortDropdown: false }">
                                 <button type="button" @click="showSortDropdown = !showSortDropdown" @click.away="showSortDropdown = false" class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm flex items-center justify-center gap-2"><i class="fas fa-sort-amount-down text-gray-400"></i> Urutkan</button>
                                 <div x-show="showSortDropdown" style="display: none;" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
                                     <ul class="text-xs font-medium text-gray-600">
@@ -151,15 +151,15 @@
                             </div>
 
                             @if(auth()->user()->role === 'admin')
-                            <button type="button" @click="showImportModal = true" class="flex-grow md:flex-none px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
+                            <button type="button" @click="showImportModal = true" class="grow md:flex-none px-4 py-3 bg-green-50 text-green-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-100 transition shadow-sm border border-green-200"><i class="fas fa-upload"></i> Import</button>
 
                             <!-- TAMBAHKAN TOMBOL BULK DESTROY DI SINI -->
-                            <button type="button" onclick="bulkDestroyAction()" class="flex-grow md:flex-none px-4 py-3 bg-red-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-red-700 transition shadow-sm border border-red-600"><i class="fas fa-trash-alt"></i> Musnahkan Terpilih</button>
+                            <button type="button" onclick="bulkDestroyAction()" class="grow md:flex-none px-4 py-3 bg-red-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-red-700 transition shadow-sm border border-red-600"><i class="fas fa-trash-alt"></i> Musnahkan Terpilih</button>
                             @endif
 
-                            <button type="button" onclick="submitExport('excel')" class="flex-grow md:flex-none px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
+                            <button type="button" onclick="submitExport('excel')" class="grow md:flex-none px-4 py-3 bg-green-600 text-white rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-green-700 transition shadow-sm border border-green-600"><i class="fas fa-file-excel"></i> Export</button>
 
-                            <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="flex-grow md:flex-none px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-gray-200 transition shadow-sm border border-gray-200"><i class="fas fa-print"></i> Print</a>
+                            <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="grow md:flex-none px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-gray-200 transition shadow-sm border border-gray-200"><i class="fas fa-print"></i> Print</a>
                         </div>
                     </div>
                 </form>
@@ -211,11 +211,11 @@
             </div>
 
             {{-- MODAL IMPORT EXCEL --}}
-            <div x-show="showImportModal" style="display: none;" class="fixed inset-0 z-[999] overflow-y-auto">
+            <div x-show="showImportModal" style="display: none;" class="fixed inset-0 z-999 overflow-y-auto">
                 <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                     <div @click="showImportModal = false" class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-                    <div class="relative inline-block align-bottom bg-white rounded-[2rem] text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border-t-8 border-green-600">
+                    <div class="relative inline-block align-bottom bg-white rounded-4xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full border-t-8 border-green-600">
                         <form action="{{ route('arsip.import.process') }}" method="POST" enctype="multipart/form-data" onsubmit="tampilkanAnimasiLoading(event)" hx-disable>
                             @csrf
                             <div class="bg-white px-6 pt-6 pb-6">

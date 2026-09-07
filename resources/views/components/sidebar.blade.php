@@ -24,12 +24,12 @@
         <a href="{{ route('landing') }}" class="flex items-center hover:opacity-80 transition w-full" :class="sidebarOpen ? 'justify-start' : 'justify-center'">
             <img src="{{ asset('images/logo-semen-padang.png') }}" alt="Logo" class="transition-all duration-300 shrink-0" :class="sidebarOpen ? 'h-7 w-auto' : 'h-7 w-7 object-contain'">
             <span class="font-bold text-gray-800 text-sm whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
-                  :class="sidebarOpen ? 'max-w-[100px] opacity-100 ml-2' : 'max-w-0 opacity-0 ml-0'">E-Arsip</span>
+                  :class="sidebarOpen ? 'max-w-25 opacity-100 ml-2' : 'max-w-0 opacity-0 ml-0'">E-Arsip</span>
         </a>
     </div>
 
     <div class="py-2.5 text-center shrink-0 transition-all duration-300 overflow-hidden" :class="sidebarOpen ? 'px-6' : 'px-2'">
-        <a href="{{ route('profile.edit') }}" class="block group flex flex-col items-center">
+        <a href="{{ route('profile.edit') }}" class="group flex flex-col items-center">
             <div class="mx-auto bg-red-50 rounded-full flex items-center justify-center text-[#e92027] border-2 border-[#e92027] overflow-hidden group-hover:border-[#c41820] shadow-sm transition-all duration-300 shrink-0"
                  :class="sidebarOpen ? 'w-10 h-10 mb-1' : 'w-8 h-8 mb-0'">
                 @if(Auth::user()->photo)
@@ -63,14 +63,14 @@
            :class="sidebarOpen ? 'justify-start' : 'justify-center'">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $menu['icon'] }}" /></svg>
             <span class="whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
-                  :class="sidebarOpen ? 'max-w-[200px] opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'">{{ $menu['label'] }}</span>
+                  :class="sidebarOpen ? 'max-w-50 opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'">{{ $menu['label'] }}</span>
         </a>
         @endforeach
 
         @if(Auth::check() && Auth::user()->role == 'admin')
             <div class="pt-2 pb-1 flex items-center h-6">
                 <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap overflow-hidden transition-all duration-300"
-                   :class="sidebarOpen ? 'max-w-[200px] opacity-100 px-2' : 'max-w-0 opacity-0 px-0'">Administrator</p>
+                   :class="sidebarOpen ? 'max-w-50 opacity-100 px-2' : 'max-w-0 opacity-0 px-0'">Administrator</p>
                 <div class="w-full h-px bg-gray-200 transition-all duration-300 mx-3" :class="sidebarOpen ? 'hidden' : 'block'"></div>
             </div>
 
@@ -88,7 +88,7 @@
                :class="sidebarOpen ? 'justify-start' : 'justify-center'">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $menu['icon'] }}" /></svg>
                 <span class="whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
-                      :class="sidebarOpen ? 'max-w-[200px] opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'">{{ $menu['label'] }}</span>
+                      :class="sidebarOpen ? 'max-w-50 opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'">{{ $menu['label'] }}</span>
             </a>
             @endforeach
         @endif
@@ -99,7 +99,7 @@
                 :class="sidebarOpen ? 'justify-start px-3' : 'justify-center px-0'">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
             <span class="whitespace-nowrap overflow-hidden transition-all duration-300 ease-in-out"
-                  :class="sidebarOpen ? 'max-w-[150px] opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'">Logout</span>
+                  :class="sidebarOpen ? 'max-w-37.5 opacity-100 ml-3' : 'max-w-0 opacity-0 ml-0'">Logout</span>
         </button>
     </div>
 </aside>
@@ -110,7 +110,7 @@
 <div x-data="{ showMobileMore: false }" class="lg:hidden">
 
     <!-- TAMPILAN FIXED BAWAH: Berlaku Untuk SEMUA USER -->
-    <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-[100] shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-safe">
+    <nav class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-100 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] pb-safe">
         <div class="flex justify-between items-center px-2 py-1.5">
             <!-- Beranda -->
             <a href="/beranda" class="flex-1 flex flex-col items-center justify-center {{ Request::is('beranda') ? 'text-[#e92027]' : 'text-gray-400 hover:text-gray-600' }}">
@@ -151,16 +151,16 @@
     </nav>
 
     <!-- BOTTOM SHEET: Menu Tambahan -->
-    <div x-show="showMobileMore" style="display: none;" class="fixed inset-0 z-[110] flex flex-col justify-end">
+    <div x-show="showMobileMore" style="display: none;" class="fixed inset-0 z-110 flex flex-col justify-end">
 
         <div x-show="showMobileMore" x-transition.opacity @click="showMobileMore = false" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
 
         <div x-show="showMobileMore"
              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
              x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full"
-             class="relative bg-gray-50 rounded-t-[2rem] w-full max-h-[85vh] flex flex-col overflow-hidden pb-safe shadow-2xl">
+             class="relative bg-gray-50 rounded-t-4xl w-full max-h-[85vh] flex flex-col overflow-hidden pb-safe shadow-2xl">
 
-            <div class="bg-white px-6 py-4 flex justify-between items-center rounded-t-[2rem] shadow-sm z-10">
+            <div class="bg-white px-6 py-4 flex justify-between items-center rounded-t-4xl shadow-sm z-10">
                 <h3 class="font-bold text-gray-800 text-lg">Menu Lainnya</h3>
                 <button @click="showMobileMore = false" class="bg-gray-100 p-2 rounded-full text-gray-500 hover:text-red-600">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>

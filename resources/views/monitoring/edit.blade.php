@@ -1,5 +1,5 @@
 <x-layout>
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[3rem] mb-8 relative">
+    <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[3rem] mb-8 relative">
         <h1 class="text-3xl font-extrabold text-white text-center">Edit Monitoring Kinerja</h1>
     </div>
 

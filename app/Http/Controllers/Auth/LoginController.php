@@ -21,7 +21,7 @@ class LoginController extends Controller
     {
         // 1. Validasi Input
         $credentials = $request->validate([
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:50'],
             'password' => ['required', 'string', 'max:64'],
         ], [
             'required' => 'Kolom :attribute wajib diisi.',

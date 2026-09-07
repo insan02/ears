@@ -58,12 +58,14 @@
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Nama Lengkap</label>
-                            <input type="text" name="nama" value="{{ old('nama', $user->nama) }}" required
+                            {{-- PERBAIKAN: Tambahkan maxlength="255" --}}
+                            <input type="text" name="nama" value="{{ old('nama', $user->nama) }}" required maxlength="100"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027] focus:border-[#e92027] outline-none transition">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Email</label>
-                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required
+                            {{-- PERBAIKAN: Tambahkan maxlength="255" --}}
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required maxlength="100"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027] focus:border-[#e92027] outline-none transition">
                         </div>
                     </div>
@@ -72,11 +74,13 @@
                     <div class="space-y-4 bg-gray-50 p-6 rounded-xl border border-gray-100">
                         <h4 class="font-bold text-gray-600 mb-2">Ganti Password (Opsional)</h4>
                         <div>
-                            <input type="password" name="password" placeholder="Password Baru"
+                            {{-- PERBAIKAN: Tambahkan maxlength="16" --}}
+                            <input type="password" name="password" placeholder="Password Baru" maxlength="16"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027] focus:border-[#e92027] outline-none transition">
                         </div>
                         <div>
-                            <input type="password" name="password_confirmation" placeholder="Konfirmasi Password Baru"
+                            {{-- PERBAIKAN: Tambahkan maxlength="16" --}}
+                            <input type="password" name="password_confirmation" placeholder="Konfirmasi Password Baru" maxlength="16"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#e92027] focus:border-[#e92027] outline-none transition">
                         </div>
                     </div>
@@ -95,7 +99,7 @@
 
         {{-- ANIMASI LOADING OVERLAY --}}
         <div x-show="isSubmitting" style="display: none;"
-            class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+            class="fixed inset-0 z-100 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
             <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4 animate-bounce">
                 <!-- Spinner Tailwind -->
                 <svg class="animate-spin h-10 w-10 text-[#e92027]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

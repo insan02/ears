@@ -32,7 +32,7 @@
                     @endphp
 
                     {{-- Card Berita --}}
-                    <div class="min-w-[300px] md:min-w-[350px] max-w-[350px] bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden snap-center flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+                    <div class="min-w-75 md:min-w-87.5 max-w-87.5 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden snap-center flex flex-col group hover:-translate-y-2 transition-transform duration-300">
 
                         {{-- Card Image Box: object-contain agar foto proporsional utuh --}}
                         <div x-data="{ activeImg: 0, sliderImgs: {{ Js::from($gambarArray) }} }"
@@ -76,11 +76,11 @@
                         </div>
 
                         {{-- Text Content --}}
-                        <div class="p-6 flex flex-col flex-grow">
+                        <div class="p-6 flex flex-col grow">
                             <h3 class="font-bold text-gray-800 text-lg mb-3 line-clamp-2 group-hover:text-[#e92027] transition-colors">
                                 {{ $item->judul }}
                             </h3>
-                            <p class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-6 flex-grow">
+                            <p class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-6 grow">
                                 {{ $item->deskripsi }}
                             </p>
 
@@ -93,7 +93,7 @@
                     </div>
 
                     {{-- Modal Detail Berita --}}
-                    <div id="modal-berita-{{ $item->id }}" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+                    <div id="modal-berita-{{ $item->id }}" class="fixed inset-0 z-200 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
                         <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative transform scale-95 transition-transform duration-300" id="modal-content-{{ $item->id }}">
 
                             {{-- Header Modal --}}
@@ -105,7 +105,7 @@
                             </div>
 
                             {{-- Body Modal --}}
-                            <div class="overflow-y-auto p-6 flex-grow custom-scrollbar">
+                            <div class="overflow-y-auto p-6 grow custom-scrollbar">
                                 <div class="flex items-center gap-3 mb-6">
                                     <span class="bg-red-50 text-[#e92027] text-xs font-bold px-3 py-1 rounded-full border border-red-100">
                                         {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}

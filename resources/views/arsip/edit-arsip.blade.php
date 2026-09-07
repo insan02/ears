@@ -5,7 +5,7 @@
     <script type="application/json" id="arsip-data">{!! json_encode($arsip ?? []) !!}</script>
     <script type="application/json" id="init-data">{!! json_encode($initialData[0] ?? []) !!}</script>
 
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+    <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
         <div class="absolute inset-0 z-0 opacity-40">
             <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                 <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#580000;stop-opacity:0.3" /><stop offset="100%" style="stop-color:#000000;stop-opacity:0.4" /></linearGradient></defs>
@@ -194,7 +194,7 @@
                     </div>
 
                     {{-- Rincian Arsip --}}
-                    <div class="bg-gradient-to-br from-amber-50 to-white p-6 rounded-3xl border border-amber-100 shadow-sm space-y-4">
+                    <div class="bg-linear-to-br from-amber-50 to-white p-6 rounded-3xl border border-amber-100 shadow-sm space-y-4">
                         <h3 class="text-sm font-black text-amber-900 uppercase tracking-wide flex items-center gap-2">
                             <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs">02</span> Rincian Dokumen
                         </h3>
@@ -236,7 +236,7 @@
                 {{-- Footer / Submit --}}
                 <div class="px-8 py-5 bg-white border-t border-gray-100 flex justify-between items-center rounded-b-3xl">
                     <a href="{{ route('arsip.index') }}" class="text-gray-500 font-bold px-4 py-2 text-sm hover:text-gray-800 transition">Batal</a>
-                    <button type="submit" class="px-8 py-4 bg-gradient-to-r from-amber-600 to-red-800 text-white rounded-xl font-bold text-base shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2">
+                    <button type="submit" class="px-8 py-4 bg-linear-to-r from-amber-600 to-red-800 text-white rounded-xl font-bold text-base shadow-lg hover:scale-[1.02] transition-all flex items-center gap-2">
                         SIMPAN PERUBAHAN
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </button>

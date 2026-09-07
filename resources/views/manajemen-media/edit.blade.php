@@ -44,7 +44,7 @@
         }
     }">
 
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[3rem] mb-8 relative">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[3rem] mb-8 relative">
             <h1 class="text-3xl font-extrabold text-white text-center">Edit Berita / Media</h1>
         </div>
 
@@ -78,7 +78,7 @@
                                 <div class="flex items-center gap-4 bg-white p-3 rounded-xl border shadow-sm">
                                     <input type="hidden" name="keep_gambar[]" :value="img">
                                     <img :src="'{{ asset('storage') }}/' + img" class="w-16 h-16 object-cover rounded-lg border">
-                                    <div class="flex-grow"><span class="text-sm text-gray-500 font-medium">Foto Terpasang Saat Ini</span></div>
+                                    <div class="grow"><span class="text-sm text-gray-500 font-medium">Foto Terpasang Saat Ini</span></div>
                                     <button type="button" @click="removeOldImage(index)" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                             </template>
@@ -92,7 +92,7 @@
                                         <template x-if="input.preview"><img :src="input.preview" class="w-full h-full object-cover"></template>
                                         <template x-if="!input.preview"><i class="fas fa-image text-gray-300"></i></template>
                                     </div>
-                                    <input type="file" name="gambar[]" accept="image/jpeg, image/png" required @change="validateImage($event, index)" class="flex-grow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:bg-red-50 file:text-[#e92027]">
+                                    <input type="file" name="gambar[]" accept="image/jpeg, image/png" required @change="validateImage($event, index)" class="grow text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:bg-red-50 file:text-[#e92027]">
                                     <button type="button" @click="removeNewInput(index)" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-times"></i></button>
                                 </div>
                             </template>

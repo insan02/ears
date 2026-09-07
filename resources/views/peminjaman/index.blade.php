@@ -50,7 +50,7 @@
 
     <div x-data="peminjamanIndex()" class="bg-gray-50 min-h-screen pb-20">
 
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
              <div class="absolute inset-0 z-0 opacity-40">
                   <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                      <defs>
@@ -129,7 +129,7 @@
                         @endphp
 
                         <!-- Status Filter -->
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[160px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-40">
                             @php
                                 $statusLabel = request('status') ? (request('status') == 'All' ? 'Semua Status' : request('status')) : 'Semua Status';
                             @endphp
@@ -147,7 +147,7 @@
                         </div>
 
                         <!-- Hak Akses Filter -->
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[160px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-40">
                             @php
                                 $keamananLabel = request('keamanan') ? (request('keamanan') == 'All' ? 'Semua Akses' : request('keamanan')) : 'Semua Akses';
                             @endphp
@@ -165,7 +165,7 @@
                         </div>
 
                         <!-- Jenis Media Filter -->
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[160px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-40">
                             @php
                                 $mediaLabel = request('media') ? (request('media') == 'All' ? 'Semua Media' : request('media')) : 'Semua Media';
                             @endphp
@@ -183,7 +183,7 @@
                         </div>
 
                         <!-- Buttons Group -->
-                        <div class="flex items-center gap-2 flex-grow sm:flex-none">
+                        <div class="flex items-center gap-2 grow sm:flex-none">
                             @if(request()->hasAny(['search', 'status', 'keamanan', 'media']))
                                 <a href="/peminjaman" class="flex items-center justify-center px-4 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap hover:bg-[#e92027] hover:text-white transition">Reset</a>
                             @endif
@@ -367,7 +367,7 @@
                         <div class="flex items-center justify-between p-4 bg-gray-50 border border-gray-100 rounded-2xl hover:border-red-100 transition group">
                             <div class="flex items-center gap-4 overflow-hidden">
                                 <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-[#e92027]"><i class="fas fa-file-pdf text-lg"></i></div>
-                                <span x-text="file.split('/').pop()" class="text-xs truncate font-bold text-gray-700 max-w-[200px]"></span>
+                                <span x-text="file.split('/').pop()" class="text-xs truncate font-bold text-gray-700 max-w-50"></span>
                             </div>
                             <a :href="`{{ asset('storage') }}/${file}`" target="_blank" class="px-4 py-2 text-[10px] font-bold text-white bg-[#e92027] rounded-xl hover:bg-[#c41820] shadow-md transition">Lihat / Download</a>
                         </div>
@@ -377,8 +377,8 @@
         </div>
 
         {{-- Delete Modal (Form Hapus dengan hx-disable) --}}
-        <div x-show="showDeleteModal" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div @click.away="showDeleteModal = false" class="bg-white rounded-[2rem] w-full max-w-sm p-8 text-center relative overflow-hidden shadow-2xl">
+        <div x-show="showDeleteModal" style="display: none;" class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div @click.away="showDeleteModal = false" class="bg-white rounded-4xl w-full max-w-sm p-8 text-center relative overflow-hidden shadow-2xl">
                 <div class="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-[#e92027] shadow-sm animate-bounce"><i class="fas fa-trash-alt text-3xl"></i></div>
                 <h3 class="text-xl font-extrabold text-gray-800 mb-2">Hapus Transaksi?</h3>
                 <p class="text-gray-500 text-sm mb-8 leading-relaxed">Data peminjaman beserta detail arsipnya akan dihapus permanen dari sistem.</p>

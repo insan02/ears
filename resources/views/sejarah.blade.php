@@ -117,7 +117,7 @@
         <div class="absolute inset-0">
              <img src="{{ asset('images/LP.JPG') }}" class="w-full h-full object-cover animate-zoom">
              <!-- Overlay Gradient -->
-             <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
+             <div class="absolute inset-0 bg-linear-to-r from-black/30 to-transparent"></div>
         </div>
 
         <!-- Content -->

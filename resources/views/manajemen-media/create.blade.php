@@ -35,7 +35,7 @@
     }">
 
         {{-- Header Page --}}
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-4xl md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
             <div class="relative z-10 max-w-4xl mx-auto text-center md:text-left">
                 <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Tambah Berita / Media</h1>
                 <p class="text-red-100 mt-2">Publikasikan konten informasi terbaru (Maksimal 5 Foto).</p>
@@ -76,7 +76,7 @@
                                 <template x-for="(input, index) in inputs" :key="input.id">
                                     <div class="flex flex-col sm:flex-row items-center gap-4 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
                                         <!-- Kotak Preview -->
-                                        <div class="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0 border border-gray-200 overflow-hidden flex items-center justify-center">
+                                        <div class="w-20 h-20 bg-gray-100 rounded-lg shrink-0 border border-gray-200 overflow-hidden flex items-center justify-center">
                                             <template x-if="input.preview">
                                                 <img :src="input.preview" class="w-full h-full object-cover">
                                             </template>
@@ -86,7 +86,7 @@
                                         </div>
 
                                         <!-- Input File -->
-                                        <div class="flex-grow w-full">
+                                        <div class="grow w-full">
                                             <input type="file" name="gambar[]" accept="image/jpeg, image/png" required @change="validateImage($event, index)"
                                                 class="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-red-50 file:text-[#e92027] hover:file:bg-red-100 cursor-pointer">
                                         </div>

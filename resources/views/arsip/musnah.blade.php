@@ -11,7 +11,7 @@
     </div>
 
     <div class="bg-gray-50 min-h-screen pb-20">
-        <div class="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden print:hidden">
+        <div class="bg-linear-to-br from-gray-800 via-gray-700 to-gray-900 text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-4xl md:rounded-b-[3rem] shadow-2xl relative overflow-hidden print:hidden">
              <div class="absolute inset-0 z-0 opacity-40">
                   <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                      <defs><linearGradient id="polyGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#000000;stop-opacity:0.3" /><stop offset="100%" style="stop-color:#555555;stop-opacity:0.4" /></linearGradient></defs>
@@ -28,7 +28,7 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 -mt-12 md:-mt-20 relative z-20 mb-12 print:mt-0 print:px-0">
-            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-[400px] flex flex-col print:shadow-none print:border-0 print:p-0">
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-100 flex flex-col print:shadow-none print:border-0 print:p-0">
 
                 <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex flex-col md:flex-row justify-between items-center gap-4 relative z-30 print:hidden">
                     <div class="relative w-full md:w-96 group">
@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- TAMPILAN MOBILE -->
-                <div class="block xl:hidden space-y-4 p-4 bg-gray-50/50 flex-grow">
+                <div class="block xl:hidden space-y-4 p-4 bg-gray-50/50 grow">
                     @forelse ($arsips as $arsip)
                         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 relative">
                             <div class="mb-3 border-b border-gray-100 pb-3">
@@ -66,7 +66,7 @@
                 </div>
 
                 <!-- TAMPILAN DESKTOP -->
-                <div class="hidden xl:block flex-grow w-full p-6">
+                <div class="hidden xl:block grow w-full p-6">
                     <div class="overflow-hidden rounded-xl border border-gray-200 shadow-sm bg-white w-full">
                         <table class="w-full text-left border-collapse table-fixed bg-white">
                             <thead>
@@ -90,10 +90,10 @@
                                         <td class="py-2 px-2 text-center border-r border-gray-100 font-bold text-gray-700 align-top">
                                             {{ optional($arsip->klasifikasi)->kode_klasifikasi ?? '-' }}
                                         </td>
-                                        <td class="py-2 px-3 font-bold text-gray-800 border-r border-gray-100 align-top whitespace-normal break-words">
+                                        <td class="py-2 px-3 font-bold text-gray-800 border-r border-gray-100 align-top whitespace-normal wrap-break-word">
                                             {{ $arsip->nama_berkas ?? '-' }}
                                         </td>
-                                        <td class="py-2 px-3 text-gray-600 border-r border-gray-100 align-top whitespace-normal break-words leading-relaxed">
+                                        <td class="py-2 px-3 text-gray-600 border-r border-gray-100 align-top whitespace-normal wrap-break-word leading-relaxed">
                                             {{ $arsip->isi ?? '-' }}
                                         </td>
                                         <td class="py-2 px-2 text-center font-medium border-r border-gray-100 align-top whitespace-nowrap">{{ $arsip->tahun ?? '-' }}</td>

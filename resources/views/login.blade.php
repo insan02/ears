@@ -40,7 +40,7 @@
 
         <!-- Left Column: Branding & Pattern (Sekarang Tampil di Semua Layar) -->
         <!-- Menghapus 'hidden' dan mengatur padding/height agar pas di HP -->
-        <div class="flex w-full md:w-1/3 relative overflow-hidden bg-gradient-to-br from-[#c41820] to-[#8a1216] text-white flex-col justify-center md:justify-between p-8 pb-14 md:p-12 z-20 shadow-lg md:shadow-2xl">
+        <div class="flex w-full md:w-1/3 relative overflow-hidden bg-linear-to-br from-[#c41820] to-[#8a1216] text-white flex-col justify-center md:justify-between p-8 pb-14 md:p-12 z-20 shadow-lg md:shadow-2xl">
             <!-- Geometric Pattern Overlay -->
             <div class="absolute inset-0 opacity-10">
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -75,15 +75,23 @@
 
         <!-- Right Column: Login Form -->
         <!-- Menambahkan -mt-8 dan rounded-t-3xl agar di HP form sedikit menimpa panel merah -->
-        <div class="flex-1 w-full md:w-2/3 relative flex items-center justify-center p-4 sm:p-8 bg-gray-50 -mt-6 md:mt-0 rounded-t-[2rem] md:rounded-none z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] md:shadow-none">
+        <div class="flex-1 w-full md:w-2/3 relative flex items-center justify-center p-4 sm:p-8 bg-gray-50 -mt-6 md:mt-0 rounded-t-4xl md:rounded-none z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] md:shadow-none">
 
             <!-- Background Image -->
-            <div class="absolute inset-0 z-0 opacity-40 rounded-t-[2rem] md:rounded-none overflow-hidden"
+            <div class="absolute inset-0 z-0 opacity-40 rounded-t-4xl md:rounded-none overflow-hidden"
                 style="background-image: url('{{ asset('images/SuperGrafis.png') }}'); background-size: cover; background-position: center;">
             </div>
 
              <!-- Login Card -->
             <div class="relative z-10 w-full max-w-md bg-white/90 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white/50 my-8 md:my-0">
+
+                <!-- TAMBAHAN: Tombol Kembali ke Landing -->
+                <a href="{{ route('landing') }}" class="inline-flex items-center gap-2 text-gray-500 hover:text-[#e92027] transition-colors text-xs font-bold mb-6 group">
+                    <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center group-hover:bg-red-50 group-hover:-translate-x-1 transition-all">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    Kembali ke Landing Page
+                </a>
 
                 <div class="text-center mb-8 md:mb-10">
                     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-1">Login</h1>

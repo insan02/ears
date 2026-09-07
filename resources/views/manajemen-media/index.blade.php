@@ -3,7 +3,7 @@
     <div x-data="{ showDeleteModal: false, deleteUrl: '', isDeleting: false }" class="bg-gray-50 min-h-screen pb-20">
 
         {{-- Header Section --}}
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-4xl md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
              <!-- Polygon Pattern Overlay -->
              <div class="absolute inset-0 z-0 opacity-40">
                   <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -50,7 +50,7 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-[400px] flex flex-col">
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-100 flex flex-col">
 
                 {{-- Toolbar / Alert Area --}}
                 <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex flex-col md:flex-row gap-4 justify-between items-center relative z-30">
@@ -126,14 +126,14 @@
                 </div>
 
                 {{-- TAMPILAN DESKTOP: TABEL --}}
-                <div class="hidden md:block flex-grow overflow-x-auto w-full pb-4">
+                <div class="hidden md:block grow overflow-x-auto w-full pb-4">
                     <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
                         <thead>
                             <tr class="bg-gray-50 text-gray-600 border-b border-gray-200">
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-40">Galeri</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-[200px]">Judul</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-50">Judul</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-36">Tanggal</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-[300px]">Deskripsi</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-75">Deskripsi</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-32">Aksi</th>
                             </tr>
                         </thead>
@@ -231,7 +231,7 @@
                             @elseif ($link['active'])
                                 <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#e92027] text-white font-bold text-sm shadow-md">{{ $link['label'] }}</span>
                             @else
-                                <a href="{{ link['url'] }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-[#e92027] transition text-sm font-bold shadow-sm">{{ $link['label'] }}</a>
+                                <a href="{{ $link['url'] }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-[#e92027] transition text-sm font-bold shadow-sm">{{ $link['label'] }}</a>
                             @endif
                         @endforeach
 
@@ -248,7 +248,7 @@
 
         {{-- Delete Modal Responsif --}}
         <div x-show="showDeleteModal" style="display: none;"
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="!isDeleting && (showDeleteModal = false)"
                 x-show="showDeleteModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white rounded-3xl w-full max-w-sm p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">

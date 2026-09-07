@@ -10,8 +10,8 @@
 
     <div x-data="{ showDeleteModal: false, deleteUrl: '' }" class="min-h-screen wall-pattern p-4 md:p-8">
 
-        <div class="max-w-7xl mx-auto bg-gradient-to-r from-red-900 to-red-800 px-6 py-6 rounded-xl shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
-            
+        <div class="max-w-7xl mx-auto bg-linear-to-r from-red-900 to-red-800 px-6 py-6 rounded-xl shadow-lg mb-8 flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden">
+
             <div class="relative z-10 text-center md:text-left">
                 <h1 class="text-2xl md:text-3xl font-bold text-white tracking-wide">
                     Dinding Tamu
@@ -42,26 +42,26 @@
         @endif
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
-            
+
             @forelse($pengunjung as $index => $tamu)
                 @php
                     // Palet Warna Kalem (Putih, Pink, Krem Merah, Abu)
                     $colors = ['bg-white', 'bg-pink-50', 'bg-red-50', 'bg-stone-50'];
                     $rotations = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2', 'rotate-0'];
-                    
+
                     $randomColor = $colors[$index % 4];
                     $randomRotate = $rotations[$index % 5];
                 @endphp
 
                 <div class="relative group {{ $randomRotate }} hover:rotate-0 hover:scale-105 transition-all duration-300 ease-out">
                     <div class="{{ $randomColor }} p-6 pt-8 shadow-md hover:shadow-xl h-full flex flex-col relative overflow-hidden transition-colors border border-gray-100/50 rounded-xl">
-                        
+
                         <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -mt-2">
                             <div class="w-4 h-4 rounded-full bg-red-800 shadow-md border-2 border-red-900 z-20 relative"></div>
-                            <div class="w-1 h-8 bg-gray-400 absolute top-2 left-1/2 -translate-x-1/2 -z-10 opacity-30"></div> 
+                            <div class="w-1 h-8 bg-gray-400 absolute top-2 left-1/2 -translate-x-1/2 -z-10 opacity-30"></div>
                         </div>
 
-                        <div class="flex-1 text-gray-700 leading-relaxed text-base font-medium mb-6 break-words tracking-wide">
+                        <div class="flex-1 text-gray-700 leading-relaxed text-base font-medium mb-6 wrap-break-word tracking-wide">
                             "{{ $tamu->pesan_kesan }}"
                         </div>
 
@@ -72,10 +72,10 @@
                                     {{ $tamu->asal_instansi }}
                                 </div>
                             </div>
-                            
-                            <button 
+
+                            <button
                                 @click="showDeleteModal = true; deleteUrl = '{{ route('pengunjung.destroy', $tamu->id) }}'"
-                                class="text-gray-300 hover:text-red-600 transition p-1 opacity-0 group-hover:opacity-100" 
+                                class="text-gray-300 hover:text-red-600 transition p-1 opacity-0 group-hover:opacity-100"
                                 title="Hapus Pesan">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                             </button>
@@ -99,10 +99,10 @@
 
         </div>
 
-        <div x-show="showDeleteModal" style="display: none;" 
+        <div x-show="showDeleteModal" style="display: none;"
              class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
              x-transition.opacity>
-            <div @click.away="showDeleteModal = false" 
+            <div @click.away="showDeleteModal = false"
                  class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100">
                 <div class="bg-red-50 p-6 flex flex-col items-center text-center border-b border-red-100">
                     <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-red-600 mb-3">

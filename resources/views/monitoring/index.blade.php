@@ -7,7 +7,7 @@
 
     <div class="bg-gray-50 min-h-screen pb-20">
         <!-- Background Header -->
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
             <div class="absolute inset-0 z-0 opacity-40">
                  <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
                     <defs>
@@ -100,7 +100,7 @@
                         @endphp
 
                         <!-- 1. PIC Filter -->
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[160px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-40">
                             @php
                                 $selectedPic = request('pic') ? $users->firstWhere('id', request('pic')) : null;
                                 $picLabel = $selectedPic ? $selectedPic->nama : 'Semua PIC';
@@ -127,7 +127,7 @@
                         </div>
 
                         <!-- 2. Tahapan Filter -->
-                        <div x-data="{ open: false }" class="relative flex-grow sm:flex-none min-w-[180px]">
+                        <div x-data="{ open: false }" class="relative grow sm:flex-none min-w-45">
                             @php
                                 $tahapanLabel = request('tahapan') ? request('tahapan') : 'Semua Tahapan';
                             @endphp
@@ -154,7 +154,7 @@
 
                         <!-- Reset Filter -->
                         @if(request('search') || request('pic') || request('tahapan'))
-                            <a href="{{ route('monitoring.index') }}" class="flex items-center justify-center px-5 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap hover:bg-[#e92027] hover:text-white transition-all flex-grow sm:flex-none">
+                            <a href="{{ route('monitoring.index') }}" class="flex items-center justify-center px-5 py-3 bg-red-50 text-[#e92027] rounded-xl text-sm font-bold shadow-sm whitespace-nowrap hover:bg-[#e92027] hover:text-white transition-all grow sm:flex-none">
                                 Reset
                             </a>
                         @endif
@@ -271,7 +271,7 @@
                                                 </div>
 
                                                 <div class="flex items-center gap-2 mt-2 w-full">
-                                                    <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="flex-grow" hx-disable>
+                                                    <form id="advance-form-m-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="grow" hx-disable>
                                                         @csrf @method('PATCH')
                                                         @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                             <button type="button" disabled class="w-full px-3 py-2 bg-gray-100 text-gray-500 text-[10px] font-bold rounded-lg border border-gray-200"><i class="fas fa-clock mr-1"></i> TERTUNGGU</button>
@@ -318,7 +318,7 @@
                                                 @foreach($prosesItems as $item)
                                                 <tr class="hover:bg-red-50/20 transition duration-200 group text-sm">
                                                     <td class="py-4 px-6 text-center">
-                                                        <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-[180px]" hx-disable>
+                                                        <form id="advance-form-d-{{ $item->id }}" action="{{ route('monitoring.advance-stage', $item->id) }}" method="POST" class="inline-block w-full max-w-45" hx-disable>
                                                             @csrf @method('PATCH')
                                                             @if(in_array($item->status_kerja, ['Menunggu Alih Media', 'Menunggu E-Arsip', 'Menunggu Tim Lain']))
                                                                 <button type="button" disabled class="w-full px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 shadow-sm"><i class="fas fa-clock mr-1"></i> {{ strtoupper($item->status_kerja) }}</button>
@@ -456,12 +456,12 @@
     </div>
 
     <!-- MODAL HISTORY -->
-    <div id="historyModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div id="historyModal" class="fixed inset-0 z-100 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeHistoryModal()"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full relative z-[110] border border-gray-100">
-                <div class="bg-gradient-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl w-full relative z-110 border border-gray-100">
+                <div class="bg-linear-to-r from-gray-50 to-white px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                         <div class="p-2 bg-purple-100 rounded-lg"><svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
                         Log Riwayat Progres
@@ -479,11 +479,11 @@
     </div>
 
     <!-- MODAL PROGRESS -->
-    <div id="progressModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div id="progressModal" class="fixed inset-0 z-100 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true" onclick="closeProgressModal()"><div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full relative z-[110]">
+            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full relative z-110">
                 <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex justify-between items-center">
                     <h3 class="text-lg font-bold text-[#e92027] flex items-center gap-2"><i class="fas fa-plus-circle"></i> Tambah Progress</h3>
                     <button onclick="closeProgressModal()" class="text-gray-400 hover:text-red-500 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>

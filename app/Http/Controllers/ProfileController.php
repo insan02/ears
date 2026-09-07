@@ -30,8 +30,8 @@ class ProfileController extends Controller
             'required' => 'Isi kolom :attribute.',
             'email' => 'Format email tidak valid.',
             'max' => 'Maksimal :max karakter.',
-            'nama.max' => 'Nama maksimal 255 karakter.',
-            'email.max' => 'Email maksimal 255 karakter.',
+            'nama.max' => 'Nama maksimal 100 karakter.',
+            'email.max' => 'Email maksimal 100 karakter.',
             'password.min' => 'Password baru minimal harus 8 karakter.',
             'password.max' => 'Password baru tidak boleh lebih dari 16 karakter.',
             'unique' => ':attribute sudah terdaftar di sistem.',
@@ -43,8 +43,8 @@ class ProfileController extends Controller
         ];
 
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'nama' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:100', Rule::unique('users')->ignore($user->id)],
             'photo' => ['nullable', 'image', 'max:2048'],
             'password' => [
                 'nullable',

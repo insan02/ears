@@ -40,7 +40,7 @@
     <!-- ========================================== -->
     <!-- LAYAR LOADING FULL SCREEN (Animasi Spinner)-->
     <!-- ========================================== -->
-    <div id="layar-loading" class="htmx-indicator fixed inset-0 z-[9999] flex items-center justify-center bg-white/60 backdrop-blur-sm">
+    <div id="layar-loading" class="htmx-indicator fixed inset-0 z-9999 flex items-center justify-center bg-white/60 backdrop-blur-sm">
         <div class="bg-white px-8 py-6 rounded-3xl shadow-2xl flex flex-col items-center gap-4 border border-red-100 transform scale-105">
             <!-- Ikon Berputar -->
             <i class="fas fa-circle-notch fa-spin text-5xl text-[#e92027]"></i>
@@ -94,7 +94,7 @@
         </div>
 
         <!-- MODAL KONFIRMASI LOGOUT -->
-        <div x-show="showLogoutModal" style="display: none;" class="fixed inset-0 z-[200] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div x-show="showLogoutModal" style="display: none;" class="fixed inset-0 z-200 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div x-show="showLogoutModal"
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
@@ -109,7 +109,7 @@
 
                     <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start flex-col items-center sm:flex-row text-center sm:text-left">
-                            <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-50 sm:mx-0 sm:h-10 sm:w-10">
+                            <div class="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-50 sm:mx-0 sm:h-10 sm:w-10">
                                 <i class="fas fa-sign-out-alt text-red-600"></i>
                             </div>
                             <div class="mt-3 sm:ml-4 sm:mt-0">

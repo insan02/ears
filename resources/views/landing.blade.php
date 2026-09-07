@@ -22,7 +22,7 @@
             class="fixed top-3 md:top-5 left-0 w-full z-50 px-4 md:px-6 flex flex-col items-center transition-all duration-300">
 
         <!-- Navbar Tabung / Kapsul -->
-        <nav :class="isScrolled ? 'shadow-[0_10px_40px_rgba(0,0,0,0)] bg-white/100' : 'shadow-lg bg-white/100'"
+        <nav :class="isScrolled ? 'shadow-[0_10px_40px_rgba(0,0,0,0)] bg-white' : 'shadow-lg bg-white'"
              class="w-full max-w-5xl backdrop-blur-md rounded-full px-5 md:px-8 py-2 md:py-3 flex justify-between items-center transition-all duration-300 border border-white/60">
 
             <!-- Logo (Ukurannya disesuaikan agar pas di dalam tabung) -->
@@ -119,7 +119,7 @@
             }
         }"
         x-init="autoplay()"
-        class="relative h-[100dvh] w-full overflow-hidden group">
+        class="relative h-dvh w-full overflow-hidden group">
 
         <!-- Slides -->
         <template x-for="(slide, index) in slides" :key="index">
@@ -133,7 +133,7 @@
                  class="absolute inset-0 z-0">
                 <img :src="'/images/' + slide.img" class="w-full h-full object-cover">
                 <!-- Overlay Gradient: Dipergelap sedikit agar teks lebih terbaca di HP -->
-                <div class="absolute inset-0 bg-gradient-to-r from-black/80 md:from-black/70 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-linear-to-r from-black/80 md:from-black/70 via-black/40 to-transparent"></div>
             </div>
         </template>
 
@@ -231,21 +231,21 @@
                 <!-- Image 1 -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-xl h-72 cursor-pointer">
                     <img src="{{ asset('images/hp 4.jpeg') }}" alt="Dokumentasi 1" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center pb-6">
+                    <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center pb-6">
                         <span class="text-white font-medium tracking-wide">Kegiatan Arsip</span>
                     </div>
                 </div>
                 <!-- Image 2 -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-xl h-72 cursor-pointer">
                     <img src="{{ asset('images/hp 6.jpeg') }}" alt="Dokumentasi 2" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center pb-6">
+                    <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center pb-6">
                         <span class="text-white font-medium tracking-wide">Pengelolaan Dokumen</span>
                     </div>
                 </div>
                 <!-- Image 3 -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-xl h-72 cursor-pointer">
                     <img src="{{ asset('images/hp 5.jpeg') }}" alt="Dokumentasi 3" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center pb-6">
+                    <div class="absolute inset-0 bg-linear-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center pb-6">
                         <span class="text-white font-medium tracking-wide">Monitoring Aktivitas</span>
                     </div>
                 </div>
@@ -256,7 +256,7 @@
     <!-- Fitur Section -->
     <section id="fitur" class="relative bg-white">
         <!-- Red Background Top with CSS Spotlight (Fixed) -->
-        <div class="absolute top-0 left-0 w-full h-[300px] bg-[#7f1d1d] overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-75 bg-[#7f1d1d] overflow-hidden">
              <!-- CSS Spotlight Effect -->
              <div class="absolute inset-0" style="background: radial-gradient(circle at 50% 0%, #e92027 0%, #c41820 60%, #7f1d1d 100%);"></div>
         </div>

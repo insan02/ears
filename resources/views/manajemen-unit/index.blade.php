@@ -20,7 +20,7 @@
     }" class="bg-gray-50 min-h-screen pb-20">
 
         {{-- Header Section --}}
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-[2rem] md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-24 md:pb-32 pt-12 md:pt-16 px-4 md:px-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 mb-8 rounded-b-4xl md:rounded-b-[3rem] shadow-2xl relative overflow-hidden">
              <!-- Polygon Pattern Overlay -->
              <div class="absolute inset-0 z-0 opacity-40">
                   <svg class="absolute w-full h-full" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -68,7 +68,7 @@
 
             @if ($errors->any())
                 <div class="mb-6 bg-red-50 border-l-4 border-red-700 p-4 rounded-r shadow-sm flex items-start">
-                    <div class="flex-shrink-0"><i class="fas fa-exclamation-circle text-red-700 mt-0.5"></i></div>
+                    <div class="shrink-0"><i class="fas fa-exclamation-circle text-red-700 mt-0.5"></i></div>
                     <div class="ml-3">
                         <h3 class="text-sm font-bold text-red-800">Tindakan Ditolak!</h3>
                         <ul class="mt-1 list-disc list-inside text-sm text-red-700">
@@ -78,7 +78,7 @@
                 </div>
             @endif
 
-            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-[400px] flex flex-col">
+            <div class="bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100 min-h-100 flex flex-col">
 
                 {{-- Toolbar & Filters --}}
                 <div class="p-4 md:p-6 border-b border-gray-100 bg-white flex flex-col md:flex-row gap-4 justify-between items-center relative z-30">
@@ -108,13 +108,13 @@
                 </div>
 
                 {{-- TAMPILAN LAPTOP: TABEL --}}
-                <div class="hidden md:block flex-grow overflow-x-auto w-full">
+                <div class="hidden md:block grow overflow-x-auto w-full">
                     <table class="min-w-full w-full bg-white text-left whitespace-nowrap">
                         <thead>
                             <tr class="bg-gray-50 text-gray-600 border-b border-gray-200">
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider w-14 text-center">No</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-[200px]">Nama Unit</th>
-                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-[300px]">Keterangan</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-50">Nama Unit</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider min-w-75">Keterangan</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center">Status</th>
                                 <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-center w-40">Aksi</th>
                             </tr>
@@ -300,7 +300,7 @@
         </div>
 
         {{-- Add/Edit Modal --}}
-        <div x-cloak x-show="showEditModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div x-cloak x-show="showEditModal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="showEditModal = false" x-show="showEditModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" class="bg-white rounded-3xl w-full max-w-md p-6 md:p-8 relative overflow-hidden shadow-2xl">
                 <div class="absolute top-0 left-0 w-full h-2 bg-[#e92027]"></div>
 
@@ -341,7 +341,7 @@
         </div>
 
         {{-- Toggle Status Modal --}}
-        <div x-cloak x-show="showToggleModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div x-cloak x-show="showToggleModal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="!isToggling && (showToggleModal = false)" x-show="showToggleModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" class="bg-white rounded-3xl w-full max-w-sm p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gray-800"></div>
                 <div class="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-gray-700 shadow-sm">
@@ -363,7 +363,7 @@
         </div>
 
         {{-- Hard Delete Modal --}}
-        <div x-cloak x-show="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div x-cloak x-show="showDeleteModal" class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="!isDeleting && (showDeleteModal = false)" x-show="showDeleteModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100" class="bg-white rounded-3xl w-full max-w-sm p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">
                 <div class="absolute top-0 left-0 w-full h-2 bg-[#e92027]"></div>
                 <div class="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-[#e92027] shadow-sm animate-bounce">

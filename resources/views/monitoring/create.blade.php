@@ -1,6 +1,6 @@
 <x-layout>
     {{-- Header Page --}}
-    <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-[2rem] md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
+    <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] px-4 md:px-8 pt-8 md:pt-12 pb-24 md:pb-32 rounded-b-4xl md:rounded-b-[3rem] shadow-xl mb-8 -mt-4 md:-mt-6 -mx-4 md:-mx-6 relative overflow-hidden">
         <div class="relative z-10 max-w-4xl mx-auto text-center md:text-left">
             <h1 class="text-2xl md:text-4xl font-extrabold text-white tracking-wide">Tambah Data Baru</h1>
             </div>
@@ -19,7 +19,7 @@
         <form action="{{ route('monitoring.store') }}" method="POST" class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden" hx-disable>
             @csrf
             <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                
+
                 <div>
                     <label class="block text-sm font-bold text-gray-800 mb-2">PIC (Staf) <span class="text-red-600">*</span></label>
                     <select name="user_id" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-[#e92027] outline-none">
@@ -77,7 +77,7 @@
             </div>
         </form>
     </div>
-    
+
     <script>
         document.getElementById('tahapanSelect').addEventListener('change', function() {
             document.getElementById('lblUnit').innerText = this.value === 'Alih Media' ? 'Lembar' : 'Box';

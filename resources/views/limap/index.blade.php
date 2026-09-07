@@ -2,7 +2,7 @@
     <!-- Tambahkan Wrapper Alpine.js di sini -->
     <div x-data="{ showDeleteModal: false, deleteUrl: '', isDeleting: false }">
 
-        <div class="bg-gradient-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
+        <div class="bg-linear-to-br from-[#e92027] via-[#b91c1c] to-[#7f090b] text-white pb-32 pt-16 px-8 -mt-6 -mx-6 mb-8 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
             <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center relative z-10 gap-6">
                 <div class="text-center md:text-left">
                     <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Daftar 5P</h2>
@@ -114,7 +114,7 @@
 
         {{-- Delete Modal Responsif (Dengan Animasi Menghapus) --}}
         <div x-show="showDeleteModal" style="display: none;"
-            class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            class="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div @click.away="!isDeleting && (showDeleteModal = false)"
                 x-show="showDeleteModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
                 class="bg-white rounded-3xl w-full max-w-sm p-6 md:p-8 text-center relative overflow-hidden shadow-2xl">
