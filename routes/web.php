@@ -37,6 +37,7 @@ Route::get('/visi-misi', [LandingController::class, 'visiMisi'])->name('visi-mis
 Route::get('/sejarah', [LandingController::class, 'sejarah'])->name('sejarah');
 Route::get('/struktur-organisasi', [LandingController::class, 'struktur'])->name('struktur');
 Route::get('/penghargaan', [LandingController::class, 'penghargaan'])->name('penghargaan');
+Route::get('/berita', [LandingController::class, 'semuaBerita'])->name('berita.semua');
 
 // ==========================================
 // 2. PROTECTED ROUTES (Requires Login)

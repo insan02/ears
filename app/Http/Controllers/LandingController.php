@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ArsipMasuk;
+use App\Models\MediaInformasi;
 use Illuminate\Support\Facades\DB;
 
 class LandingController extends Controller
@@ -33,9 +34,27 @@ class LandingController extends Controller
         }
 
         // Fetch Media Info
-        $mediaInfo = \App\Models\MediaInformasi::latest('tanggal')->get();
+        // Ambil tepat 10 data terbaru untuk mengisi 2 baris x 5 kolom
+        $mediaInfo = MediaInformasi::orderBy('tanggal', 'desc')->take(10)->get();
 
         return view('landing', compact('totalArsip', 'bulanIniArsip', 'arsipBulananData', 'mediaInfo'));
+    }
+
+    public function semuaBerita(Request $request)
+    {
+        $query = MediaInformasi::query();
+
+        // Fitur Pencarian Berita
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('judul', 'like', "%{$search}%")
+                  ->orWhere('deskripsi', 'like', "%{$search}%");
+        }
+
+        // Tampilkan 15 berita per halaman
+        $mediaInfo = $query->orderBy('tanggal', 'desc')->paginate(15)->withQueryString();
+
+        return view('semua-berita', compact('mediaInfo'));
     }
 
     public function visiMisi()

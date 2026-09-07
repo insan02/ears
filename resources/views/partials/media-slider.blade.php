@@ -1,5 +1,5 @@
 <section id="informasi" class="py-20 bg-white">
-    <div class="container mx-auto px-6">
+    <div class="container mx-auto px-6 max-w-[1400px]">
 
         {{-- Section Header --}}
         <div class="text-center mb-12">
@@ -16,11 +16,8 @@
                 <p class="text-gray-500 font-medium">Belum ada berita atau informasi terbaru.</p>
             </div>
         @else
-            {{-- Horizontal Scroll Container --}}
-            <div class="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory hide-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
-                <style>
-                    .hide-scrollbar::-webkit-scrollbar { display: none; }
-                </style>
+            {{-- Grid 2 Baris, 5 Kolom --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
                 @foreach($mediaInfo as $item)
                     @php
@@ -32,24 +29,21 @@
                     @endphp
 
                     {{-- Card Berita --}}
-                    <div class="min-w-75 md:min-w-87.5 max-w-87.5 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden snap-center flex flex-col group hover:-translate-y-2 transition-transform duration-300">
-
-                        {{-- Card Image Box: object-contain agar foto proporsional utuh --}}
-                        <div x-data="{ activeImg: 0, sliderImgs: {{ Js::from($gambarArray) }} }"
-                             class="relative h-52 md:h-60 w-full overflow-hidden bg-slate-900 group/slider flex items-center justify-center">
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden flex flex-col group hover:-translate-y-2 transition-transform duration-300">
+                        {{-- Card Image Box --}}
+                        <div x-data="{ activeImg: 0, sliderImgs: {{ \Illuminate\Support\Js::from($gambarArray) }} }"
+                             class="relative h-40 md:h-48 w-full overflow-hidden bg-slate-900 group/slider flex items-center justify-center">
 
                             <template x-for="(img, idx) in sliderImgs" :key="idx">
                                 <img x-show="activeImg === idx"
                                      :src="'{{ asset('storage') }}/' + img"
                                      alt="{{ $item->judul }}"
-                                     x-transition:enter="transition ease-out duration-300"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition.opacity.duration.300ms
                                      class="max-w-full max-h-full w-auto h-auto object-contain select-none">
                             </template>
 
                             {{-- Badge Tanggal --}}
-                            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#e92027] text-xs font-bold px-3 py-1.5 rounded-full shadow-sm z-10">
+                            <div class="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[#e92027] text-[10px] font-bold px-2 py-1 rounded-full shadow-sm z-10">
                                 {{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}
                             </div>
 
@@ -57,46 +51,37 @@
                             <template x-if="sliderImgs.length > 1">
                                 <div>
                                     <button @click.stop="activeImg = activeImg === 0 ? sliderImgs.length - 1 : activeImg - 1"
-                                            class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#e92027] text-white p-2 rounded-full opacity-0 group-hover/slider:opacity-100 transition duration-300 z-10">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                                            class="absolute left-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#e92027] text-white p-1.5 rounded-full opacity-0 group-hover/slider:opacity-100 transition duration-300 z-10">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
                                     </button>
                                     <button @click.stop="activeImg = activeImg === sliderImgs.length - 1 ? 0 : activeImg + 1"
-                                            class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#e92027] text-white p-2 rounded-full opacity-0 group-hover/slider:opacity-100 transition duration-300 z-10">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                                            class="absolute right-1 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-[#e92027] text-white p-1.5 rounded-full opacity-0 group-hover/slider:opacity-100 transition duration-300 z-10">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                                     </button>
-
-                                    <!-- Dots Indikator -->
-                                    <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 bg-black/40 px-2 py-1 rounded-full z-10">
-                                        <template x-for="(img, idx) in sliderImgs" :key="idx">
-                                            <div :class="activeImg === idx ? 'bg-white w-3' : 'bg-white/50 w-1.5'" class="h-1.5 rounded-full transition-all duration-300"></div>
-                                        </template>
-                                    </div>
                                 </div>
                             </template>
                         </div>
 
                         {{-- Text Content --}}
-                        <div class="p-6 flex flex-col grow">
-                            <h3 class="font-bold text-gray-800 text-lg mb-3 line-clamp-2 group-hover:text-[#e92027] transition-colors">
+                        <div class="p-4 flex flex-col grow">
+                            <h3 class="font-bold text-gray-800 text-sm md:text-base mb-2 line-clamp-2 group-hover:text-[#e92027] transition-colors" title="{{ $item->judul }}">
                                 {{ $item->judul }}
                             </h3>
-                            <p class="text-gray-500 text-sm leading-relaxed line-clamp-3 mb-6 grow">
+                            <p class="text-gray-500 text-xs leading-relaxed line-clamp-3 mb-4 grow">
                                 {{ $item->deskripsi }}
                             </p>
 
                             {{-- Button Baca Selengkapnya --}}
-                            <button onclick="bukaModalBerita_{{ $item->id }}()" class="mt-auto text-[#e92027] font-bold text-sm flex items-center gap-2 hover:gap-3 transition-all duration-300">
-                                Baca Selengkapnya
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            <button onclick="bukaModalBerita_{{ $item->id }}()" class="mt-auto text-[#e92027] font-bold text-xs flex items-center gap-1.5 hover:gap-2 transition-all duration-300 w-fit">
+                                Selengkapnya
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                             </button>
                         </div>
                     </div>
 
                     {{-- Modal Detail Berita --}}
-                    <div id="modal-berita-{{ $item->id }}" class="fixed inset-0 z-200 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+                    <div id="modal-berita-{{ $item->id }}" class="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 p-4">
                         <div class="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative transform scale-95 transition-transform duration-300" id="modal-content-{{ $item->id }}">
-
-                            {{-- Header Modal --}}
                             <div class="flex justify-between items-center p-5 border-b border-gray-100 bg-white z-10 sticky top-0">
                                 <h3 class="font-bold text-gray-800 line-clamp-1 pr-4">{{ $item->judul }}</h3>
                                 <button onclick="tutupModalBerita_{{ $item->id }}()" class="p-2 bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-500 rounded-full transition-colors focus:outline-none">
@@ -104,7 +89,6 @@
                                 </button>
                             </div>
 
-                            {{-- Body Modal --}}
                             <div class="overflow-y-auto p-6 grow custom-scrollbar">
                                 <div class="flex items-center gap-3 mb-6">
                                     <span class="bg-red-50 text-[#e92027] text-xs font-bold px-3 py-1 rounded-full border border-red-100">
@@ -112,15 +96,12 @@
                                     </span>
                                 </div>
 
-                                {{-- Slider Modal: Tinggi fleksibel max-h-[420px] tanpa crop foto --}}
                                 @if($jumlahFoto > 0)
                                     <div x-data="{
-                                            activeImage: 0,
-                                            images: {{ Js::from(array_map(fn($img) => asset('storage/' . $img), $gambarArray)) }}
+                                             activeImage: 0,
+                                             images: {{ \Illuminate\Support\Js::from(array_map(fn($img) => asset('storage/' . $img), $gambarArray)) }}
                                          }"
                                          class="mb-6 relative rounded-2xl overflow-hidden bg-slate-900 border border-gray-200">
-
-                                        <!-- Container Foto Modal Asli -->
                                         <div class="h-64 sm:h-80 md:h-96 w-full flex items-center justify-center p-2">
                                             <template x-for="(img, index) in images" :key="index">
                                                 <img x-show="activeImage === index" :src="img"
@@ -129,7 +110,6 @@
                                             </template>
                                         </div>
 
-                                        <!-- Tombol Prev/Next -->
                                         @if($jumlahFoto > 1)
                                             <button @click="activeImage = activeImage === 0 ? images.length - 1 : activeImage - 1" class="absolute left-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-[#e92027] text-white p-2 rounded-full backdrop-blur-sm transition">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
@@ -137,8 +117,6 @@
                                             <button @click="activeImage = activeImage === images.length - 1 ? 0 : activeImage + 1" class="absolute right-3 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-[#e92027] text-white p-2 rounded-full backdrop-blur-sm transition">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                             </button>
-
-                                            <!-- Titik Indikator -->
                                             <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/50 px-2 py-1 rounded-full backdrop-blur-md">
                                                 <template x-for="(img, index) in images" :key="index">
                                                     <div :class="activeImage === index ? 'w-4 bg-white' : 'w-1.5 bg-white/50'" class="h-1.5 rounded-full transition-all duration-300"></div>
@@ -172,6 +150,16 @@
                         }
                     </script>
                 @endforeach
+
+            </div>
+
+            {{-- TOMBOL LIHAT SEMUA MEDIA --}}
+            <div class="mt-12 text-center">
+                {{-- PERBAIKAN: Link mengarah ke rute baru --}}
+                <a href="{{ route('berita.semua') }}" class="inline-flex items-center gap-2 px-8 py-3.5 bg-white border border-red-200 text-[#e92027] font-bold rounded-full hover:bg-[#e92027] hover:text-white transition-all shadow-sm hover:shadow-md group">
+                    Lihat Semua Berita
+                    <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                </a>
             </div>
         @endif
 

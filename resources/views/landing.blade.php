@@ -347,18 +347,17 @@
                         </p>
 
                         <!-- Google Maps Embed -->
-                    <div class="mt-4 rounded-xl overflow-hidden shadow-lg border border-gray-100 w-full max-w-xs h-48">
-                        <iframe
-                            width="100%"
-                            height="100%"
-                            frameborder="0"
-                            style="border:0;"
-                            allowfullscreen=""
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            src="https://maps.google.com/maps?q=Arsip%20Central%20PT%20Semen%20Padang&t=&z=16&ie=UTF8&iwloc=&output=embed">
-                        </iframe>
-                    </div>
+                        <div class="mt-4 rounded-xl overflow-hidden shadow-lg border border-gray-100 w-full max-w-xs h-48">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1060.9485963782918!2d100.47378689572672!3d-0.9493834425734154!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2fd4b720f9c1a7e3%3A0x9d082146fe0db2df!2sARSIP%20CENTRAL%20PT%20SEMEN%20PADANG!5e1!3m2!1sid!2sid!4v1788748378932!5m2!1sid!2sid"
+                                width="100%"
+                                height="100%"
+                                style="border:0;"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="strict-origin-when-cross-origin">
+                            </iframe>
+                        </div>
                     </div>
 
                     <!-- Column 3: Media Sosial & SIG Group -->
