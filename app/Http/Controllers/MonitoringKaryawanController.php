@@ -94,6 +94,8 @@ class MonitoringKaryawanController extends Controller
 
     public function create()
     {
+        if (Auth::user()->role !== 'admin') abort(403, 'Hanya Admin yang dapat menambah data ini.');
+
         $users = User::where('is_active', true)->get();
         $arsipMasuk = ArsipMasuk::with('logAktivitas')->whereDoesntHave('logAktivitas', function($q) {
             $q->where('tahapan', 'Input E-Arsip')->where('status_kerja', 'Selesai');
@@ -120,6 +122,8 @@ class MonitoringKaryawanController extends Controller
 
     public function store(Request $request)
     {
+        if (Auth::user()->role !== 'admin') abort(403, 'Hanya Admin yang dapat menambah data ini.');
+        
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'tahapan' => 'required|string|in:Pemilahan,Pendataan,Pelabelan,Alih Media,Input E-Arsip',

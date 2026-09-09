@@ -146,31 +146,27 @@
 
                                     <td class="px-6 py-4 text-center">
                                         <div class="flex justify-center items-center gap-2">
-
                                             <!-- Tombol Edit -->
                                             <a href="{{ route('management-akun.edit', $user->id) }}" class="w-8 h-8 flex items-center justify-center bg-white text-amber-500 rounded-lg hover:bg-amber-50 transition shadow-sm border border-gray-200 hover:border-amber-300" title="Edit">
                                                 <i class="fas fa-pen text-xs"></i>
                                             </a>
 
-                                            @if($user->id !== auth()->id())
-
-                                                <!-- Tombol Nonaktifkan/Aktifkan -->
-                                                <form action="{{ route('management-akun.toggle-status', $user->id) }}" method="POST" class="inline" hx-disable>
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                        class="w-8 h-8 flex items-center justify-center bg-white rounded-lg transition shadow-sm border border-gray-200
-                                                        {{ $user->is_active ? 'text-gray-500 hover:bg-gray-100 hover:border-gray-400' : 'text-green-600 hover:bg-green-50 hover:border-green-300' }}"
-                                                        title="{{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
-                                                        <i class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }} text-xs"></i>
-                                                    </button>
-                                                </form>
-
-                                                <!-- Tombol Hapus (Murni) -->
-                                                <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus Permanen">
-                                                    <i class="fas fa-trash-alt text-xs"></i>
+                                            <!-- Tombol Nonaktifkan/Aktifkan (Tanpa IF batasan diri sendiri) -->
+                                            <form action="{{ route('management-akun.toggle-status', $user->id) }}" method="POST" class="inline" hx-disable>
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="w-8 h-8 flex items-center justify-center bg-white rounded-lg transition shadow-sm border border-gray-200
+                                                    {{ $user->is_active ? 'text-gray-500 hover:bg-gray-100 hover:border-gray-400' : 'text-green-600 hover:bg-green-50 hover:border-green-300' }}"
+                                                    title="{{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}">
+                                                    <i class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }} text-xs"></i>
                                                 </button>
-                                            @endif
+                                            </form>
+
+                                            <!-- Tombol Hapus Murni (Tanpa IF batasan diri sendiri) -->
+                                            <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="w-8 h-8 flex items-center justify-center bg-white text-[#e92027] rounded-lg hover:bg-red-50 transition shadow-sm border border-gray-200 hover:border-red-300" title="Hapus Permanen">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -217,15 +213,15 @@
                             </div>
 
                             {{-- Action Buttons for Mobile --}}
+                            {{-- Action Buttons for Mobile --}}
                             <div class="flex gap-2 pt-3 border-t border-gray-50">
                                 <a href="{{ route('management-akun.edit', $user->id) }}" class="flex-1 py-2 bg-amber-50 text-amber-600 text-xs font-bold rounded-xl border border-amber-100 hover:bg-amber-100 flex items-center justify-center gap-1.5 transition">
                                     <i class="fas fa-pen"></i> Edit
                                 </a>
-                                @if($user->id !== auth()->id())
+                                <!-- Tombol Hapus (Tanpa IF batasan) -->
                                 <button @click="showDeleteModal = true; deleteUrl = '{{ route('management-akun.destroy', $user->id) }}'; isDeleting = false" class="flex-1 py-2 bg-red-50 text-[#e92027] text-xs font-bold rounded-xl border border-red-100 hover:bg-red-100 flex items-center justify-center gap-1.5 transition">
                                     <i class="fas fa-trash-alt"></i> Hapus
                                 </button>
-                                @endif
                             </div>
                         </div>
                     @empty

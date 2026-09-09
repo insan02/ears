@@ -161,7 +161,6 @@
 
                             <a href="{{ request()->fullUrlWithQuery(['print' => 'true']) }}" target="_blank" class="grow md:flex-none px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold flex justify-center items-center gap-2 hover:bg-gray-200 transition shadow-sm border border-gray-200"><i class="fas fa-print"></i> Print</a>
                         </div>
-                    </div>
                 </form>
             </div>
 

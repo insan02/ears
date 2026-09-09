@@ -124,11 +124,11 @@
                 let formValid = true;
 
                 const fieldLabels = {
-                    'tanggal': 'Tanggal Peminjaman', 'nama_peminjam': 'Nama Peminjam',
+                    'tanggal': 'Tanggal Peminjaman', 'staff_pemberi': 'Staff Pemberi Dokumen', 'nama_peminjam': 'Nama Peminjam',
                     'nip': 'NIP', 'unit': 'Unit Kerja', 'keperluan': 'Keperluan'
                 };
 
-                ['tanggal', 'nama_peminjam', 'nip', 'unit', 'keperluan'].forEach(field => {
+                ['tanggal', 'staff_pemberi', 'nama_peminjam', 'nip', 'unit', 'keperluan'].forEach(field => {
                     const input = form.querySelector(`[name='${field}']`);
                     if (!input || !input.value.trim()) { this.serverErrors.push(`Kotak ${fieldLabels[field]} harus diisi.`); formValid = false; }
                 });
@@ -143,9 +143,14 @@
                 Swal.fire({
                     title: 'Simpan Peminjaman?', text: 'Pastikan data dan daftar arsip sudah benar.',
                     icon: 'question', showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
-                    confirmButtonText: 'Ya, Simpan', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
-                }).then((result) => {
-                    if (result.isConfirmed) { form.submit(); }
+                    confirmButtonText: 'Ya, Simpan', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' },
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        // PERBAIKAN: Gunakan backtick (`) dan kutip tunggal (') agar tidak merusak HTML x-data
+                        Swal.getConfirmButton().innerHTML = `<i class='fas fa-circle-notch fa-spin mr-1.5'></i> Menyimpan data...`;
+                        form.submit();
+                        return new Promise(() => {});
+                    }
                 });
             }
          }">
@@ -159,6 +164,18 @@
                     <h2 class="text-lg font-bold text-[#e92027] border-b border-gray-100 pb-3 mb-6 flex items-center gap-3"><i class="fas fa-user-circle text-[#e92027]"></i> Data Peminjaman</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div><label class="block text-sm font-bold text-gray-800 mb-2">Tanggal Peminjaman <span class="text-[#e92027]">*</span></label><input type="date" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] transition"></div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">Staff Pemberi Dokumen <span class="text-[#e92027]">*</span></label>
+                            <div class="relative">
+                                <select name="staff_pemberi" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#e92027] transition">
+                                    <option value="" disabled selected>-- Pilih Staff Pemberi --</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->nama }}" {{ old('staff_pemberi') == $user->nama ? 'selected' : '' }}>{{ $user->nama }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500"><i class="fas fa-chevron-down text-sm"></i></div>
+                            </div>
+                        </div>
                         <div><label class="block text-sm font-bold text-gray-800 mb-2">Nama Peminjam <span class="text-[#e92027]">*</span></label><input type="text" name="nama_peminjam" value="{{ old('nama_peminjam') }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] transition"></div>
                         <div><label class="block text-sm font-bold text-gray-800 mb-2">NIP <span class="text-[#e92027]">*</span></label><input type="text" name="nip" value="{{ old('nip') }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] transition"></div>
                         <div>

@@ -28,14 +28,16 @@
                 </div>
                 <div class="flex gap-2">
                     <a href="{{ route('monitoring.export', request()->all()) }}" target="_blank" hx-disable data-turbo="false" class="group bg-green-600 text-white hover:bg-green-700 px-5 py-3 rounded-full font-bold shadow-xl flex items-center gap-2 transition-all duration-300 transform hover:-translate-y-1">
-    <i class="fas fa-file-excel"></i> <span class="hidden md:inline text-sm md:text-base">EXPORT</span>
-</a>
+                        <i class="fas fa-file-excel"></i> <span class="hidden md:inline text-sm md:text-base">EXPORT</span>
+                    </a>
+                    @if(Auth::user()->role === 'admin')
                     <a href="{{ route('monitoring.create') }}" class="group bg-white text-[#e92027] hover:bg-gray-50 px-6 py-3 rounded-full font-bold shadow-xl flex items-center gap-3 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-red-900/40">
                         <div class="bg-red-50 p-1.5 rounded-full group-hover:bg-red-100 transition-colors">
                             <svg class="w-5 h-5 text-[#e92027]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                         </div>
                         <span class="text-sm md:text-base">TAMBAH DATA</span>
                     </a>
+                    @endif
                 </div>
             </div>
         </div>

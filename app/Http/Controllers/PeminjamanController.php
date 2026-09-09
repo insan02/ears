@@ -8,9 +8,7 @@ use App\Models\DetailPeminjaman;
 use App\Models\Arsip;
 use App\Exports\PeminjamanExport;
 use Maatwebsite\Excel\Facades\Excel;
-// PERBAIKAN: Gunakan facade Storage
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 class PeminjamanController extends Controller
 {
@@ -28,10 +26,8 @@ class PeminjamanController extends Controller
 
         $query = DetailPeminjaman::with(['peminjaman', 'arsip']);
 
-        // OPTIMASI: PENGGUNAAN FULLTEXT SEARCH UNTUK PEMINJAMAN
-        // OPTIMASI: PENGGUNAAN FULLTEXT SEARCH UNTUK PEMINJAMAN
         if ($request->filled('search')) {
-            $keyword = $request->search;
+            $keyword = $request->input('search'); // PERBAIKAN: Menggunakan input()
             $searchTerm = '*' . $keyword . '*';
 
             $query->where(function ($q) use ($searchTerm, $keyword) {
@@ -43,7 +39,6 @@ class PeminjamanController extends Controller
                 ->orWhereRaw("MATCH(nama_arsip, no_box) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
 
                 // 3. Cari di tabel Master Arsip (Relasi)
-                // PERBAIKAN: Tambahkan $keyword di dalam kurung use() di bawah ini
                 ->orWhereHas('arsip', function ($qArsip) use ($searchTerm, $keyword) {
                     $qArsip->whereRaw("MATCH(nama_berkas, isi) AGAINST(? IN BOOLEAN MODE)", [$searchTerm])
                            ->orWhere('no_berkas', 'like', "%{$keyword}%");
@@ -51,8 +46,8 @@ class PeminjamanController extends Controller
             });
         }
 
-        if ($request->has('status') && $request->status != 'All') {
-            $status = $request->status;
+        if ($request->has('status') && $request->input('status') != 'All') {
+            $status = $request->input('status');
             if ($status == 'Sudah Dikembalikan') {
                 $query->whereHas('peminjaman', function ($qp) {
                     $qp->whereIn('status', ['Sudah Dikembalikan', 'Telah Dikembalikan']);
@@ -68,21 +63,23 @@ class PeminjamanController extends Controller
             }
         }
 
-        if ($request->has('media') && $request->media != 'All') $query->where('jenis_arsip', $request->media);
-        if ($request->has('keamanan') && $request->keamanan != 'All') $query->where('hak_akses', $request->keamanan);
+        if ($request->has('media') && $request->input('media') != 'All') $query->where('jenis_arsip', $request->input('media'));
+        if ($request->has('keamanan') && $request->input('keamanan') != 'All') $query->where('hak_akses', $request->input('keamanan'));
 
-        if ($request->start_date) {
+        if ($request->input('start_date')) {
             $query->whereHas('peminjaman', function ($q) use ($request) {
-                $q->whereDate('tanggal_pinjam', '>=', $request->start_date);
+                $q->whereDate('tanggal_pinjam', '>=', $request->input('start_date'));
             });
         }
-        if ($request->end_date) {
+        if ($request->input('end_date')) {
             $query->whereHas('peminjaman', function ($q) use ($request) {
-                $q->whereDate('tanggal_pinjam', '<=', $request->end_date);
+                $q->whereDate('tanggal_pinjam', '<=', $request->input('end_date'));
             });
         }
 
-        $sort = $request->get('sort', 'latest_added');
+        // PERBAIKAN: Mengganti $request->get() menjadi $request->input() sesuai warning
+        $sort = $request->input('sort', 'latest_added');
+
         $query->select('detail_peminjaman.*')->join('peminjaman', 'detail_peminjaman.peminjaman_id', '=', 'peminjaman.id');
 
         switch ($sort) {
@@ -94,8 +91,9 @@ class PeminjamanController extends Controller
         }
 
         $peminjaman = $query->paginate(25)->withQueryString();
+        $users = \App\Models\User::where('is_active', true)->orderBy('nama', 'asc')->get();
 
-        return view('peminjaman.index', compact('peminjaman', 'totalPeminjaman', 'masihDipinjam', 'sudahDikembalikan'));
+        return view('peminjaman.index', compact('peminjaman', 'totalPeminjaman', 'masihDipinjam', 'sudahDikembalikan', 'users'));
     }
 
     public function create()
@@ -118,14 +116,16 @@ class PeminjamanController extends Controller
             });
 
         $units = \App\Models\Unit::where('is_active', true)->orderBy('nama_unit', 'asc')->get();
+        $users = \App\Models\User::where('is_active', true)->orderBy('nama', 'asc')->get();
 
-        return view('peminjaman.create', compact('daftarArsip', 'units'));
+        return view('peminjaman.create', compact('daftarArsip', 'units', 'users'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'tanggal' => 'required|date',
+            'staff_pemberi' => 'required|string',
             'nama_peminjam' => 'required',
             'nip' => 'required',
             'unit' => 'required',
@@ -191,7 +191,6 @@ class PeminjamanController extends Controller
         if ($request->hasFile('bukti_pinjam')) {
             foreach ($request->file('bukti_pinjam') as $file) {
                 $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                // PERBAIKAN: Simpan file ke storage/app/public/bukti_pinjam
                 $path = $file->storeAs('bukti_pinjam', $filename, 'public');
                 $filePaths[] = $path;
             }
@@ -199,6 +198,7 @@ class PeminjamanController extends Controller
 
         $peminjaman = Peminjaman::create([
             'tanggal_pinjam' => $request->tanggal,
+            'staff_pemberi' => $request->staff_pemberi,
             'nama_peminjam' => $request->nama_peminjam,
             'nip' => $request->nip,
             'unit_peminjam' => $request->unit,
@@ -242,7 +242,8 @@ class PeminjamanController extends Controller
         return redirect('/peminjaman')->with('success', 'Data peminjaman berhasil ditambahkan!');
     }
 
-    public function edit($id)
+    // PERBAIKAN: Menambahkan type hint 'string' pada $id
+    public function edit(string $id)
     {
         $editData = Peminjaman::with(['details.arsip'])->findOrFail($id);
 
@@ -279,15 +280,19 @@ class PeminjamanController extends Controller
             ];
         });
 
-        return view('peminjaman.edit', compact('editData', 'id', 'daftarArsip', 'currentItems', 'units'));
+        $users = \App\Models\User::where('is_active', true)->orderBy('nama', 'asc')->get();
+
+        return view('peminjaman.edit', compact('editData', 'id', 'daftarArsip', 'currentItems', 'units', 'users'));
     }
 
-    public function update(Request $request, $id)
+    // PERBAIKAN: Menambahkan type hint 'string' pada $id
+    public function update(Request $request, string $id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
 
         $request->validate([
             'tanggal' => 'required|date',
+            'staff_pemberi' => 'required|string',
             'nama_peminjam' => 'required',
             'items_source' => 'required|array|min:1',
             'bukti_pinjam.*' => 'nullable|file|mimes:pdf|max:2048'
@@ -298,7 +303,6 @@ class PeminjamanController extends Controller
             $existingFiles = [$peminjaman->bukti_peminjaman];
         }
 
-        // PERBAIKAN: Hapus file dari Storage Public
         if ($request->boolean('delete_existing_bukti')) {
             foreach ($existingFiles as $file) {
                 if (Storage::disk('public')->exists($file)) {
@@ -311,7 +315,6 @@ class PeminjamanController extends Controller
         if ($request->hasFile('bukti_pinjam')) {
             foreach ($request->file('bukti_pinjam') as $file) {
                 $filename = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                // PERBAIKAN: Simpan file ke storage/app/public/bukti_pinjam
                 $path = $file->storeAs('bukti_pinjam', $filename, 'public');
                 $existingFiles[] = $path;
             }
@@ -319,6 +322,7 @@ class PeminjamanController extends Controller
 
         $peminjaman->update([
             'tanggal_pinjam' => $request->tanggal,
+            'staff_pemberi' => $request->staff_pemberi,
             'nama_peminjam' => $request->nama_peminjam,
             'nip' => $request->nip,
             'unit_peminjam' => $request->unit,
@@ -410,18 +414,28 @@ class PeminjamanController extends Controller
         return redirect('/peminjaman')->with('success', 'Data peminjaman berhasil diperbarui!');
     }
 
-    public function complete($id) {
+    // PERBAIKAN: Menambahkan type hint 'string' pada $id
+    public function complete(Request $request, string $id) {
+        $request->validate([
+            'staff_penerima' => 'required|string|max:100'
+        ]);
+
         $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->update(['status' => 'Sudah Dikembalikan']);
-        return back()->with('success', 'Arsip telah dikembalikan dan tersedia kembali di database.');
+        $peminjaman->update([
+            'status' => 'Sudah Dikembalikan',
+            'tanggal_kembali' => now()->format('Y-m-d'),
+            'staff_penerima' => $request->staff_penerima
+        ]);
+
+        return back()->with('success', 'Arsip telah dikembalikan dan diterima oleh ' . $request->staff_penerima);
     }
 
-    public function destroy($id) {
+    // PERBAIKAN: Menambahkan type hint 'string' pada $id
+    public function destroy(string $id) {
         $peminjaman = Peminjaman::findOrFail($id);
         $files = json_decode($peminjaman->bukti_peminjaman) ?? [];
         if (!is_array($files) && $peminjaman->bukti_peminjaman) $files = [$peminjaman->bukti_peminjaman];
 
-        // PERBAIKAN: Hapus file dari Storage Public
         foreach ($files as $file) {
             if (Storage::disk('public')->exists($file)) Storage::disk('public')->delete($file);
         }
@@ -449,7 +463,6 @@ class PeminjamanController extends Controller
                         $files = json_decode($peminjaman->bukti_peminjaman) ?? [];
                         if (!is_array($files) && $peminjaman->bukti_peminjaman) $files = [$peminjaman->bukti_peminjaman];
 
-                        // PERBAIKAN: Hapus file dari Storage Public
                         foreach ($files as $file) {
                             if (Storage::disk('public')->exists($file)) Storage::disk('public')->delete($file);
                         }

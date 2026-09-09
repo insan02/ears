@@ -165,9 +165,14 @@
                 Swal.fire({
                     title: 'Perbarui Data Peminjaman?', text: 'Pastikan data dan arsip yang dipilih sudah benar.',
                     icon: 'question', showCancelButton: true, confirmButtonColor: '#e92027', cancelButtonColor: '#E5E7EB',
-                    confirmButtonText: 'Ya, Perbarui', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' }
-                }).then((result) => {
-                    if (result.isConfirmed) { form.submit(); }
+                    confirmButtonText: 'Ya, Perbarui', cancelButtonText: 'Batal', customClass: { cancelButton: 'text-gray-700 font-bold' },
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        // PERBAIKAN: Gunakan backtick (`) dan kutip tunggal (') agar tidak merusak HTML x-data
+                        Swal.getConfirmButton().innerHTML = `<i class='fas fa-circle-notch fa-spin mr-1.5'></i> Memperbarui data...`;
+                        form.submit();
+                        return new Promise(() => {});
+                    }
                 });
             }
          }">
@@ -182,6 +187,18 @@
                     <h2 class="text-lg font-bold text-[#e92027] border-b border-gray-100 pb-3 mb-6 flex items-center gap-3"><i class="fas fa-user-edit text-[#e92027]"></i> Data Peminjaman</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div><label class="block text-sm font-bold text-gray-800 mb-2">Tanggal Peminjaman <span class="text-[#e92027]">*</span></label><input type="date" name="tanggal" value="{{ $editData->tanggal_pinjam }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] transition"></div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-800 mb-2">Staff Pemberi Dokumen <span class="text-[#e92027]">*</span></label>
+                            <div class="relative">
+                                <select name="staff_pemberi" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#e92027] transition">
+                                    <option value="" disabled>-- Pilih Staff Pemberi --</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->nama }}" {{ $editData->staff_pemberi == $user->nama ? 'selected' : '' }}>{{ $user->nama }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-gray-500"><i class="fas fa-chevron-down text-sm"></i></div>
+                            </div>
+                        </div>
                         <div><label class="block text-sm font-bold text-gray-800 mb-2">Nama Peminjam <span class="text-[#e92027]">*</span></label><input type="text" name="nama_peminjam" value="{{ $editData->nama_peminjam }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] transition"></div>
                         <div><label class="block text-sm font-bold text-gray-800 mb-2">NIP <span class="text-[#e92027]">*</span></label><input type="text" name="nip" value="{{ $editData->nip }}" required class="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 focus:bg-white outline-none focus:border-[#e92027] transition"></div>
                         <div>
